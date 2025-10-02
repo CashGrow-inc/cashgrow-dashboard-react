@@ -1,0 +1,2756 @@
+[
+  {
+    "transaction_id": "txn_0041",
+    "account_id": "acc_cc_01",
+    "amount": 143.78,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-01",
+    "authorized_date": "2025-08-01",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0042",
+    "account_id": "acc_checking_01",
+    "amount": 40.35,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-01",
+    "authorized_date": "2025-08-01",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0001",
+    "account_id": "acc_checking_01",
+    "amount": -3000.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-02",
+    "authorized_date": "2025-08-02",
+    "name": "Salary - EY",
+    "merchant_name": "Employer",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "INCOME",
+      "detailed": "WAGES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0012",
+    "account_id": "acc_cc_01",
+    "amount": 156.14,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-02",
+    "authorized_date": "2025-08-02",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0022",
+    "account_id": "acc_cc_01",
+    "amount": 103.56,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-02",
+    "authorized_date": "2025-08-02",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0036",
+    "account_id": "acc_cc_01",
+    "amount": 126.02,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-02",
+    "authorized_date": "2025-08-02",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0039",
+    "account_id": "acc_checking_01",
+    "amount": 89.44,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-02",
+    "authorized_date": "2025-08-02",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0040",
+    "account_id": "acc_checking_01",
+    "amount": 174.65,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-04",
+    "authorized_date": "2025-08-04",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0054",
+    "account_id": "acc_checking_01",
+    "amount": 157.15,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-04",
+    "authorized_date": "2025-08-04",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0059",
+    "account_id": "acc_cc_01",
+    "amount": -407.5,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-05",
+    "authorized_date": "2025-08-05",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0013",
+    "account_id": "acc_cc_01",
+    "amount": 80.14,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-06",
+    "authorized_date": "2025-08-06",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0015",
+    "account_id": "acc_checking_01",
+    "amount": 40.59,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-06",
+    "authorized_date": "2025-08-06",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0018",
+    "account_id": "acc_cc_01",
+    "amount": 80.31,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-07",
+    "authorized_date": "2025-08-07",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0029",
+    "account_id": "acc_cc_01",
+    "amount": 126.26,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-07",
+    "authorized_date": "2025-08-07",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0031",
+    "account_id": "acc_cc_01",
+    "amount": 144.94,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-07",
+    "authorized_date": "2025-08-07",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0024",
+    "account_id": "acc_cc_01",
+    "amount": 124.64,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-08",
+    "authorized_date": "2025-08-08",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0027",
+    "account_id": "acc_checking_01",
+    "amount": 145.9,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-08",
+    "authorized_date": "2025-08-08",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0035",
+    "account_id": "acc_cc_01",
+    "amount": 175.07,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-08",
+    "authorized_date": "2025-08-08",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0058",
+    "account_id": "acc_cc_01",
+    "amount": 84.75,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-08",
+    "authorized_date": "2025-08-08",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0003",
+    "account_id": "acc_cc_01",
+    "amount": 65.77,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-09",
+    "authorized_date": "2025-08-09",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0057",
+    "account_id": "acc_checking_01",
+    "amount": 155.59,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-09",
+    "authorized_date": "2025-08-09",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0026",
+    "account_id": "acc_cc_01",
+    "amount": 155.17,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-10",
+    "authorized_date": "2025-08-10",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0009",
+    "account_id": "acc_checking_01",
+    "amount": 119.92,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-11",
+    "authorized_date": "2025-08-11",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0011",
+    "account_id": "acc_cc_01",
+    "amount": 83.03,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-12",
+    "authorized_date": "2025-08-12",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0028",
+    "account_id": "acc_checking_01",
+    "amount": 73.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-12",
+    "authorized_date": "2025-08-12",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0056",
+    "account_id": "acc_cc_01",
+    "amount": 34.87,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-12",
+    "authorized_date": "2025-08-12",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0010",
+    "account_id": "acc_cc_01",
+    "amount": 161.84,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-13",
+    "authorized_date": "2025-08-13",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0032",
+    "account_id": "acc_cc_01",
+    "amount": 160.22,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-13",
+    "authorized_date": "2025-08-13",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0034",
+    "account_id": "acc_cc_01",
+    "amount": 127.5,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-13",
+    "authorized_date": "2025-08-13",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0006",
+    "account_id": "acc_cc_01",
+    "amount": 92.51,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-14",
+    "authorized_date": "2025-08-14",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0037",
+    "account_id": "acc_cc_01",
+    "amount": 99.19,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-15",
+    "authorized_date": "2025-08-15",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0060",
+    "account_id": "acc_cc_01",
+    "amount": 20.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-15",
+    "authorized_date": "2025-08-15",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0002",
+    "account_id": "acc_checking_01",
+    "amount": -3000.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-16",
+    "authorized_date": "2025-08-16",
+    "name": "Salary - EY",
+    "merchant_name": "Employer",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "INCOME",
+      "detailed": "WAGES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0038",
+    "account_id": "acc_checking_01",
+    "amount": 172.84,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-17",
+    "authorized_date": "2025-08-17",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0047",
+    "account_id": "acc_cc_01",
+    "amount": 26.08,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-17",
+    "authorized_date": "2025-08-17",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0050",
+    "account_id": "acc_cc_01",
+    "amount": 178.27,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-17",
+    "authorized_date": "2025-08-17",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0052",
+    "account_id": "acc_cc_01",
+    "amount": 99.7,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-17",
+    "authorized_date": "2025-08-17",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0014",
+    "account_id": "acc_cc_01",
+    "amount": 45.7,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-18",
+    "authorized_date": "2025-08-18",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0043",
+    "account_id": "acc_cc_01",
+    "amount": 159.76,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-18",
+    "authorized_date": "2025-08-18",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0005",
+    "account_id": "acc_checking_01",
+    "amount": 127.46,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-19",
+    "authorized_date": "2025-08-19",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0055",
+    "account_id": "acc_cc_01",
+    "amount": 33.94,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-19",
+    "authorized_date": "2025-08-19",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0004",
+    "account_id": "acc_cc_01",
+    "amount": 173.51,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-20",
+    "authorized_date": "2025-08-20",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0045",
+    "account_id": "acc_cc_01",
+    "amount": 37.43,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-20",
+    "authorized_date": "2025-08-20",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0023",
+    "account_id": "acc_cc_01",
+    "amount": 178.12,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-22",
+    "authorized_date": "2025-08-22",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0019",
+    "account_id": "acc_cc_01",
+    "amount": 112.68,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-23",
+    "authorized_date": "2025-08-23",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0020",
+    "account_id": "acc_cc_01",
+    "amount": 170.7,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-24",
+    "authorized_date": "2025-08-24",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0030",
+    "account_id": "acc_checking_01",
+    "amount": 46.69,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-25",
+    "authorized_date": "2025-08-25",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0008",
+    "account_id": "acc_cc_01",
+    "amount": 89.18,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-26",
+    "authorized_date": "2025-08-26",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0016",
+    "account_id": "acc_cc_01",
+    "amount": 115.55,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-26",
+    "authorized_date": "2025-08-26",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0017",
+    "account_id": "acc_cc_01",
+    "amount": 63.51,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-27",
+    "authorized_date": "2025-08-27",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0033",
+    "account_id": "acc_cc_01",
+    "amount": 78.89,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-27",
+    "authorized_date": "2025-08-27",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0044",
+    "account_id": "acc_checking_01",
+    "amount": 44.66,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-28",
+    "authorized_date": "2025-08-28",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0046",
+    "account_id": "acc_cc_01",
+    "amount": 87.96,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-28",
+    "authorized_date": "2025-08-28",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0051",
+    "account_id": "acc_checking_01",
+    "amount": 38.97,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-28",
+    "authorized_date": "2025-08-28",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0048",
+    "account_id": "acc_cc_01",
+    "amount": 36.92,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-29",
+    "authorized_date": "2025-08-29",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0007",
+    "account_id": "acc_checking_01",
+    "amount": 117.44,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-30",
+    "authorized_date": "2025-08-30",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0049",
+    "account_id": "acc_cc_01",
+    "amount": 40.17,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-30",
+    "authorized_date": "2025-08-30",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0021",
+    "account_id": "acc_cc_01",
+    "amount": 67.39,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-31",
+    "authorized_date": "2025-08-31",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0025",
+    "account_id": "acc_cc_01",
+    "amount": 128.68,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-31",
+    "authorized_date": "2025-08-31",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0053",
+    "account_id": "acc_checking_01",
+    "amount": 93.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-08-31",
+    "authorized_date": "2025-08-31",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0091",
+    "account_id": "acc_cc_01",
+    "amount": 119.95,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-01",
+    "authorized_date": "2025-09-01",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0062",
+    "account_id": "acc_cc_01",
+    "amount": 38.19,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-02",
+    "authorized_date": "2025-09-02",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0068",
+    "account_id": "acc_cc_01",
+    "amount": 64.26,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-02",
+    "authorized_date": "2025-09-02",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0081",
+    "account_id": "acc_cc_01",
+    "amount": 123.4,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0092",
+    "account_id": "acc_cc_01",
+    "amount": 49.71,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0095",
+    "account_id": "acc_cc_01",
+    "amount": 53.44,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0097",
+    "account_id": "acc_cc_01",
+    "amount": 59.58,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0099",
+    "account_id": "acc_checking_01",
+    "amount": -227.84,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0100",
+    "account_id": "acc_cc_01",
+    "amount": 20.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0077",
+    "account_id": "acc_checking_01",
+    "amount": 16.5,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-04",
+    "authorized_date": "2025-09-04",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0078",
+    "account_id": "acc_checking_01",
+    "amount": 86.26,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-04",
+    "authorized_date": "2025-09-04",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0085",
+    "account_id": "acc_checking_01",
+    "amount": 80.05,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-04",
+    "authorized_date": "2025-09-04",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0098",
+    "account_id": "acc_checking_01",
+    "amount": 83.76,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-04",
+    "authorized_date": "2025-09-04",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0074",
+    "account_id": "acc_cc_01",
+    "amount": 140.58,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-05",
+    "authorized_date": "2025-09-05",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0083",
+    "account_id": "acc_checking_01",
+    "amount": 97.28,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-05",
+    "authorized_date": "2025-09-05",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0088",
+    "account_id": "acc_cc_01",
+    "amount": 123.94,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-05",
+    "authorized_date": "2025-09-05",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0093",
+    "account_id": "acc_checking_01",
+    "amount": 106.6,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-05",
+    "authorized_date": "2025-09-05",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0064",
+    "account_id": "acc_checking_01",
+    "amount": 33.68,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0065",
+    "account_id": "acc_cc_01",
+    "amount": 77.32,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0066",
+    "account_id": "acc_cc_01",
+    "amount": 78.76,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Shoppers Drug Mart",
+    "merchant_name": "Shoppers Drug Mart",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HEALTHCARE",
+      "detailed": "MEDICAL_SERVICES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0067",
+    "account_id": "acc_cc_01",
+    "amount": 43.03,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0073",
+    "account_id": "acc_cc_01",
+    "amount": 86.83,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0082",
+    "account_id": "acc_checking_01",
+    "amount": 61.2,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-06",
+    "authorized_date": "2025-09-06",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0070",
+    "account_id": "acc_cc_01",
+    "amount": 101.35,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-07",
+    "authorized_date": "2025-09-07",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0084",
+    "account_id": "acc_cc_01",
+    "amount": 106.51,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-07",
+    "authorized_date": "2025-09-07",
+    "name": "Dry Cleaners",
+    "merchant_name": "Dry Cleaners",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_SERVICES",
+      "detailed": "GENERAL_SERVICES_OTHER"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0072",
+    "account_id": "acc_checking_01",
+    "amount": 21.58,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-08",
+    "authorized_date": "2025-09-08",
+    "name": "Uber",
+    "merchant_name": "Uber",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_TAXI"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0080",
+    "account_id": "acc_cc_01",
+    "amount": 115.27,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-08",
+    "authorized_date": "2025-09-08",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0089",
+    "account_id": "acc_cc_01",
+    "amount": 105.96,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-09",
+    "authorized_date": "2025-09-09",
+    "name": "Sushi Town",
+    "merchant_name": "Sushi Town",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_RESTAURANT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0087",
+    "account_id": "acc_cc_01",
+    "amount": 154.61,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-10",
+    "authorized_date": "2025-09-10",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0090",
+    "account_id": "acc_cc_01",
+    "amount": 111.95,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-11",
+    "authorized_date": "2025-09-11",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0061",
+    "account_id": "acc_checking_01",
+    "amount": -3000.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-12",
+    "authorized_date": "2025-09-12",
+    "name": "Salary - EY",
+    "merchant_name": "Employer",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "INCOME",
+      "detailed": "WAGES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0071",
+    "account_id": "acc_checking_01",
+    "amount": 51.38,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-12",
+    "authorized_date": "2025-09-12",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0063",
+    "account_id": "acc_cc_01",
+    "amount": 31.26,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-13",
+    "authorized_date": "2025-09-13",
+    "name": "Canadian Tire",
+    "merchant_name": "Canadian Tire",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "GENERAL_MERCHANDISE",
+      "detailed": "GENERAL_MERCHANDISE_MISC"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0069",
+    "account_id": "acc_cc_01",
+    "amount": 95.73,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-13",
+    "authorized_date": "2025-09-13",
+    "name": "Chevron",
+    "merchant_name": "Chevron",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "TRANSPORTATION",
+      "detailed": "TRANSPORTATION_GAS"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0076",
+    "account_id": "acc_checking_01",
+    "amount": 36.33,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-13",
+    "authorized_date": "2025-09-13",
+    "name": "BC Hydro",
+    "merchant_name": "BC Hydro",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "UTILITIES",
+      "detailed": "UTILITIES_ELECTRICITY"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0079",
+    "account_id": "acc_cc_01",
+    "amount": 37.55,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-13",
+    "authorized_date": "2025-09-13",
+    "name": "Salon Bliss",
+    "merchant_name": "Salon Bliss",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "PERSONAL_CARE",
+      "detailed": "PERSONAL_CARE_HAIR"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0096",
+    "account_id": "acc_checking_01",
+    "amount": 164.7,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-13",
+    "authorized_date": "2025-09-13",
+    "name": "Netflix",
+    "merchant_name": "Netflix",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "ENTERTAINMENT",
+      "detailed": "ENTERTAINMENT_STREAMING"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0075",
+    "account_id": "acc_cc_01",
+    "amount": 87.26,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-14",
+    "authorized_date": "2025-09-14",
+    "name": "Whole Foods",
+    "merchant_name": "Whole Foods",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FOOD_AND_DRINK",
+      "detailed": "FOOD_AND_DRINK_GROCERIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0086",
+    "account_id": "acc_cc_01",
+    "amount": 25.57,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-14",
+    "authorized_date": "2025-09-14",
+    "name": "Home Depot",
+    "merchant_name": "Home Depot",
+    "payment_channel": "in store",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "HOME_IMPROVEMENT",
+      "detailed": "HOME_IMPROVEMENT_SUPPLIES"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0094",
+    "account_id": "acc_checking_01",
+    "amount": 136.51,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-15",
+    "authorized_date": "2025-09-15",
+    "name": "Bank Fee",
+    "merchant_name": "Bank Fee",
+    "payment_channel": "other",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "FEES",
+      "detailed": "FEES_BANK_SERVICE"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0101",
+    "account_id": "acc_checking_01",
+    "amount": 3500.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-03",
+    "authorized_date": "2025-09-03",
+    "name": "Downtown Apartments",
+    "merchant_name": "Downtown Apartments",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "RENT_AND_UTILITIES",
+      "detailed": "RENT_AND_UTILITIES_RENT"
+    },
+    "location": {
+      "address": "789 Elm St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V6B 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  },
+  {
+    "transaction_id": "txn_0102",
+    "account_id": "acc_checking_01",
+    "amount": -2000.0,
+    "iso_currency_code": "CAD",
+    "date": "2025-09-04",
+    "authorized_date": "2025-09-04",
+    "name": "Visa Payment",
+    "merchant_name": "Visa",
+    "payment_channel": "online",
+    "pending": false,
+    "personal_finance_category": {
+      "primary": "NON_CASH",
+      "detailed": "NON_CASH_CREDIT_CARD_PAYMENT"
+    },
+    "location": {
+      "address": "123 Main St",
+      "city": "Vancouver",
+      "region": "BC",
+      "postal_code": "V5K 0A1",
+      "country": "CA",
+      "lat": 49.2827,
+      "lon": -123.1207,
+      "store_number": null
+    },
+    "counterparties": []
+  }
+]
