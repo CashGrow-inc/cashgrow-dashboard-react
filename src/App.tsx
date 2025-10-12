@@ -1,10 +1,16 @@
+
+import Landing from "./pages/Landing";
+
+
+
+export default App;
+
 import React, { useCallback, useEffect, useMemo, useState, useId } from 'react';
 import './styles/dashboard.css';
 import { ApiError, createLinkToken, exchangePublicToken, fetchAccounts, fetchCategoryMap, fetchPlaidItem, fetchTransactions, logoutPlaid } from './services/api';
 import sampleAccountsJson from './sample-data/accounts.json';
 import sampleTransactionsJson from './sample-data/transactions.json';
 import sampleCategoryMapJson from './sample-data/category-map.json';
-import cashgrowWordmark from './assets/cashgrow-wordmark.png';
 type Txn = Awaited<ReturnType<typeof fetchTransactions>>[number];
 type CatMap = Awaited<ReturnType<typeof fetchCategoryMap>>;
 type PlaidLinkHandler = {
@@ -256,14 +262,7 @@ export function App() {
   const getCategoryDescription = (label: string) =>
     categoryDescriptions[label] ?? 'Explore more detail about this topic in the Knowledge center.';
 
-  const hero = (
-    <header className="app-hero" aria-label="CashGrow welcome banner">
-      <div className="app-hero__panel">
-        <img src={cashgrowWordmark} alt="CashGrow logo" className="app-hero__logo" />
-      </div>
-      <p className="app-hero__tagline">No ads, just your financials</p>
-    </header>
-  );
+const hero = null;
   const handleMenuToggle = useCallback(() => {
     setMenuOpen(prev => !prev);
   }, []);
@@ -666,14 +665,14 @@ export function App() {
             disabled={linkBusy}
             style={{ marginTop: 24, padding: '12px 20px', fontSize: '1rem' }}
           >
-            {linkBusy ? 'Opening Plaid...' : 'Log in with you Bank'}
+            {linkBusy ? 'Opening Plaid...' : 'Connect Bank with Plaid'}
           </button>
           <button
             onClick={useSampleData}
             disabled={linkBusy}
             style={{ marginTop: 12, padding: '10px 18px', fontSize: '0.95rem' }}
           >
-            Explore in demo data
+            Use Sample Data Instead
           </button>
           <p className="muted" style={{ marginTop: 12 }}>
             Sandbox tip: use Plaid test credentials like <code>user_good</code> / <code>pass_good</code>,
@@ -732,16 +731,13 @@ export function App() {
                 </button>
               )}
             </div>
+            <div className="net-greeting">Hi User </div>
             <div className="net-card net-card--primary">
               <div className="net-card__header">
-                <div className="net-card__greeting">Hi users :)</div>
-                <TileTitle className="net-title" label="Here's what's left to spend till the end of the week" description="See how last month's results and this month's surprises impact what you can still spend." />
+                <TileTitle className="net-title" label="What's left to spend till Week-end" description="See how last month's results and this month's surprises impact what you can still spend." />
                 <div id="netValue" className="net-value">{fmtMoney(topSum)}</div>
                 <div className="net-week-opening">Week opening: {fmtMoney(view.budget.weekOpening)}</div>
               </div>
-              <div className="net-card__footer muted">Budget reference (PT): {budgetReferenceLabel}</div>
-            </div>
-            <div className="net-card net-card--timing">
               <div className="net-card__stats net-card__stats--two">
                 <div className="net-stat">
                   <span className="net-stat__label">Period</span>
@@ -752,6 +748,7 @@ export function App() {
                   <span className="net-stat__value">Week {view.budget.weekOfMonth} of {view.budget.weeksInMonth}</span>
                 </div>
               </div>
+              <div className="net-card__footer muted">Budget reference (PT): {budgetReferenceLabel}</div>
             </div>
             <div className="net-card net-card--insights">
               <div id="knowledge-center" className="net-card__insights">
@@ -862,8 +859,6 @@ export function App() {
     </div>
   );
 }
-
-
 
 
 
