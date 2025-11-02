@@ -75,7 +75,7 @@
     },
     "BANK_FEES": {
       "label": "Bank Fees",
-      "mainCategory": "Unassigned",
+      "mainCategory": "Variable Expenses",
       "details": [
         "BANK_FEES_ATM_FEES",
         "BANK_FEES_FOREIGN_TRANSACTION_FEES",
@@ -222,7 +222,8 @@
         "RENT_AND_UTILITIES_SEWAGE_AND_WASTE_MANAGEMENT",
         "RENT_AND_UTILITIES_TELEPHONE",
         "RENT_AND_UTILITIES_WATER",
-        "RENT_AND_UTILITIES_OTHER_UTILITIES"
+        "RENT_AND_UTILITIES_OTHER_UTILITIES",
+        "UTILITIES_ELECTRICITY"
       ]
     }
   },

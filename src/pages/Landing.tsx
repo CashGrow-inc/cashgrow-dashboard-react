@@ -1,15 +1,16 @@
-﻿import { FormEvent, useState } from "react";
-import "../styles/landing.css";
+import { FormEvent, useState } from "react";
+import "../styles/landing-page.css";
 
-import logoMark from "../assets/cashgrow-logo.png";
-import storyGraphic from "./landing/What is CashGrow about.svg";
-import explanationGraphic from "./landing/A bit of explanation.svg";
-import roadmapGraphic from "./landing/To be continued....svg";
+import heroWordmark from "../assets/logo.png";
+import heroPrimary from "../assets/landing/Home2.png";
+import heroSecondary from "../assets/landing/Home3.png";
+import heroTertiary from "../assets/landing/Home4.png";
 
 const FORMS_ENDPOINT = (import.meta.env.VITE_FORMS_ENDPOINT ?? "").trim();
 type SubmitStatus = "idle" | "loading" | "success" | "error";
-
-const PATTERN_CELLS = Array.from({ length: 12 }, (_, index) => index);
+type LandingProps = {
+  onNavigateToDashboard?: () => void;
+};
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -18,7 +19,7 @@ function isValidEmail(value: string) {
 const galleryItems = [
   {
     id: "insights",
-    src: explanationGraphic,
+    src: heroSecondary,
     alt: "Illustration showing the insight workflow inside CashGrow",
     title: "Insights tailored to your accounts",
     description:
@@ -26,7 +27,7 @@ const galleryItems = [
   },
   {
     id: "story",
-    src: storyGraphic,
+    src: heroPrimary,
     alt: "Overview slide describing what CashGrow is about",
     title: "Built to grow with you",
     description:
@@ -34,7 +35,7 @@ const galleryItems = [
   },
   {
     id: "roadmap",
-    src: roadmapGraphic,
+    src: heroTertiary,
     alt: "Visual roadmap teasing the next milestones for the product",
     title: "Roadmap you can follow",
     description:
@@ -42,7 +43,7 @@ const galleryItems = [
   }
 ] as const;
 
-export default function Landing() {
+export default function Landing({ onNavigateToDashboard }: LandingProps = {}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [error, setError] = useState("");
@@ -98,28 +99,24 @@ export default function Landing() {
     }
   };
 
+  const handlePreviewDashboard = () => {
+    onNavigateToDashboard?.();
+  };
+
   return (
     <div className="landing-page">
-      <div className="landing-shell">
-        <div className="landing-pattern" aria-hidden="true">
-          {PATTERN_CELLS.map((cell) => (
-            <div key={cell} className="landing-pattern-cell">
-              <img src={logoMark} alt="" loading="lazy" />
-            </div>
-          ))}
-        </div>
+      <header className="landing-hero" role="banner">
+        <div className="landing-hero__copy">
+          <span className="landing-hero__badge">Beta access is limited</span>
+          <h1 className="landing-hero__headline">Design your cashflow with confidence</h1>
+          <p className="landing-hero__subhead">
+            CashGrow turns raw account data into guided stories so you can celebrate wins, surface leaks, and stay aligned on every
+            money move together.
+          </p>
 
-        <header className="landing-hero">
-          <div className="landing-hero-copy">
-            <span className="landing-badge">Beta access is limited</span>
-            <h1>Design your cashflow with confidence</h1>
-            <p>
-              CashGrow turns raw account data into beautiful, guided stories so you can make better money moves every week. Join the
-              first wave and help shape the experience.
-            </p>
-
-            <form className="landing-form" onSubmit={handleSubmit} noValidate>
-              <label className="sr-only" htmlFor="email">
+          <div className="landing-hero__cta">
+            <form onSubmit={handleSubmit} noValidate>
+              <label htmlFor="email" className="landing-hero__label">
                 Email address
               </label>
               <div className="landing-form-row">
@@ -138,66 +135,95 @@ export default function Landing() {
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? "email-error" : undefined}
                   required
+                  className="landing-hero__input"
                 />
-                <button type="submit" disabled={status === "loading"}>
+                <button type="submit" className="landing-hero__cta-button" disabled={status === "loading"}>
                   {status === "loading" ? "Submitting..." : "Join the waitlist"}
                 </button>
               </div>
             </form>
 
             {error && (
-              <p className="message error" id="email-error" role="alert">
+              <p id="email-error" role="alert" className="landing-message landing-message--error">
                 {error}
               </p>
             )}
 
             {status === "success" && (
-              <div className="message success" role="status">
+              <p role="status" className="landing-message landing-message--success">
                 Thanks! You&apos;re on the list. We&apos;ll be in touch soon.
-              </div>
+              </p>
             )}
 
-            {status === "error" && (
-              <div className="message error" role="alert">
+            {status === "error" && !error && (
+              <p role="alert" className="landing-message landing-message--error">
                 Something went wrong. Please try again.
-              </div>
+              </p>
             )}
 
-            <p className="landing-footnote">We only send one message when the doors open. No spam, ever.</p>
-          </div>
-        </header>
+            <span className="landing-hero__cta-note">We only send one message when the doors open. No spam, ever.</span>
 
-        <section className="landing-highlights">
-          <div className="landing-highlights-copy">
-            <h2>What is CashGrow about?</h2>
-            <p>
-              We combine automated data aggregation, delightful visual storytelling, and collaborative planning so you always know
-              what to focus on next. CashGrow is the coach in your corner when money starts to feel messy.
-            </p>
-            <ul className="landing-highlights-list">
-              <li>Connect multiple accounts in minutes—no spreadsheets required.</li>
-              <li>Read weekly money recaps that celebrate wins and flag risks.</li>
-              <li>Build plans you can share with a partner or advisor.</li>
-            </ul>
+            {onNavigateToDashboard && (
+              <button
+                type="button"
+                onClick={handlePreviewDashboard}
+                className="landing-hero__cta-button landing-hero__cta-button--ghost"
+              >
+                Preview the dashboard demo
+              </button>
+            )}
           </div>
+        </div>
 
-          <div className="landing-highlights-art">
-            <img src={storyGraphic} alt="CashGrow story board and brand illustration" loading="lazy" />
+        <div className="landing-hero__media" aria-hidden="true">
+          <div className="landing-hero__media-wordmark">
+            <img src={heroWordmark} alt="" loading="lazy" />
           </div>
+          <div className="landing-hero__device landing-hero__device--primary">
+            <img src={heroPrimary} alt="" loading="lazy" />
+          </div>
+          <div className="landing-hero__device landing-hero__device--secondary">
+            <img src={heroSecondary} alt="" loading="lazy" />
+          </div>
+          <div className="landing-hero__device landing-hero__device--tertiary">
+            <img src={heroTertiary} alt="" loading="lazy" />
+          </div>
+        </div>
+      </header>
+
+      <main className="landing-body" id="landing-body">
+        <section className="landing-section">
+          <h2 className="landing-section__title">What is CashGrow about?</h2>
+          <p className="landing-section__description">
+            We combine automated aggregation, delightful visual storytelling, and collaborative planning so your household always
+            knows what to focus on next.
+          </p>
+          <ul className="landing-section__list">
+            <li>Connect multiple accounts in minutes—no spreadsheets required.</li>
+            <li>Read weekly recaps that celebrate wins and flag risks early.</li>
+            <li>Build guided playbooks you can share with a partner or advisor.</li>
+          </ul>
         </section>
 
-        <section className="landing-gallery" aria-label="CashGrow preview gallery">
-          {galleryItems.map((item) => (
-            <figure key={item.id} className="landing-gallery-card">
-              <img src={item.src} alt={item.alt} loading="lazy" />
-              <figcaption>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </figcaption>
-            </figure>
-          ))}
+        <section className="landing-section" aria-label="CashGrow preview gallery">
+          <h2 className="landing-section__title">Sneak peek</h2>
+          <p className="landing-section__description">
+            Explore a few frames from the CashGrow experience while we polish the beta.
+          </p>
+
+          <div className="landing-gallery">
+            {galleryItems.map((item) => (
+              <figure key={item.id} className="landing-gallery__card">
+                <img src={item.src} alt={item.alt} loading="lazy" />
+                <figcaption>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </section>
-      </div>
+      </main>
     </div>
   );
 }
