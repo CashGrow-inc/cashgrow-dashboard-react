@@ -1,5 +1,5 @@
-
 {
-  "name": "CashGrow Finance Tracker",
-  "description": "A modern and intuitive web application to track your budget, expenses, and income. It provides a clear overview of your financial health, helping you save more and worry less."
+  "name": "CashGrow",
+  "description": "A modern and intuitive web application to track your finances, manage budgets, and grow your savings. It provides a clear overview of your spending, income, and fixed costs, helping you make smarter financial decisions.",
+  "requestFramePermissions": []
 }

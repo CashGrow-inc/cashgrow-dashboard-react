@@ -1,13 +1,11 @@
-
-// Fix: Import React to resolve 'Cannot find namespace React' error for React.ComponentType.
 import React from 'react';
 
 export enum Screen {
-  Grow = 'Grow',
-  Unplanned = 'Unplanned',
-  Monthlies = 'Monthlies',
-  Fixed = 'Fixed',
-  Income = 'Income',
+  Grow,
+  Unplanned,
+  Monthlies,
+  Fixed,
+  Income,
 }
 
 export interface Transaction {
@@ -32,6 +30,7 @@ export interface MonthlyCategory {
   spent: number;
   budget: number;
   color: string;
+  // FIX: Add transactions property to align with data structure in constants.tsx
   transactions: Transaction[];
 }
 
@@ -41,7 +40,7 @@ export interface FixedCostCategory {
   subtitle: string;
   spent: number;
   budget: number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.FC<{ className?: string; }>;
   bgColor: string;
   transactions: Transaction[];
 }
@@ -51,5 +50,21 @@ export interface IncomeCategory {
   name: string;
   received: number;
   expected: number;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.FC<{ className?: string; }>;
+}
+
+export interface IncomeData {
+    recurring: IncomeCategory[];
+    nonRecurring: IncomeCategory[];
+    nonCash: number;
+}
+
+// FIX: Add missing IncomeSource type
+export interface IncomeSource {
+    id: string;
+    name: string;
+    received: number;
+    total: number;
+    isNonCash?: boolean;
+    period?: string;
 }
