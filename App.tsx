@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Screen, Transaction, UnplannedWeek, MonthlyCategory, FixedCostCategory, IncomeCategory } from './types';
+import { Screen, Transaction, MonthlyCategory, FixedCostCategory, IncomeData } from './types';
 import { 
     GrowIcon, UnplannedIcon, MonthliesIcon, FixedIcon, IncomeIcon, ProfileIcon,
     ChevronDownIcon, CashGrowLogo, WeeklyIcon, AutosaveIcon, GoalIcon,
-    FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, InsuranceIcon, LoanIcon, HousingIcon
+    FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, InsuranceIcon, LoanIcon, HousingIcon, RecurringIcon
 } from './components/Icons';
 import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
 
@@ -60,7 +60,7 @@ const Accordion: React.FC<AccordionProps> = ({ summary, children, defaultOpen = 
 
 // Header, BottomNav, Layout
 const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => (
-  <header className="flex justify-between items-center p-4 bg-slate-50">
+  <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
     <CashGrowLogo />
     <div className="flex items-center space-x-4">
         <button 
@@ -88,7 +88,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScreen }) 
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-2">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-2 z-20">
       {navItems.map(({ screen, Icon, label }) => {
         const isActive = activeScreen === screen;
         return (
@@ -120,7 +120,7 @@ const GrowScreen: React.FC = () => (
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$506</div>
-      <ProgressBar value={506} max={1000} />
+      <ProgressBar value={506} max={750} />
       <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
         <span>Left to Spend till Wednesday</span>
         <span>2 Day Left</span>
@@ -161,7 +161,7 @@ const UnplannedScreen: React.FC = () => (
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$2,000</div>
-      <ProgressBar value={2000} max={3000} />
+      <ProgressBar value={2000} max={3360} />
       <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
         <span>Left to Spend till end of month</span>
         <span>8 Day Left</span>
@@ -191,8 +191,8 @@ const UnplannedScreen: React.FC = () => (
 
 const MonthliesScreen: React.FC = () => (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-         <div className="flex justify-between items-center mb-1">
+      <div className="px-1">
+         <div className="flex justify-between items-center">
             <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
             <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
                 Monthly
@@ -206,18 +206,24 @@ const MonthliesScreen: React.FC = () => (
                     <div className="w-full">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <span className={`w-3 h-3 rounded-full ${category.color}`}></span>
+                                <span className={`w-3 h-3 rounded-full ${category.color.replace('text-', 'bg-')}`}></span>
                                 <span className="font-semibold text-slate-800">{category.name}</span>
                             </div>
                             <span className="font-bold text-slate-800">${category.spent} / <span className="text-slate-500">${category.budget}</span></span>
                         </div>
                         <div className="mt-3">
-                            <ProgressBar value={category.spent} max={category.budget} color={category.color} />
+                            <ProgressBar value={category.spent} max={category.budget} color={category.color.replace('text-','bg-')} />
                         </div>
                     </div>
                 }
             >
-                <p className="text-sm text-slate-500 text-center py-4">Transaction details coming soon.</p>
+                {category.transactions.length > 0 ? (
+                    <div className="divide-y divide-slate-100">
+                        {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>
+                )}
             </Accordion>
         ))}
     </div>
@@ -233,7 +239,7 @@ const FixedScreen: React.FC = () => (
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$4,900</div>
-      <ProgressBar value={4900} max={6000} />
+      <ProgressBar value={670} max={4900} />
       <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
         <span>Expected expenses per month</span>
         <span>8 Day Left</span>
@@ -242,7 +248,6 @@ const FixedScreen: React.FC = () => (
     {fixedCostsData.map(category => (
         <Accordion 
           key={category.id}
-          defaultOpen={category.name === 'Housing'}
           summary={
             <div className="flex items-center justify-between w-full">
                 <div className="flex items-center space-x-4">
@@ -306,135 +311,115 @@ const IncomeScreen: React.FC = () => (
         </Accordion>
     ))}
     <div className="bg-white rounded-2xl shadow-sm p-4">
-        <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-slate-800">Non-Cash</h3>
-            </div>
-            <div className="flex items-center space-x-2">
-                <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                    Monthly
-                </span>
-                <span className="text-2xl font-bold text-slate-800">${incomeData.nonCash.toLocaleString()}</span>
-                <ChevronDownIcon className="w-6 h-6 text-slate-400" />
-            </div>
-        </div>
+        <Accordion
+            summary={
+                 <div className="flex justify-between items-center w-full">
+                    <div>
+                      <h3 className="font-bold text-slate-800">Non-Cash</h3>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                            Monthly
+                        </span>
+                        <span className="text-2xl font-bold text-slate-800">${incomeData.nonCash.toLocaleString()}</span>
+                    </div>
+                </div>
+            }>
+             <p className="text-sm text-slate-500 text-center py-4">Non-cash income details here.</p>
+        </Accordion>
     </div>
     </div>
-);
-
-const ExpenseCardsVisual: React.FC = () => (
-  <div className="relative mt-12 lg:mt-16 h-96">
-    {/* Card 1: Monthlies */}
-    <div className="absolute top-1/2 -translate-y-1/2 right-0 lg:right-10 w-64 bg-white rounded-2xl shadow-xl p-4 transform lg:scale-105 z-20">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-slate-800 text-sm">Monthlies</h3>
-        <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">Monthly</span>
-      </div>
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs">
-            <div className="flex items-center space-x-2"><span className="w-2 h-2 bg-green-400 rounded-full"></span><span>Groceries</span></div>
-            <span className="font-semibold text-slate-600">$420 / $500</span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-1.5"><div className="bg-green-400 h-1.5 rounded-full" style={{width: '84%'}}></div></div>
-        </div>
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs">
-            <div className="flex items-center space-x-2"><span className="w-2 h-2 bg-orange-400 rounded-full"></span><span>Dining Out</span></div>
-            <span className="font-semibold text-slate-600">$280 / $350</span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-1.5"><div className="bg-orange-400 h-1.5 rounded-full" style={{width: '80%'}}></div></div>
-        </div>
-        <div className="space-y-1">
-          <div className="flex justify-between text-xs">
-            <div className="flex items-center space-x-2"><span className="w-2 h-2 bg-blue-400 rounded-full"></span><span>Pharmacy</span></div>
-            <span className="font-semibold text-slate-600">$35 / $100</span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-1.5"><div className="bg-blue-400 h-1.5 rounded-full" style={{width: '35%'}}></div></div>
-        </div>
-      </div>
-    </div>
-
-    {/* Card 2: Unplanned */}
-    <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-60 bg-white rounded-2xl shadow-2xl p-4 z-10">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="font-bold text-slate-800">UnPlanned</h3>
-        <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">Monthly</span>
-      </div>
-      <p className="text-4xl font-bold text-slate-800">$2,000</p>
-      <p className="text-xs text-slate-500">Left to Spend till end of...</p>
-      <div className="w-full bg-slate-200 rounded-full h-2 my-3"><div className="bg-blue-500 h-2 rounded-full" style={{width: '66%'}}></div></div>
-      <div className="border-t border-slate-100 pt-2 space-y-2 text-sm">
-         <div className="flex justify-between items-center"><span className="font-semibold">Week 1</span><span>$1,360</span></div>
-         <div className="flex justify-between items-center"><span className="font-semibold">Week 2</span><span>$2,100</span></div>
-      </div>
-    </div>
-
-    {/* Card 3: Fixed Costs */}
-    <div className="absolute top-1/2 -translate-y-1/2 left-0 lg:left-10 w-56 bg-white rounded-2xl shadow-xl p-4">
-      <p className="text-sm text-slate-500">Fixed costs</p>
-      <p className="text-3xl font-bold text-slate-800">$4,900</p>
-      <div className="mt-4 space-y-3">
-        <div className="flex items-center space-x-2 text-sm"><div className="p-2 bg-blue-100 rounded-full"><InsuranceIcon className="w-4 h-4 text-blue-600"/></div><p>Insurance</p></div>
-        <div className="flex items-center space-x-2 text-sm"><div className="p-2 bg-green-100 rounded-full"><LoanIcon className="w-4 h-4 text-green-600"/></div><p>Loan</p></div>
-        <div className="flex items-center space-x-2 text-sm"><div className="p-2 bg-orange-100 rounded-full"><HousingIcon className="w-4 h-4 text-orange-600"/></div><p>Housing</p></div>
-      </div>
-    </div>
-  </div>
 );
 
 const WelcomeScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }) => (
-  <div className="bg-white font-sans text-slate-800">
-    {/* Hero Section */}
-    <div className="relative min-h-[80vh] flex items-center">
-        <div 
-            className="absolute inset-0 bg-cover bg-center" 
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1533423996333-e523f38b053c?q=80&w=2078&auto=format&fit=crop')" }}>
-        </div>
-        
-        <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-20">
-            <CashGrowLogo textColor="text-slate-800" />
-            <button 
-                onClick={onSignIn} 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
-            >
-                Sign up
-            </button>
-        </header>
+  <div className="bg-slate-50 font-sans text-slate-800">
+    <div className="relative bg-gradient-to-br from-blue-100 via-white to-slate-100 overflow-hidden">
+      <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
+        <CashGrowLogo textColor="text-slate-800" />
+        <button
+          onClick={onSignIn}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
+        >
+          Sign up
+        </button>
+      </header>
 
-        <div className="relative z-10 bg-white/60 backdrop-blur-sm p-8 md:p-12 rounded-2xl text-left max-w-lg md:max-w-xl mx-4 my-24 ml-4 md:ml-12 lg:ml-24">
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
-                CashGrow makes<br/>money feel simple
-            </h1>
-            <p className="text-lg md:text-xl text-slate-700 mb-8 max-w-md">
-                Save more, worry less, and feel good about your spending
-            </p>
-            <button 
-                onClick={onSignIn} 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300"
-            >
+      <div className="relative z-10 pt-32 pb-16 md:pt-40 lg:pb-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            {/* Left Column */}
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
+                CashGrow makes<br />money feel simple
+              </h1>
+              <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
+                Save more, worry less, and feel good about your spending.
+              </p>
+              <button
+                onClick={onSignIn}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 Try CashGrow Free
-            </button>
+              </button>
+            </div>
+            {/* Right Column */}
+            <div className="bg-white/70 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl text-left border border-white/50">
+              <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
+              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made easy, growth made natural</h3>
+              <p className="text-base text-slate-600 leading-relaxed">
+                An easy-to-use app that helps you track, save, and grow your money, without the stress of spreadsheets. We provide clear insights so you can feel confident about your financial decisions.
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Wishlist Section */}
+      <div className="relative z-20 px-4 -mt-8 lg:-mt-36 pb-16">
+        <div className="max-w-2xl mx-auto bg-blue-600 text-white p-8 sm:p-12 rounded-3xl shadow-2xl">
+          <div className="text-center">
+            <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
+              BETA ACCESS IS LIMITED
+            </span>
+            <h1 className="text-4xl sm:text-5xl font-bold mt-6 leading-tight">
+              Design your cashflow with confidence
+            </h1>
+            <p className="mt-4 text-blue-200 max-w-md mx-auto">
+              CashGrow turns raw account data into guided stories so you can celebrate wins, surface leaks, and stay aligned on every money move together.
+            </p>
+            <div className="mt-8 max-w-sm mx-auto">
+              <form onSubmit={(e) => { e.preventDefault(); alert('Thanks for joining the waitlist!'); }}>
+                <div className="space-y-4">
+                  <input 
+                    type="email" 
+                    placeholder="you@example.com"
+                    aria-label="Email address"
+                    required
+                    className="w-full px-5 py-3 rounded-full text-slate-800 bg-blue-50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white" 
+                  />
+                  <button 
+                    type="submit" 
+                    className="w-full bg-white text-blue-600 font-bold py-3 rounded-full hover:bg-blue-100 transition-colors shadow-lg"
+                  >
+                    Join the waitlist
+                  </button>
+                </div>
+              </form>
+              <p className="text-xs text-blue-300 mt-4">
+                We only send one message when the doors open. No spam, ever.
+              </p>
+              <button 
+                onClick={onSignIn} 
+                className="mt-6 text-white font-semibold py-2 px-5 rounded-full border border-white/30 hover:bg-white/10 transition-colors"
+              >
+                Preview the dashboard demo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    {/* What Is CashGrow Section */}
-    <section className="py-16 md:py-24 text-center px-4">
-      <a href="#" className="text-blue-600 font-semibold mb-4 inline-block">What Is CashGrow?</a>
-      <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Money made easy,</h2>
-      <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">growth made natural</h2>
-      <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-        An easy app that helps you track, save, and grow your money, no stress or spreadsheets
-      </p>
-    </section>
-
-    {/* In Control Section */}
-    <section className="bg-slate-50 py-16 md:py-24 px-4 overflow-hidden">
-      <div className="max-w-5xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 text-center mb-4">In Control on Your Expenses</h2>
-        <ExpenseCardsVisual />
-      </div>
-    </section>
 
     {/* Footer */}
     <footer className="bg-blue-700 text-white py-12 md:py-16 px-6">
@@ -508,7 +493,7 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto bg-slate-50">
             <Header onSignOut={handleSignOut} />
             <main className="p-4 pb-24">
                 {renderScreen()}
