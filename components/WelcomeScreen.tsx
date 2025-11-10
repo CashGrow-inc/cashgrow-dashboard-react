@@ -87,7 +87,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
           </div>
 
           {/* Wishlist Section */}
-          <main className="min-h-[50vh] bg-white/80 flex items-center justify-center p-2 font-sans w-1/3 mx-auto">
+          <main className="min-h-[50vh] bg-white/80 flex items-center justify-center p-2 font-sans w-full md:w-1/3 mx-auto">
             <div className="w-full text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
                 CashGrow Beat the cost of Living
@@ -145,7 +145,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
               <div className="flex justify-center md:justify-end mb-2 md:mb-4">
                 <Logo />
               </div>
-              <p className="text-xs md:text-sm">9511 Ferndale, Richmond BC</p>
+
             </div>
           </div>
           <div className="border-t border-blue-600 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
