@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { Screen, Transaction, MonthlyCategory, FixedCostCategory, IncomeData } from './types';
-import { 
-    GrowIcon, UnplannedIcon, MonthliesIcon, FixedIcon, IncomeIcon, ProfileIcon,
-    ChevronDownIcon, CashGrowLogo, WeeklyIcon, AutosaveIcon, GoalIcon,
-    FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, InsuranceIcon, LoanIcon, HousingIcon, RecurringIcon
+import {
+  GrowIcon, UnplannedIcon, MonthliesIcon, FixedIcon, IncomeIcon, ProfileIcon,
+  ChevronDownIcon, CashGrowLogo, WeeklyIcon, AutosaveIcon, GoalIcon,
+  FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, InsuranceIcon, LoanIcon, HousingIcon, RecurringIcon
 } from './components/Icons';
+import WelcomeScreen, { Logo } from './components/WelcomeScreen';
 import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
 
 // Reusable Components
@@ -21,14 +22,14 @@ const ProgressBar: React.FC<{ value: number; max: number; color?: string }> = ({
 const TransactionRow: React.FC<{ transaction: Transaction }> = ({ transaction }) => (
   <div className="flex justify-between items-center py-3">
     <div className="flex items-center space-x-4">
-        <div className="text-sm text-slate-500">{transaction.date}</div>
-        <div className="font-medium text-slate-800">{transaction.description}</div>
+      <div className="text-sm text-slate-500">{transaction.date}</div>
+      <div className="font-medium text-slate-800">{transaction.description}</div>
     </div>
     <div className="flex items-center space-x-4">
-        <div className="font-semibold text-slate-800">${transaction.amount}</div>
-        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${transaction.categoryColor}`}>
-            {transaction.categoryTag}
-        </span>
+      <div className="font-semibold text-slate-800">${transaction.amount}</div>
+      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${transaction.categoryColor}`}>
+        {transaction.categoryTag}
+      </span>
     </div>
   </div>
 );
@@ -61,15 +62,15 @@ const Accordion: React.FC<AccordionProps> = ({ summary, children, defaultOpen = 
 // Header, BottomNav, Layout
 const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => (
   <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
-    <CashGrowLogo />
+    <Logo />
     <div className="flex items-center space-x-4">
-        <button 
-            onClick={onSignOut}
-            className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-        >
-            Sign Out
-        </button>
-        <ProfileIcon className="w-7 h-7 text-slate-500" />
+      <button
+        onClick={onSignOut}
+        className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+      >
+        Sign Out
+      </button>
+      <ProfileIcon className="w-7 h-7 text-slate-500" />
     </div>
   </header>
 );
@@ -126,16 +127,16 @@ const GrowScreen: React.FC = () => (
         <span>2 Day Left</span>
       </div>
     </div>
-    
+
     <div className="bg-green-50 rounded-2xl p-5 text-green-800">
-        <h3 className="font-bold text-lg">You're growing strong!</h3>
-        <p className="text-green-700">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
+      <h3 className="font-bold text-lg">You're growing strong!</h3>
+      <p className="text-green-700">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
     </div>
 
     <div className="bg-white rounded-2xl shadow-sm p-5">
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center space-x-2">
-          <GoalIcon className="w-8 h-8 text-slate-400"/>
+          <GoalIcon className="w-8 h-8 text-slate-400" />
           <h2 className="text-slate-600 font-medium text-lg">Goal of the Month</h2>
         </div>
         <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
@@ -157,7 +158,7 @@ const UnplannedScreen: React.FC = () => (
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-slate-600 font-medium">UnPlanned</h2>
         <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-            Monthly
+          Monthly
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$2,000</div>
@@ -169,7 +170,7 @@ const UnplannedScreen: React.FC = () => (
     </div>
 
     {unplannedData.map(week => (
-      <Accordion 
+      <Accordion
         key={week.id}
         defaultOpen={week.weekLabel === 'Week 2'}
         summary={
@@ -190,52 +191,52 @@ const UnplannedScreen: React.FC = () => (
 );
 
 const MonthliesScreen: React.FC = () => (
-    <div className="space-y-4">
-      <div className="px-1">
-         <div className="flex justify-between items-center">
-            <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
-            <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                Monthly
-            </span>
-        </div>
+  <div className="space-y-4">
+    <div className="px-1">
+      <div className="flex justify-between items-center">
+        <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
+        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+          Monthly
+        </span>
       </div>
-        {monthliesData.map(category => (
-            <Accordion
-                key={category.id}
-                summary={
-                    <div className="w-full">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <span className={`w-3 h-3 rounded-full ${category.color.replace('text-', 'bg-')}`}></span>
-                                <span className="font-semibold text-slate-800">{category.name}</span>
-                            </div>
-                            <span className="font-bold text-slate-800">${category.spent} / <span className="text-slate-500">${category.budget}</span></span>
-                        </div>
-                        <div className="mt-3">
-                            <ProgressBar value={category.spent} max={category.budget} color={category.color.replace('text-','bg-')} />
-                        </div>
-                    </div>
-                }
-            >
-                {category.transactions.length > 0 ? (
-                    <div className="divide-y divide-slate-100">
-                        {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
-                    </div>
-                ) : (
-                    <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>
-                )}
-            </Accordion>
-        ))}
     </div>
+    {monthliesData.map(category => (
+      <Accordion
+        key={category.id}
+        summary={
+          <div className="w-full">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <span className={`w-3 h-3 rounded-full ${category.color.replace('text-', 'bg-')}`}></span>
+                <span className="font-semibold text-slate-800">{category.name}</span>
+              </div>
+              <span className="font-bold text-slate-800">${category.spent} / <span className="text-slate-500">${category.budget}</span></span>
+            </div>
+            <div className="mt-3">
+              <ProgressBar value={category.spent} max={category.budget} color={category.color.replace('text-', 'bg-')} />
+            </div>
+          </div>
+        }
+      >
+        {category.transactions.length > 0 ? (
+          <div className="divide-y divide-slate-100">
+            {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>
+        )}
+      </Accordion>
+    ))}
+  </div>
 );
 
 const FixedScreen: React.FC = () => (
-    <div className="space-y-4">
+  <div className="space-y-4">
     <div className="bg-white rounded-2xl shadow-sm p-5">
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-slate-600 font-medium">Fixed Costs</h2>
         <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-            Monthly
+          Monthly
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$4,900</div>
@@ -246,41 +247,41 @@ const FixedScreen: React.FC = () => (
       </div>
     </div>
     {fixedCostsData.map(category => (
-        <Accordion 
-          key={category.id}
-          summary={
-            <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${category.bgColor}`}>
-                        <category.icon className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-slate-800">{category.name}</div>
-                        <div className="text-sm text-slate-500">{category.subtitle}</div>
-                    </div>
-                </div>
-                <div className="font-bold text-slate-800">${category.spent}/<span className="font-medium text-slate-500">${category.budget}</span></div>
+      <Accordion
+        key={category.id}
+        summary={
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-4">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${category.bgColor}`}>
+                <category.icon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-bold text-slate-800">{category.name}</div>
+                <div className="text-sm text-slate-500">{category.subtitle}</div>
+              </div>
             </div>
-          }
-        >
-          {category.transactions.length > 0 ? (
+            <div className="font-bold text-slate-800">${category.spent}/<span className="font-medium text-slate-500">${category.budget}</span></div>
+          </div>
+        }
+      >
+        {category.transactions.length > 0 ? (
           <div className="divide-y divide-slate-100">
             {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
           </div>
-          ) : <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>}
-        </Accordion>
+        ) : <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>}
+      </Accordion>
     ))}
-    </div>
+  </div>
 );
 
 
 const IncomeScreen: React.FC = () => (
-    <div className="space-y-4">
+  <div className="space-y-4">
     <div className="bg-white rounded-2xl shadow-sm p-5">
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-slate-600 font-medium">Income</h2>
         <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-            Monthly
+          Monthly
         </span>
       </div>
       <div className="text-5xl font-bold text-slate-800 mb-3">$5,500</div>
@@ -291,171 +292,46 @@ const IncomeScreen: React.FC = () => (
       </div>
     </div>
     {[...incomeData.recurring, ...incomeData.nonRecurring].map(category => (
-        <Accordion 
-          key={category.id}
-          summary={
-            <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
-                        <category.icon className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-slate-800">{category.name}</div>
-                    </div>
-                </div>
-                <div className="font-bold text-slate-800">${(category.received/1000).toFixed(1)}k/<span className="font-medium text-slate-500">${(category.expected/1000).toFixed(0)}k</span></div>
+      <Accordion
+        key={category.id}
+        summary={
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
+                <category.icon className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-bold text-slate-800">{category.name}</div>
+              </div>
             </div>
-          }
-        >
-          <p className="text-sm text-slate-500 text-center py-4">Income details coming soon.</p>
-        </Accordion>
+            <div className="font-bold text-slate-800">${(category.received / 1000).toFixed(1)}k/<span className="font-medium text-slate-500">${(category.expected / 1000).toFixed(0)}k</span></div>
+          </div>
+        }
+      >
+        <p className="text-sm text-slate-500 text-center py-4">Income details coming soon.</p>
+      </Accordion>
     ))}
     <div className="bg-white rounded-2xl shadow-sm p-4">
-        <Accordion
-            summary={
-                 <div className="flex justify-between items-center w-full">
-                    <div>
-                      <h3 className="font-bold text-slate-800">Non-Cash</h3>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                            Monthly
-                        </span>
-                        <span className="text-2xl font-bold text-slate-800">${incomeData.nonCash.toLocaleString()}</span>
-                    </div>
-                </div>
-            }>
-             <p className="text-sm text-slate-500 text-center py-4">Non-cash income details here.</p>
-        </Accordion>
-    </div>
-    </div>
-);
-
-const WelcomeScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }) => (
-  <div className="bg-slate-50 font-sans text-slate-800">
-    <div className="relative bg-gradient-to-br from-blue-100 via-white to-slate-100 overflow-hidden">
-      <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
-        <CashGrowLogo textColor="text-slate-800" />
-        <button
-          onClick={onSignIn}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
-        >
-          Sign up
-        </button>
-      </header>
-
-      <div className="relative z-10 pt-32 pb-16 md:pt-40 lg:pb-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left Column */}
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-                CashGrow makes<br />money feel simple
-              </h1>
-              <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
-                Save more, worry less, and feel good about your spending.
-              </p>
-              <button
-                onClick={onSignIn}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                Try CashGrow Free
-              </button>
-            </div>
-            {/* Right Column */}
-            <div className="bg-white/70 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl text-left border border-white/50">
-              <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made easy, growth made natural</h3>
-              <p className="text-base text-slate-600 leading-relaxed">
-                An easy-to-use app that helps you track, save, and grow your money, without the stress of spreadsheets. We provide clear insights so you can feel confident about your financial decisions.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Wishlist Section */}
-      <div className="relative z-20 px-4 -mt-8 lg:-mt-36 pb-16">
-        <div className="max-w-2xl mx-auto bg-blue-600 text-white p-8 sm:p-12 rounded-3xl shadow-2xl">
-          <div className="text-center">
-            <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
-              BETA ACCESS IS LIMITED
-            </span>
-            <h1 className="text-4xl sm:text-5xl font-bold mt-6 leading-tight">
-              Design your cashflow with confidence
-            </h1>
-            <p className="mt-4 text-blue-200 max-w-md mx-auto">
-              CashGrow turns raw account data into guided stories so you can celebrate wins, surface leaks, and stay aligned on every money move together.
-            </p>
-            <div className="mt-8 max-w-sm mx-auto">
-              <form onSubmit={(e) => { e.preventDefault(); alert('Thanks for joining the waitlist!'); }}>
-                <div className="space-y-4">
-                  <input 
-                    type="email" 
-                    placeholder="you@example.com"
-                    aria-label="Email address"
-                    required
-                    className="w-full px-5 py-3 rounded-full text-slate-800 bg-blue-50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white" 
-                  />
-                  <button 
-                    type="submit" 
-                    className="w-full bg-white text-blue-600 font-bold py-3 rounded-full hover:bg-blue-100 transition-colors shadow-lg"
-                  >
-                    Join the waitlist
-                  </button>
-                </div>
-              </form>
-              <p className="text-xs text-blue-300 mt-4">
-                We only send one message when the doors open. No spam, ever.
-              </p>
-              <button 
-                onClick={onSignIn} 
-                className="mt-6 text-white font-semibold py-2 px-5 rounded-full border border-white/30 hover:bg-white/10 transition-colors"
-              >
-                Preview the dashboard demo
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    {/* Footer */}
-    <footer className="bg-blue-700 text-white py-12 md:py-16 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-          <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
+      <Accordion
+        summary={
+          <div className="flex justify-between items-center w-full">
             <div>
-              <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Company <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
+              <h3 className="font-bold text-slate-800">Non-Cash</h3>
             </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Resources <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Legal <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
+            <div className="flex items-center space-x-2">
+              <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                Monthly
+              </span>
+              <span className="text-2xl font-bold text-slate-800">${incomeData.nonCash.toLocaleString()}</span>
             </div>
           </div>
-          <div className="text-left">
-             <div className="flex justify-start mb-4">
-                <CashGrowLogo textColor="text-white"/>
-             </div>
-            <p className="text-sm">9511 Ferndale, Richmond BC</p>
-          </div>
-        </div>
-        <div className="border-t border-blue-600 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <div className="flex space-x-4 mb-4 md:mb-0">
-             <a href="#" aria-label="Facebook"><FacebookIcon className="w-6 h-6 hover:text-blue-300"/></a>
-             <a href="#" aria-label="Instagram"><InstagramIcon className="w-6 h-6 hover:text-blue-300"/></a>
-             <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-6 h-6 hover:text-blue-300"/></a>
-             <a href="#" aria-label="YouTube"><YouTubeIcon className="w-6 h-6 hover:text-blue-300"/></a>
-          </div>
-          <p className="text-sm text-blue-200">@2025 Cashgrow</p>
-        </div>
-      </div>
-    </footer>
+        }>
+        <p className="text-sm text-slate-500 text-center py-4">Non-cash income details here.</p>
+      </Accordion>
+    </div>
   </div>
 );
+
 
 
 export default function App() {
@@ -493,13 +369,13 @@ export default function App() {
 
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
-        <div className="max-w-md mx-auto bg-slate-50">
-            <Header onSignOut={handleSignOut} />
-            <main className="p-4 pb-24">
-                {renderScreen()}
-            </main>
-            <BottomNav activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
-        </div>
+      <div className="max-w-md mx-auto bg-slate-50">
+        <Header onSignOut={handleSignOut} />
+        <main className="p-4 pb-24">
+          {renderScreen()}
+        </main>
+        <BottomNav activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+      </div>
     </div>
   );
 }
