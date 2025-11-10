@@ -87,88 +87,75 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
           </div>
 
           {/* Wishlist Section */}
-          <div className="relative z-20 px-4 -mt-8 lg:-mt-36 pb-16">
-            <div className="max-w-2xl mx-auto bg-blue-600 text-white p-8 sm:p-12 rounded-3xl shadow-2xl">
-              <div className="text-center">
-                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  BETA ACCESS IS LIMITED
-                </span>
-                <h1 className="text-4xl sm:text-5xl font-bold mt-6 leading-tight">
-                  Design your cashflow with confidence
-                </h1>
-                <p className="mt-4 text-blue-200 max-w-md mx-auto">
-                  CashGrow turns raw account data into guided stories so you can celebrate wins, surface leaks, and stay aligned on every money move together.
-                </p>
-                <div className="mt-8 max-w-sm mx-auto">
-                  <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <EmailIcon />
-                      </div>
-                      <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="name@example.com"
-                        required
-                        aria-label="Email address"
-                        className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-white text-blue-600 font-semibold text-lg py-3.5 rounded-full hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-                    >
-                      Join Waitlist
-                    </button>
-                  </form>
-                  <p className="mt-4 text-sm text-blue-200">
-                    We only send one message when the door open
-                  </p>
-                  <button
-                    onClick={onSignIn}
-                    className="mt-6 text-white font-semibold py-2 px-5 rounded-full border border-white/30 hover:bg-white/10 transition-colors"
-                  >
-                    Preview the dashboard demo
-                  </button>
+          <main className="min-h-[50vh] bg-white/80 flex items-center justify-center p-2 font-sans w-1/3 mx-auto">
+            <div className="w-full text-center">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+                CashGrow Beat the cost of Living
+              </h1>
+              <p className="mt-4 text-lg text-gray-600">
+                Save more, worry less, and feel good about your spending
+              </p>
+              <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <EmailIcon />
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    required
+                    aria-label="Email address"
+                    className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                  />
                 </div>
-              </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Join Waitlist
+                </button>
+              </form>
+              <p className="mt-4 text-sm text-gray-500">
+                We only send one message when the door open
+              </p>
             </div>
-          </div>
+          </main>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="relative bg-blue-700 text-white py-12 md:py-16 px-6 z-20">
+      <footer className="relative bg-blue-700 text-white py-8 md:py-16 px-4 md:px-6 z-20">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
-            <div className="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
+            <div className="md:col-span-3 grid grid-cols-3 gap-6 md:gap-8">
               <div>
-                <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Company <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
+                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Company <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Resources <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
+                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Resources <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-4 flex justify-between items-center">Legal <ChevronDownIcon className="w-5 h-5 md:hidden" /></h3>
+                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Legal <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
               </div>
             </div>
-            <div className="text-left">
-              <div className="flex justify-start mb-4">
+            <div className="text-center md:text-right">
+              <div className="flex justify-center md:justify-end mb-2 md:mb-4">
                 <Logo />
               </div>
-              <p className="text-sm">9511 Ferndale, Richmond BC</p>
+              <p className="text-xs md:text-sm">9511 Ferndale, Richmond BC</p>
             </div>
           </div>
-          <div className="border-t border-blue-600 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="flex space-x-4 mb-4 md:mb-0">
-              <a href="#" aria-label="Facebook"><FacebookIcon className="w-6 h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="Instagram"><InstagramIcon className="w-6 h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-6 h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="YouTube"><YouTubeIcon className="w-6 h-6 hover:text-blue-300" /></a>
+          <div className="border-t border-blue-600 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="flex space-x-3 md:space-x-4 mb-4 md:mb-0">
+              <a href="#" aria-label="Facebook"><FacebookIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="Instagram"><InstagramIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="YouTube"><YouTubeIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
             </div>
-            <p className="text-sm text-blue-200">@2025 Cashgrow</p>
+            <p className="text-xs md:text-sm text-blue-200">@2025 Cashgrow</p>
           </div>
         </div>
       </footer>
