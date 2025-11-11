@@ -79,7 +79,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                   <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
                   <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made easy, growth made natural</h3>
                   <p className="text-base text-slate-600 leading-relaxed">
-                    An easy-to-use app that helps you track, save, and grow your money, without the stress of spreadsheets. We provide clear insights so you can feel confident about your financial decisions.
+                    An easy-to-use app that helps you track, save, and grow your money, without the stress. We provide clear insights so you can feel confident about your financial decisions.
                   </p>
                 </div>
               </div>
