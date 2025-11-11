@@ -9,6 +9,8 @@ import {
 } from './Icons';
 import BgVideo from '../assets/background-video.mp4';
 
+const ACCESS_PASSWORD = 'CashGrow2025';
+
 const Logo: React.FC = () => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M17.3359 8.0001C14.3573 8.0001 11.7089 9.4005 10.0001 11.5722V8.0001H10.6661C13.6112 8.0001 16.0001 5.6133 16.0001 2.667V0H13.334C10.3886 0 8.00003 2.3868 8.00003 5.3328V5.91C6.79794 4.7304 5.15245 3.9999 3.33387 3.9999H0V7.332C0 11.0133 2.98347 14.0001 6.66624 14.0001H8.00003V24H10.0001V21.9999H12.6641C17.8183 21.9999 22 17.8233 22 12.6681V8.0001H17.3359ZM10.0001 5.3328C10.0001 3.495 11.4959 1.9998 13.334 1.9998H14V2.6667C14 4.5051 12.5039 6 10.6661 6H10.0001V5.3328ZM8.00003 12H6.66624C4.09376 12 2.00008 9.9063 2.00008 7.332V6H3.33387C5.90635 6 8.00003 8.0937 8.00003 10.668V12ZM19.9999 12.6681C19.9999 16.7112 16.7089 20.0001 12.6641 20.0001H10.0001V17.3319C10.0001 13.2888 13.2911 9.9999 17.3359 9.9999H19.9999V12.6681Z" fill="#304FFE" />
@@ -28,11 +30,36 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
   const [email, setEmail] = useState('');
+  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     alert(`Thank you for joining the waitlist with: ${email}`);
     setEmail('');
+  };
+
+  const openPasswordModal = () => {
+    setPasswordModalOpen(true);
+    setPasswordInput('');
+    setPasswordError('');
+  };
+
+  const closePasswordModal = () => {
+    setPasswordModalOpen(false);
+    setPasswordInput('');
+    setPasswordError('');
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (passwordInput === ACCESS_PASSWORD) {
+      closePasswordModal();
+      onSignIn();
+    } else {
+      setPasswordError('Incorrect password. Please try again.');
+    }
   };
 
   return (
@@ -49,7 +76,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
           <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
             <Logo />
             <button
-              onClick={onSignIn}
+              onClick={openPasswordModal}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
             >
               Sign up
@@ -68,7 +95,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                     Save more, worry less, and feel good about your spending
                   </p>
                   <button
-                    onClick={onSignIn}
+                    onClick={openPasswordModal}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Try CashGrow for Free
@@ -160,6 +187,48 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
           </div>
         </div>
       </footer>
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Enter Access Password</h3>
+            <p className="text-sm text-slate-600 mb-6">
+              To view the CashGrow prototype, please enter the access password provided by the team.
+            </p>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="access-password" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Access password
+                </label>
+                <input
+                  id="access-password"
+                  type="password"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={passwordInput}
+                  onChange={(event) => setPasswordInput(event.target.value)}
+                  placeholder="Enter password"
+                  autoFocus
+                />
+                {passwordError && <p className="text-sm text-red-500 mt-2">{passwordError}</p>}
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={closePasswordModal}
+                  className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
+                >
+                  Continue
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
