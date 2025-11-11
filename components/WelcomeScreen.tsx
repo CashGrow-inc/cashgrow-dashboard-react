@@ -62,7 +62,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 {/* Left Column */}
                 <div className="text-center lg:text-left">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-                   <p>CCCashGrow<br /> Beat the cost of Living</p>
+                   <p>CashGrow<br /> Beat the cost of Living</p>
                   </h1>
                   <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
                     Save more, worry less, and feel good about your spending
@@ -71,13 +71,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                     onClick={onSignIn}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
-                    Try CashGrow Free
+                    Try CashGrow for Free
                   </button>
                 </div>
                 {/* Right Column */}
                 <div className="bg-white/70 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl text-left border border-white/50">
                   <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made easy, growth made natural</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made clear, growth made practical</h3>
                   <p className="text-base text-slate-600 leading-relaxed">
                     An easy-to-use app that helps you track, save, and grow your money, without the stress. We provide clear insights so you can feel confident about your financial decisions.
                   </p>
@@ -90,10 +90,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
           <main className="min-h-[50vh] bg-white/80 flex items-center justify-center p-2 font-sans w-full md:w-1/3 mx-auto">
             <div className="w-full text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-                CashGrow Beat the cost of Living
+                <p>CashGrow<br /> Beat the cost of Living</p>
               </h1>
               <p className="mt-4 text-lg text-gray-600">
-                Save more, worry less, and feel good about your spending
+                Make progress, know your status, and be in control 
               </p>
               <form onSubmit={handleSubmit} className="mt-8 space-y-4">
                 <div className="relative">
