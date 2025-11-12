@@ -46,7 +46,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
       ])
     ).toString();
 
-    fetch('/', {
+    fetch(window.location.href, {
       method: 'POST',
       // ⚠️ CRITICAL: The Content-Type header must be correct for URL encoding
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
