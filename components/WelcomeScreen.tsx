@@ -58,7 +58,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
           // Success logic
           setName('');
           setEmail('');
-          onShowThankYou();
         } else {
           console.error('Submission failed:', response.status, response.statusText);
           // Optionally, check response.text() for more Netlify error details
@@ -67,6 +66,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
       .catch((error) => {
         console.error('Network or form submission failed:', error);
       });
+
+    // Always show thank you page on submit for local testing
+    onShowThankYou();
   };
 
   return (
