@@ -31,10 +31,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
   const [email, setEmail] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Netlify handles form submission
-    setName('');
-    setEmail('');
+    // Allow Netlify to handle submission natively - do not prevent default
+    // Clear fields after a short delay to let Netlify process
+    setTimeout(() => {
+      setName('');
+      setEmail('');
+    }, 1000);
   };
 
   return (
