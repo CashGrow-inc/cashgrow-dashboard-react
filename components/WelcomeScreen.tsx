@@ -64,7 +64,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 {/* Left Column */}
                 <div className="text-center lg:text-left">
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-                   <p>CashGrow<br /> Beat the cost of Living</p>
+                    <p>CashGrow<br /> Beat the cost of Living</p>
                   </h1>
                   <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
                     Save more, worry less, and feel good about your spending
@@ -81,7 +81,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                   <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
                   <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made clear, growth made practical</h3>
                   <p className="text-base text-slate-600 leading-relaxed">
-                   We are working hard to launch CashGrow in the next few weeks. Our mission is to help 
+                    We are working hard to launch CashGrow in the next few weeks. Our mission is to help
                     people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. want to be among the first few?, sign up for our wait list below.
                   </p>
                 </div>
@@ -96,10 +96,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 <p>CashGrow<br /> Beat the cost of Living</p>
               </h1>
               <p className="mt-4 text-lg text-gray-600">
-                Make progress, know your status, and be in control 
+                Make progress, know your status, and be in control
               </p>
-              <form name="contact" netlify data-netlify="true" onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <form name="contact" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
                 <input type="hidden" name="form-name" value="contact" />
+                <div style={{ display: 'none' }}>
+                  <label>Don't fill this out: <input name="bot-field" /></label>
+                </div>
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                   <input
