@@ -132,8 +132,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
               <p className="mt-4 text-lg text-gray-600">
                 Make progress, know your status, and be in control
               </p>
-              <form name="contact" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
-                <input type="hidden" name="form-name" value="contact" />
+              <form name="cashgrow-waiting-list" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
+                <input type="hidden" name="form-name" value="cashgrow-waiting-list" />
                 <div style={{ display: 'none' }}>
                   <label>Don't fill this out: <input name="bot-field" /></label>
                 </div>
