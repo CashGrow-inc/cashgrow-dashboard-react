@@ -31,12 +31,27 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    // Allow Netlify to handle submission natively - do not prevent default
-    // Show thank you page after submission
-    setTimeout(() => {
-      onShowThankYou();
-    }, 1000);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Submit form data to Netlify manually
+    const formData = new FormData(e.currentTarget);
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData as any).toString(),
+      });
+
+      if (response.ok) {
+        // Clear fields and show thank you page
+        setName('');
+        setEmail('');
+        onShowThankYou();
+      }
+    } catch (error) {
+      console.error('Form submission failed:', error);
+    }
   };
 
   return (
@@ -100,7 +115,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
               <p className="mt-4 text-lg text-gray-600">
                 Make progress, know your status, and be in control
               </p>
-              <form name="contact" netlify netlify-honeypot="bot-field" action="/thank-you" onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <form name="contact" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
                 <input type="hidden" name="form-name" value="contact" />
                 <div style={{ display: 'none' }}>
                   <label>Don't fill this out: <input name="bot-field" /></label>
