@@ -6,6 +6,7 @@ import {
   FacebookIcon, InstagramIcon, LinkedInIcon, YouTubeIcon, InsuranceIcon, LoanIcon, HousingIcon, RecurringIcon
 } from './components/Icons';
 import WelcomeScreen, { Logo } from './components/WelcomeScreen';
+import ThankYouScreen from './components/ThankYouScreen';
 import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
 
 // Reusable Components
@@ -337,9 +338,14 @@ const IncomeScreen: React.FC = () => (
 export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const handleSignIn = useCallback(() => {
     setIsSignedIn(true);
+  }, []);
+
+  const handleShowThankYou = useCallback(() => {
+    setShowThankYou(true);
   }, []);
 
   const handleSignOut = useCallback(() => {
@@ -363,8 +369,12 @@ export default function App() {
     }
   };
 
+  if (showThankYou) {
+    return <ThankYouScreen />;
+  }
+
   if (!isSignedIn) {
-    return <WelcomeScreen onSignIn={handleSignIn} />;
+    return <WelcomeScreen onSignIn={handleSignIn} onShowThankYou={handleShowThankYou} />;
   }
 
   return (
