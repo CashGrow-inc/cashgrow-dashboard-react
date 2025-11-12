@@ -31,27 +31,42 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Submit form data to Netlify manually
-    const formData = new FormData(e.currentTarget);
-    try {
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData as any).toString(),
-      });
+    const form = e.currentTarget;
+    const formData = new FormData(form);
 
-      if (response.ok) {
-        // Clear fields and show thank you page
-        setName('');
-        setEmail('');
-        onShowThankYou();
-      }
-    } catch (error) {
-      console.error('Form submission failed:', error);
-    }
+    // 💡 NEW CODE: Map FormData to key/value pairs for URLSearchParams
+    const body = new URLSearchParams(
+      Array.from(formData.entries()).map(([key, value]) => [
+        key,
+        // Ensure values are strings for URL encoding
+        typeof value === 'string' ? value : String(value)
+      ])
+    ).toString();
+
+    fetch('/', {
+      method: 'POST',
+      // ⚠️ CRITICAL: The Content-Type header must be correct for URL encoding
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body, // Use the correctly encoded body
+    })
+      .then((response) => {
+        console.log('Netlify response:', response);
+        if (response.ok) {
+          // Success logic
+          setName('');
+          setEmail('');
+          onShowThankYou();
+        } else {
+          console.error('Submission failed:', response.status, response.statusText);
+          // Optionally, check response.text() for more Netlify error details
+        }
+      })
+      .catch((error) => {
+        console.error('Network or form submission failed:', error);
+      });
   };
 
   return (
