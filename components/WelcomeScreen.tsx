@@ -7,7 +7,7 @@ import {
   LinkedInIcon,
   YouTubeIcon
 } from './Icons';
-import BgVideo from '../assets/background-video.mp4';
+import BgVideo from '../assets/background-video_H264.mp4';
 
 const Logo: React.FC = () => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -220,77 +220,90 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
 
       {/* Mobile Container */}
       <div className="block md:hidden w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
-        <video
-          src={BgVideo}
-          autoPlay
-          loop
-          muted
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-4 z-10">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-              <p>CashGrow<br /> Beat the cost of Living</p>
-            </h1>
-            <p className="mt-4 text-lg text-gray-600">
-              Make progress, know your status, and be in control
-            </p>
-            <form name="cashgrow-waitlist" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <input type="hidden" name="form-name" value="cashgrow-waitlist" />
-              <div style={{ display: 'none' }}>
-                <label>Don't fill this out: <input name="bot-field" /></label>
-              </div>
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your Name"
-                  required
-                  className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                />
-              </div>
-              <div className="relative">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <EmailIcon />
+        <div className="h-[50px] flex justify-between items-center px-4 bg-white z-20">
+          <Logo />
+          <button
+            onClick={onSignIn}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-6 rounded-[200px] text-sm transition duration-300"
+          >
+            Sign up
+          </button>
+        </div>
+        <div className="h-[calc(100%-50px)] relative">
+          <video
+            src={BgVideo}
+            autoPlay
+            loop
+            muted
+            className="absolute inset-0 w-full h-full object-cover z-0"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-4 z-10">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+                <p>CashGrow<br /> Beat the cost of Living</p>
+              </h1>
+              <p className="mt-4 text-lg text-gray-600">
+                Make progress, know your status, and be in control
+              </p>
+              <form name="cashgrow-waitlist" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
+                <input type="hidden" name="form-name" value="cashgrow-waitlist" />
+                <div style={{ display: 'none' }}>
+                  <label>Don't fill this out: <input name="bot-field" /></label>
                 </div>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  required
-                  className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-              >
-                Join Waitlist
-              </button>
-            </form>
-            <p className="mt-4 text-sm text-gray-500">
-              We only send one message when the door open
-            </p>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your Name"
+                    required
+                    className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                  />
+                </div>
+                <div className="relative">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <EmailIcon />
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    required
+                    className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Join Waitlist
+                </button>
+              </form>
+              <p className="mt-4 text-sm text-gray-500">
+                We only send one message when the door open
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile What Is CashGrow Section */}
-      <div className="block md:hidden w-[290px] h-[165px] mx-auto mt-4 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-white/50">
-        <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
-        <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
-        <p className="text-xs text-slate-600 leading-relaxed">
-          We are working hard to launch CashGrow in the next few weeks. Our mission is to help
-          people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. Want to be among the first few?, sign up for our wait list below.
-        </p>
+      <div className="w-[405px] bg-white mx-auto p-0">
+        <div className="block md:hidden w-[290px] h-[235px] mx-auto mt-4 bg-white p-4 rounded-2xl shadow-xl border border-white/50">
+          <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
+          <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            We are working hard to launch CashGrow in the next few weeks. Our mission is to help
+            people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. Want to be among the first few?, sign up for our wait list below.
+          </p>
+        </div>
       </div>
 
       {/* Features Container */}
