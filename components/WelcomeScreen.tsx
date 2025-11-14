@@ -7,7 +7,7 @@ import {
   LinkedInIcon,
   YouTubeIcon
 } from './Icons';
-import BgVideo from '../assets/Background-Video_H264.mp4';
+import BgVideo from '../assets/background-video_H264.mp4';
 
 const Logo: React.FC<{ flowerColor?: string; textColor?: string }> = ({ flowerColor = "#304FFE", textColor = "#2A2A2A" }) => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg">
