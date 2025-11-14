@@ -22,9 +22,46 @@ const EmailIcon: React.FC = () => (
   </svg>
 );
 
+const BankIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20" viewBox="43 4 44 45" fill="currentColor">
+    <path d="M85.25 45.5623H84.6875V42.7498C84.6875 40.3198 83.1777 38.8123 80.75 38.8123H80.1875V26.4373H80.75C83.1777 26.4373 84.6875 24.9298 84.6875 22.4998V16.7418C84.6875 15.2411 83.8527 13.8912 82.5095 13.2207L67.2635 5.59787C65.8437 4.89137 64.1518 4.89137 62.7365 5.59787L47.4905 13.2207C46.1473 13.8912 45.3125 15.2411 45.3125 16.7418V22.4998C45.3125 24.9298 46.8222 26.4373 49.25 26.4373H49.8125V38.8123H49.25C46.8222 38.8123 45.3125 40.3198 45.3125 42.7498V45.5623H44.75C43.8185 45.5623 43.0625 46.3183 43.0625 47.2498C43.0625 48.1813 43.8185 48.9373 44.75 48.9373H85.25C86.1815 48.9373 86.9375 48.1813 86.9375 47.2498C86.9375 46.3183 86.1815 45.5623 85.25 45.5623ZM76.8125 38.8123H71.1875V26.4373H76.8125V38.8123ZM62.1875 38.8123V26.4373H67.8125V38.8123H62.1875ZM48.7641 23.0013C48.7619 23.0013 48.7619 23.0013 48.7641 23.0013C48.7529 22.9833 48.6875 22.8508 48.6875 22.4998V16.7418C48.6875 16.5281 48.8066 16.3349 48.9979 16.2381L64.2439 8.61526C64.7231 8.37676 65.2769 8.37676 65.7561 8.61526L81.0021 16.2381C81.1934 16.3326 81.3125 16.5258 81.3125 16.7418V22.4998C81.3125 22.8508 81.2473 22.9814 81.2518 22.9881C81.2338 22.9971 81.101 23.0623 80.75 23.0623H49.25C48.9103 23.0623 48.7754 23.0013 48.7641 23.0013ZM53.1875 26.4373H58.8125V38.8123H53.1875V26.4373ZM48.6875 42.7498C48.6875 42.3988 48.7527 42.2682 48.7482 42.2614C48.7662 42.2524 48.899 42.1873 49.25 42.1873H80.75C81.1595 42.1873 81.2406 42.2483 81.2383 42.2483C81.2473 42.2685 81.3125 42.3988 81.3125 42.7498V45.5623H48.6875V42.7498ZM62.1875 15.7498C62.1875 14.1973 63.4475 12.9373 65 12.9373C66.5525 12.9373 67.8125 14.1973 67.8125 15.7498C67.8125 17.3023 66.5525 18.5623 65 18.5623C63.4475 18.5623 62.1875 17.3023 62.1875 15.7498Z" />
+  </svg>
+);
+
+const MoneyBagIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20" fill="none" viewBox="218 198 42 45">
+    <g stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="square">
+      <path d="M239 207.938C241.589 207.938 243.688 205.839 243.688 203.25C243.688 200.661 241.589 198.562 239 198.562C236.411 198.562 234.312 200.661 234.312 203.25C234.312 205.839 236.411 207.938 239 207.938Z" />
+      <path d="M239 231.375L235.094 236.063H228.211C225.944 236.063 224.998 233.164 226.828 231.827L232.75 227.5L233.531 212.625L233.516 212.894" />
+      <path d="M242.125 236.063H249.789C252.056 236.063 253.002 233.164 251.172 231.827L245.25 227.5L244.469 212.625L244.486 212.941" />
+      <path d="M232.75 226.688H245.25" strokeWidth="1.5" />
+      <path d="M218.688 212.625L223.338 216.611C223.83 217.033 224.533 217.107 225.103 216.796L232.05 213.007C232.51 212.756 233.024 212.625 233.547 212.625H244.453C244.976 212.625 245.49 212.756 245.95 213.007L252.897 216.796C253.467 217.107 254.17 217.033 254.662 216.611L259.312 212.625" />
+      <path d="M220.25 242.312H257.75" />
+    </g>
+  </svg>
+);
+
+const PiggyBankIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20" fill="none" viewBox="38 193 54 47">
+    <path d="M66.5557 193.65C70.2376 193.65 73.2847 196.184 74.0508 199.537H61.8887C60.9132 199.537 59.9544 199.608 59.0156 199.739C59.7031 196.286 62.7999 193.65 66.5557 193.65ZM54.2051 230.98L53.5361 230.485C50.4996 228.241 48.4417 224.818 48.0527 220.93L47.9043 219.443H43.6113C40.8424 219.443 38.6504 217.249 38.6504 214.586C38.6504 211.923 40.8424 209.729 43.6113 209.729H44C44.4064 209.729 44.6836 210.038 44.6836 210.375C44.6836 210.712 44.4064 211.021 44 211.021H43.6113C41.6552 211.021 40.0166 212.598 40.0166 214.586C40.0166 216.574 41.6552 218.15 43.6113 218.15H47.9902L48.2607 216.832C49.3069 211.743 53.2596 207.657 58.3623 206.346L58.3662 206.345C59.4843 206.055 60.6671 205.9 61.8887 205.9H74.333C74.6363 205.9 74.9387 205.908 75.2305 205.925C75.6135 205.952 75.9813 205.987 76.3398 206.037L77.2256 206.161L77.8125 205.487C79.2217 203.872 81.322 202.838 83.667 202.838H84.6533L83.3506 207.969L83.1084 208.922L83.8311 209.588C85.2072 210.857 86.3266 212.397 87.0879 214.108L87.5234 215.088H89.8887C90.7228 215.088 91.3496 215.742 91.3496 216.5V225.688C91.3496 226.446 90.7228 227.1 89.8887 227.1H85.9619L85.4668 227.748C84.6765 228.782 83.737 229.707 82.6846 230.486L82.0166 230.981V237.938C82.0166 238.696 81.3898 239.35 80.5557 239.35H77.4443C76.6102 239.35 75.9834 238.696 75.9834 237.938V233.225H60.2393V237.938C60.2393 238.696 59.6115 239.35 58.7773 239.35H55.667C54.8328 239.35 54.2051 238.696 54.2051 237.938V230.98Z" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+
+const SimpleToUseIcon: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20" viewBox="220 7 38 43" fill="currentColor">
+    <path d="M248.682 16.6532L250.626 13.4126C251.323 12.2481 251.34 10.8475 250.671 9.66605C250.002 8.48455 248.793 7.78125 247.437 7.78125H231.563C230.205 7.78125 228.996 8.48667 228.329 9.66605C227.662 10.8475 227.677 12.2481 228.376 13.4126L230.318 16.6532C224.072 22.4162 220.906 28.5404 220.906 34.875C220.906 38.2389 222.247 49.2188 239.5 49.2188C256.753 49.2188 258.094 38.2389 258.094 34.875C258.094 28.5404 254.93 22.4162 248.682 16.6532ZM231.102 11.2365C231.159 11.1366 231.295 10.9688 231.563 10.9688H247.437C247.705 10.9688 247.841 11.1387 247.898 11.2365C247.955 11.3363 248.03 11.5426 247.892 11.7721L245.737 15.3653H233.263L231.108 11.7721C230.97 11.5426 231.045 11.3385 231.102 11.2365ZM239.5 46.0312C225.596 46.0312 224.094 38.2304 224.094 34.875C224.094 29.3118 227.101 23.8249 232.987 18.5549H246.013C251.902 23.8249 254.906 29.3118 254.906 34.875C254.906 38.2304 253.404 46.0312 239.5 46.0312ZM241.238 31.5451L238.55 30.8673C238.21 30.778 237.921 30.5868 237.7 30.3C237.49 30.0301 237.375 29.6814 237.375 29.3223C237.375 28.4447 238.066 27.733 238.916 27.733H240.087C240.871 27.733 241.527 28.3407 241.617 29.1482C241.712 30.0237 242.488 30.6484 243.376 30.557C244.252 30.4614 244.88 29.6709 244.785 28.7975C244.555 26.7214 243.038 25.0935 241.094 24.6643V24.25C241.094 23.3702 240.38 22.6562 239.5 22.6562C238.62 22.6562 237.906 23.3702 237.906 24.25V24.6601C235.783 25.1297 234.188 27.0379 234.188 29.3223C234.188 30.3869 234.542 31.4282 235.173 32.2442C235.813 33.0835 236.729 33.6893 237.762 33.9549L240.45 34.6327C241.143 34.8112 241.625 35.4467 241.625 36.1777C241.625 36.6027 241.461 37.0043 241.162 37.3082C240.871 37.6057 240.488 37.767 240.084 37.767H238.913C238.129 37.767 237.473 37.1593 237.383 36.3518C237.286 35.4763 236.51 34.8473 235.624 34.943C234.748 35.0386 234.12 35.8291 234.215 36.7025C234.445 38.7786 235.962 40.4065 237.906 40.8357V41.25C237.906 42.1297 238.62 42.8438 239.5 42.8438C240.38 42.8438 241.094 42.1297 241.094 41.25V40.8399C241.973 40.6465 242.783 40.2066 243.433 39.5457C244.322 38.6447 244.812 37.4484 244.812 36.1798C244.812 33.991 243.346 32.087 241.238 31.5451Z" />
+  </svg>
+);
+
 interface WelcomeScreenProps {
   onSignIn: () => void;
   onShowThankYou: () => void;
+}
+
+interface FeatureItemProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou }) => {
@@ -73,7 +110,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
 
   return (
     <div className="bg-slate-50 font-sans text-slate-800">
-      <div className="relative overflow-hidden z-10">
+      <div className="relative overflow-hidden z-10 hidden md:block">
         <video
           src={BgVideo}
           autoPlay
@@ -181,8 +218,101 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
         </div>
       </div>
 
+      {/* Mobile Container */}
+      <div className="block md:hidden w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
+        <video
+          src={BgVideo}
+          autoPlay
+          loop
+          muted
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-4 z-10">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+              <p>CashGrow<br /> Beat the cost of Living</p>
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Make progress, know your status, and be in control
+            </p>
+            <form name="cashgrow-waitlist" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <input type="hidden" name="form-name" value="cashgrow-waitlist" />
+              <div style={{ display: 'none' }}>
+                <label>Don't fill this out: <input name="bot-field" /></label>
+              </div>
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your Name"
+                  required
+                  className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                />
+              </div>
+              <div className="relative">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <EmailIcon />
+                </div>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  required
+                  className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
+              >
+                Join Waitlist
+              </button>
+            </form>
+            <p className="mt-4 text-sm text-gray-500">
+              We only send one message when the door open
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile What Is CashGrow Section */}
+      <div className="block md:hidden w-[290px] h-[165px] mx-auto mt-4 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-white/50">
+        <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
+        <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
+        <p className="text-xs text-slate-600 leading-relaxed">
+          We are working hard to launch CashGrow in the next few weeks. Our mission is to help
+          people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. Want to be among the first few?, sign up for our wait list below.
+        </p>
+      </div>
+
+      {/* Features Container */}
+      <div className="block md:hidden w-[405px] h-[348px] mx-auto mt-4 bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50">
+        <div className="grid grid-cols-2 gap-6">
+          {[
+            { icon: <BankIcon />, title: "Connect\nyour bank", description: "All your accounts\nin one place." },
+            { icon: <SimpleToUseIcon />, title: "Simple\nto use", description: "No charts and\nstress, just growth" },
+            { icon: <PiggyBankIcon />, title: "Auto money\nSaving", description: "Spend smart, grow more." },
+            { icon: <MoneyBagIcon />, title: "Track\nspending", description: "See where your money goes." },
+          ].map((feature, index) => (
+            <div key={index} className="text-center">
+              <div className="flex justify-center mb-2 text-blue-600">{feature.icon}</div>
+              <h3 className="text-sm font-bold text-slate-900 mb-1 whitespace-pre-line">{feature.title}</h3>
+              <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Footer */}
-      <footer className="relative bg-blue-700 text-white py-8 md:py-16 px-4 md:px-6 z-20">
+      <footer className="relative bg-blue-700 text-white py-8 md:py-16 px-4 md:px-6 z-20 w-[405px] h-[416px] mx-auto md:w-full md:h-auto">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
             <div className="md:col-span-3 grid grid-cols-3 gap-6 md:gap-8">
