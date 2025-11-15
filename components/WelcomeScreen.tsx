@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ChevronDownIcon,
   CashGrowLogo,
@@ -246,6 +246,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [videoError, setVideoError] = useState(false);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -308,6 +310,43 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
       setPasswordError('Incorrect password. Please try again.');
     }
   };
+
+  // Attempt to play video after user interaction
+  const attemptPlayVideo = async () => {
+    if (videoRef.current && videoRef.current.paused) {
+      try {
+        await videoRef.current.play();
+        setVideoPaused(false);
+      } catch (error) {
+        console.warn('Video autoplay failed:', error);
+        setVideoPaused(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Try to play video on component mount
+    attemptPlayVideo();
+
+    // Add event listeners for user interaction
+    const handleUserInteraction = () => {
+      attemptPlayVideo();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('scroll', handleUserInteraction);
+    };
+
+    document.addEventListener('click', handleUserInteraction);
+    document.addEventListener('touchstart', handleUserInteraction);
+    document.addEventListener('scroll', handleUserInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('touchstart', handleUserInteraction);
+      document.removeEventListener('scroll', handleUserInteraction);
+    };
+  }, []);
 
   return (
     <div className="bg-slate-50 font-sans text-slate-800">
@@ -432,6 +471,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
         </div>
         <div className="h-[calc(100%-50px)] relative">
           <video
+            ref={videoRef}
             src={BgVideo}
             autoPlay
             loop
@@ -441,10 +481,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
             className="absolute inset-0 w-full h-full object-cover z-0"
             onError={() => setVideoError(true)}
             onLoadedData={() => console.log('Mobile video loaded successfully')}
+            onPause={() => setVideoPaused(true)}
+            onPlay={() => setVideoPaused(false)}
           />
-          {videoError && (
+          {(videoError || videoPaused) && (
             <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-0">
-              <p className="text-white">Video background unavailable</p>
+              <p className="text-white">
+                {videoError ? 'Video background unavailable' : 'Tap to start video'}
+              </p>
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 bg-white/40 p-4 z-10">
