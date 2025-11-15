@@ -79,6 +79,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
         <div className="relative bg-gradient-to-br from-blue-100/80 via-white/60 to-slate-100/80 overflow-hidden z-10">
           <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
             <Logo />
+            
             <button
               onClick={openPasswordModal}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
@@ -100,6 +101,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                   <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
                     Save more, worry less, and take control over your finances
                   </p>
+                  <div className="text-center"></div>
                   <button
                     onClick={openPasswordModal}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
