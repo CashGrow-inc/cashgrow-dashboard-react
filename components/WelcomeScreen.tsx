@@ -133,7 +133,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 data-netlify="true"
                 netlify
                 data-netlify-honeypot="bot-field"
-                onSubmit={handleSubmit}
                 className="mt-8 space-y-4 text-left"
               >
                 <input type="hidden" name="form-name" value="contact" />
