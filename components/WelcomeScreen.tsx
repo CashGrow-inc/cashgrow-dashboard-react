@@ -128,14 +128,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 Make progress, know your status, and be in control 
               </p>
               <form
-                name="cashgrow-waitlist"
+                name="contact"
                 method="POST"
                 data-netlify="true"
+                netlify
                 data-netlify-honeypot="bot-field"
                 onSubmit={handleSubmit}
                 className="mt-8 space-y-4 text-left"
               >
-                <input type="hidden" name="form-name" value="cashgrow-waitlist" />
+                <input type="hidden" name="form-name" value="contact" />
                 <div className="hidden" aria-hidden="true">
                   <label>
                     Don't fill this out:
@@ -143,16 +144,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                   </label>
                 </div>
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
                     Full Name
                   </label>
                   <input
                     type="text"
-                    id="name"
-                    name="name"
+                    id="fullName"
+                    name="fullName"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
+                    placeholder="Full Name"
                     required
                     aria-label="Full name"
                     autoComplete="name"
@@ -173,7 +174,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                       name="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder="Email"
                       required
                       aria-label="Email address"
                       autoComplete="email"
@@ -191,7 +192,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                     name="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(555) 123-4567"
+                    placeholder="Phone"
                     aria-label="Phone number"
                     autoComplete="tel"
                     className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
