@@ -92,8 +92,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 {/* Left Column */}
                 <div className="text-center lg:text-left">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-                   <p>Beat the cost of Living with<br />CashGrow</p>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight tracking-tight text center">
+                   Beat the cost of Living with
+                    <br />
+                    CashGrow
                   </h1>
                   <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
                     Save more, worry less, and take control over your finances
