@@ -334,7 +334,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
           </div>
 
           {/* Wishlist Section */}
-          <main className="min-h-[50vh] bg-white/80 flex items-center justify-center p-2 font-sans w-full md:w-1/3 mx-auto">
+          <main className="min-h-[50vh] bg-white/40 flex items-center justify-center p-2 font-sans w-full md:w-1/3 mx-auto">
             <div className="w-full text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
                 <p>CashGrow<br /> Beat the cost of Living</p>
@@ -408,9 +408,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
             autoPlay
             loop
             muted
+            playsinline
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white/80 p-4 z-10">
+          <div className="absolute bottom-0 left-0 right-0 bg-white/40 p-4 z-10">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
                 <p>CashGrow<br /> Beat the cost of Living</p>
