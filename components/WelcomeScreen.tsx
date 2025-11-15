@@ -96,7 +96,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                    <p>Beat the cost of Living with<br />CashGrow</p>
                   </h1>
                   <p className="text-lg sm:text-xl text-slate-700 mb-10 max-w-xl mx-auto lg:mx-0">
-                    Save more, worry less, and feel good about your spending
+                    Save more, worry less, and take control over your finances
                   </p>
                   <button
                     onClick={openPasswordModal}
@@ -108,7 +108,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                 {/* Right Column */}
                 <div className="bg-white/70 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl text-left border border-white/50">
                   <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made clear, growth made practical</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Your personal budgeting app</h3>
                   <p className="text-base text-slate-600 leading-relaxed">
                    We are working hard to launch CashGrow in the next few weeks. Our mission is to help 
                     people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. want to be among the first few?, sign up for our wait list below.
