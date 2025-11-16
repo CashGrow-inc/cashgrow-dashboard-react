@@ -8,6 +8,7 @@ import {
   YouTubeIcon
 } from './Icons';
 import BgVideo from '../assets/background-video_H264.mp4';
+import { useAuth } from '../AuthContext';
 
 const Logo: React.FC<{ flowerColor?: string; textColor?: string }> = ({ flowerColor = "#304FFE", textColor = "#2A2A2A" }) => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -240,14 +241,17 @@ interface FeatureItemProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou }) => {
+  const { login } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [videoError, setVideoError] = useState(false);
   const [videoPaused, setVideoPaused] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
+  const desktopVideoRef = useRef<HTMLVideoElement>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -289,33 +293,36 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
     onShowThankYou();
   };
 
-  const openPasswordModal = () => {
-    setPasswordModalOpen(true);
-    setPasswordInput('');
-    setPasswordError('');
+  const openLoginModal = () => {
+    setLoginModalOpen(true);
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginError('');
   };
 
-  const closePasswordModal = () => {
-    setPasswordModalOpen(false);
-    setPasswordInput('');
-    setPasswordError('');
+  const closeLoginModal = () => {
+    setLoginModalOpen(false);
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginError('');
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (passwordInput === ACCESS_PASSWORD) {
-      closePasswordModal();
+    try {
+      await login(loginEmail, loginPassword);
+      closeLoginModal();
       onSignIn();
-    } else {
-      setPasswordError('Incorrect password. Please try again.');
+    } catch (error) {
+      setLoginError('Login failed. Check credentials.');
     }
   };
 
   // Attempt to play video after user interaction
-  const attemptPlayVideo = async () => {
-    if (videoRef.current && videoRef.current.paused) {
+  const attemptPlayVideo = async (videoElement: HTMLVideoElement | null) => {
+    if (videoElement && videoElement.paused) {
       try {
-        await videoRef.current.play();
+        await videoElement.play();
         setVideoPaused(false);
       } catch (error) {
         console.warn('Video autoplay failed:', error);
@@ -325,12 +332,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
   };
 
   useEffect(() => {
-    // Try to play video on component mount
-    attemptPlayVideo();
+    // Try to play videos on component mount
+    attemptPlayVideo(desktopVideoRef.current);
+    attemptPlayVideo(mobileVideoRef.current);
 
     // Add event listeners for user interaction
     const handleUserInteraction = () => {
-      attemptPlayVideo();
+      attemptPlayVideo(desktopVideoRef.current);
+      attemptPlayVideo(mobileVideoRef.current);
       // Remove listeners after first interaction
       document.removeEventListener('click', handleUserInteraction);
       document.removeEventListener('touchstart', handleUserInteraction);
@@ -352,20 +361,23 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
     <div className="bg-slate-50 font-sans text-slate-800">
       <div className="relative overflow-hidden z-10 hidden md:block">
         <video
+          ref={desktopVideoRef}
           src={BgVideo}
           autoPlay
           loop
           muted
           className="absolute inset-0 w-full h-full object-cover z-0"
+          playsInline
+          preload="metadata"
         />
         <div className="relative bg-gradient-to-br from-blue-100/80 via-white/60 to-slate-100/80 overflow-hidden z-10">
           <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
             <Logo />
             <button
-              onClick={openPasswordModal}
+              onClick={openLoginModal}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
             >
-              Sign up
+              Sign In
             </button>
           </header>
 
@@ -381,10 +393,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
                     Save more, worry less, and feel good about your spending
                   </p>
                   <button
-                    onClick={openPasswordModal}
+                    onClick={openLoginModal}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
-                    Try CashGrow for Free
+                    Sign In to CashGrow
                   </button>
                 </div>
                 {/* Right Column */}
@@ -463,15 +475,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
         <div className="h-[50px] flex justify-between items-center px-4 bg-white z-20">
           <Logo />
           <button
-            onClick={onSignIn}
+            onClick={openLoginModal}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-6 rounded-[200px] text-sm transition duration-300"
           >
-            Sign up
+            Sign In
           </button>
         </div>
         <div className="h-[calc(100%-50px)] relative">
           <video
-            ref={videoRef}
+            ref={mobileVideoRef}
             src={BgVideo}
             autoPlay
             loop
@@ -650,33 +662,47 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
         <input name="name" type="text" />
         <input name="email" type="email" />
       </form>
-      {isPasswordModalOpen && (
+      {isLoginModalOpen && (
         <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Enter Access Password</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">Sign In to CashGrow</h3>
             <p className="text-sm text-slate-600 mb-6">
-              To view the CashGrow prototype, please enter the access password provided by the team.
+              Enter your credentials to access your account.
             </p>
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div>
-                <label htmlFor="access-password" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Access password
+                <label htmlFor="login-email" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Email
                 </label>
                 <input
-                  id="access-password"
+                  id="login-email"
+                  type="email"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={loginEmail}
+                  onChange={(event) => setLoginEmail(event.target.value)}
+                  placeholder="Enter your email"
+                  autoFocus
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="login-password" className="block text-sm font-semibold text-slate-700 mb-2">
+                  Password
+                </label>
+                <input
+                  id="login-password"
                   type="password"
                   className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={passwordInput}
-                  onChange={(event) => setPasswordInput(event.target.value)}
-                  placeholder="Enter password"
-                  autoFocus
+                  value={loginPassword}
+                  onChange={(event) => setLoginPassword(event.target.value)}
+                  placeholder="Enter your password"
                 />
-                {passwordError && <p className="text-sm text-red-500 mt-2">{passwordError}</p>}
+                {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
               </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={closePasswordModal}
+                  onClick={closeLoginModal}
                   className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
                 >
                   Cancel
@@ -685,7 +711,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
                   type="submit"
                   className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
                 >
-                  Continue
+                  Sign In
                 </button>
               </div>
             </form>

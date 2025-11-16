@@ -8,6 +8,8 @@ import {
 import WelcomeScreen, { Logo } from './components/WelcomeScreen';
 import ThankYouScreen from './components/ThankYouScreen';
 import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
+import { AuthProvider } from './AuthContext';
+import { useAuth } from './AuthContext';
 
 // Reusable Components
 
@@ -61,20 +63,31 @@ const Accordion: React.FC<AccordionProps> = ({ summary, children, defaultOpen = 
 
 
 // Header, BottomNav, Layout
-const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => (
-  <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
-    <Logo />
-    <div className="flex items-center space-x-4">
-      <button
-        onClick={onSignOut}
-        className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-      >
-        Sign Out
-      </button>
-      <ProfileIcon className="w-7 h-7 text-slate-500" />
-    </div>
-  </header>
-);
+const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => {
+  const { user } = useAuth();
+
+  return (
+    <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
+      <div className="flex items-center space-x-4">
+        <Logo />
+        {user && (
+          <span className="text-lg font-semibold text-slate-800">
+            {user.full_name || user.email}!
+          </span>
+        )}
+      </div>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={onSignOut}
+          className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          Sign Out
+        </button>
+        <ProfileIcon className="w-7 h-7 text-slate-500" />
+      </div>
+    </header>
+  );
+};
 
 interface BottomNavProps {
   activeScreen: Screen;
@@ -335,7 +348,7 @@ const IncomeScreen: React.FC = () => (
 
 
 
-export default function App() {
+const AppContent: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
@@ -387,5 +400,13 @@ export default function App() {
         <BottomNav activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
       </div>
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
