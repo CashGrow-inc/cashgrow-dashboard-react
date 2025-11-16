@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 // FIX: Added IncomeSource to import to resolve type error.
 import type { MonthlyCategory, FixedCostCategory, Transaction, IncomeSource } from '../types';
 import {

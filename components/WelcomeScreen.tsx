@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PlaidLink from "./PlaidLink";
 import {
   ChevronDownIcon,
   CashGrowLogo,
@@ -108,6 +109,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn }) => {
                   >
                     Try CashGrow for Free
                   </button>
+                  <div className="mt-4 flex justify-center">
+  <PlaidLink />
+</div>
                 </div>
                 {/* Right Column */}
                 <div className="bg-white/70 backdrop-blur-sm p-8 md:p-10 rounded-2xl shadow-xl text-left border border-white/50">
