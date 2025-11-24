@@ -17,9 +17,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [token, setToken] = useState<string | null>(localStorage.getItem('authToken'));
     const [user, setUser] = useState<any>(null);
 
+    // Get API URL from environment variable - falls back to localhost for development
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
     const login = async (email: string, password: string) => {
         try {
-            const response = await axios.post('http://localhost:3001/api/auth/login', {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
                 email,
                 password,
             });
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return;
 
         try {
-            const response = await axios.get('http://localhost:3001/api/user/profile', {
+            const response = await axios.get(`${API_BASE_URL}/api/user/profile`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
