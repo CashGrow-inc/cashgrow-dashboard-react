@@ -320,10 +320,20 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
 
   // Attempt to play video after user interaction
   const attemptPlayVideo = async (videoElement: HTMLVideoElement | null) => {
-    if (videoElement && videoElement.paused) {
+    if (videoElement) {
       try {
-        await videoElement.play();
-        setVideoPaused(false);
+        // Ensure video is muted and has the required attributes for iOS
+        videoElement.muted = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+
+        if (videoElement.paused) {
+          const playPromise = videoElement.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            setVideoPaused(false);
+          }
+        }
       } catch (error) {
         console.warn('Video autoplay failed:', error);
         setVideoPaused(true);
@@ -368,7 +378,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
           muted
           className="absolute inset-0 w-full h-full object-cover z-0"
           playsInline
-          preload="metadata"
+          preload="auto"
+          webkit-playsinline="true"
         />
         <div className="relative bg-gradient-to-br from-blue-100/80 via-white/60 to-slate-100/80 overflow-hidden z-10">
           <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
@@ -488,13 +499,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
             autoPlay
             loop
             muted
-            playsinline
-            preload="metadata"
+            playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover z-0"
             onError={() => setVideoError(true)}
             onLoadedData={() => console.log('Mobile video loaded successfully')}
             onPause={() => setVideoPaused(true)}
             onPlay={() => setVideoPaused(false)}
+            webkit-playsinline="true"
           />
           {(videoError || videoPaused) && (
             <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-0">
