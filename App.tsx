@@ -7,6 +7,7 @@ import {
 } from './components/Icons';
 import WelcomeScreen, { Logo } from './components/WelcomeScreen';
 import ThankYouScreen from './components/ThankYouScreen';
+import BankConnectionScreen from './components/BankConnectionScreen';
 import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from './AuthContext';
@@ -350,6 +351,7 @@ const IncomeScreen: React.FC = () => (
 
 const AppContent: React.FC = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isBankConnected, setIsBankConnected] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
 
@@ -361,8 +363,17 @@ const AppContent: React.FC = () => {
     setShowThankYou(true);
   }, []);
 
+  const handleBankConnectionComplete = useCallback(() => {
+    setIsBankConnected(true);
+  }, []);
+
+  const handleSkipBankConnection = useCallback(() => {
+    setIsBankConnected(true);
+  }, []);
+
   const handleSignOut = useCallback(() => {
     setIsSignedIn(false);
+    setIsBankConnected(false);
   }, []);
 
   const renderScreen = () => {
@@ -388,6 +399,15 @@ const AppContent: React.FC = () => {
 
   if (!isSignedIn) {
     return <WelcomeScreen onSignIn={handleSignIn} onShowThankYou={handleShowThankYou} />;
+  }
+
+  if (!isBankConnected) {
+    return (
+      <BankConnectionScreen
+        onConnectionComplete={handleBankConnectionComplete}
+        onSkip={handleSkipBankConnection}
+      />
+    );
   }
 
   return (
