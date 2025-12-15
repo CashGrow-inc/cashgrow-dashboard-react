@@ -22,7 +22,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
     const createLinkToken = async () => {
       try {
         setError(null);
-        const response = await fetch(`${API_BASE_URL}/api/plaid/create-link-token`, {
+        const response = await fetch(`${API_BASE_URL}/api/plaid/create_link_token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
 
       try {
         // Exchange public token for access token
-        const response = await fetch(`${API_BASE_URL}/api/plaid/exchange-public-token`, {
+        const response = await fetch(`${API_BASE_URL}/api/plaid/exchange_public_token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
