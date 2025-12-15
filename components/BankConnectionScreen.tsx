@@ -200,7 +200,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-6">
           <h3 className="font-bold text-blue-900 mb-2 text-sm">Testing Instructions:</h3>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-            <li>Select <span className="font-semibold">Sandbox Bank</span></li>
+            <li>Select <span className="font-semibold">First Platipus Bank</span></li>
             <li>Username: <span className="font-mono bg-blue-100 px-2 py-0.5 rounded">user_good</span></li>
             <li>Password: <span className="font-mono bg-blue-100 px-2 py-0.5 rounded">pass_good</span></li>
           </ol>
