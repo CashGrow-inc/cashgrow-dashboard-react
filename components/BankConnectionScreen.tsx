@@ -74,7 +74,9 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
         });
 
         if (!response.ok) {
-          throw new Error('Failed to exchange token');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Exchange token failed:', response.status, errorData);
+          throw new Error(`Failed to exchange token: ${response.status} ${JSON.stringify(errorData)}`);
         }
 
         const data = await response.json();
@@ -84,7 +86,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
         onConnectionComplete();
       } catch (err) {
         console.error('Error exchanging token:', err);
-        setError('Failed to complete bank connection. Please try again.');
+        setError(`Failed to complete bank connection: ${err instanceof Error ? err.message : 'Unknown error'}`);
         setIsConnecting(false);
       }
     },
