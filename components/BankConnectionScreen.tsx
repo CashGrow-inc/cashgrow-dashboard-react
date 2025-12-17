@@ -54,11 +54,17 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
     onSuccess: async (public_token, metadata) => {
       console.log('Plaid connection successful');
       console.log('Public token received:', public_token);
+      console.log('Full metadata:', metadata);
       console.log('Institution:', metadata.institution);
 
       setIsConnecting(true);
 
       try {
+        // Get institution name from metadata - Plaid returns it in the 'name' field
+        const institutionName = metadata.institution?.name || 'First Platypus Bank';
+
+        console.log('Sending institution name:', institutionName);
+
         // Exchange public token for access token
         const response = await fetch(`${API_BASE_URL}/api/plaid/exchange_public_token`, {
           method: 'POST',
@@ -68,8 +74,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
           },
           body: JSON.stringify({
             public_token,
-            userId: user?.id || user?.email || '12345',
-            institutionName: metadata.institution?.name || 'Unknown Bank',
+            institution_name: institutionName,
           }),
         });
 
