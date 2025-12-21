@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // FIX: Added IncomeSource to import to resolve type error.
 import type { MonthlyCategory, FixedCostCategory, Transaction, IncomeSource } from '../types';
@@ -17,6 +17,7 @@ import {
   fixedCosts,
   incomeSources,
 } from '../constants';
+import { useAuth } from '../AuthContext';
 
 type View = 'grow' | 'unplanned' | 'monthlies' | 'fixed' | 'income';
 
@@ -98,41 +99,71 @@ const BottomNav: React.FC<{ activeView: View; setActiveView: (view: View) => voi
 
 // View Components
 
-const GrowView: React.FC = () => (
-  <div className="space-y-6">
-    <Card>
-      <div className="flex justify-between items-center">
-        <h2 className="font-semibold text-gray-800">Budget</h2>
-        <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">Weekly</span>
-      </div>
-      <p className="text-4xl font-bold text-gray-900 mt-2">$506</p>
-      <div className="flex justify-between items-baseline text-sm text-gray-500 mt-1">
-        <span>Left to Spend till Wednesday</span>
-        <span>2 Day Left</span>
-      </div>
-      <ProgressBar value={506} max={750} color="bg-blue-600" />
-    </Card>
-    <Card className="bg-green-50">
-      <h3 className="text-lg font-bold text-green-800">You're growing strong!</h3>
-      <p className="text-green-700 mt-1">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
-    </Card>
-    <Card>
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-            <div className="bg-gray-100 p-2 rounded-full">
-                <BillIcon className="w-6 h-6 text-gray-500" />
-            </div>
-            <h2 className="font-semibold text-gray-800 text-lg">Goal of the Month</h2>
+const GrowView: React.FC = () => {
+  const { fetchBudgetSummary } = useAuth();
+  const [budget, setBudget] = useState<number>(0);
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadBudget = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching budget summary...');
+        const summary = await fetchBudgetSummary(7); // Get last 7 days
+        console.log('Budget summary received:', summary);
+        setBudget(summary.budget);
+        setTotalIncome(summary.total_income);
+        setTotalExpenses(summary.total_expenses);
+      } catch (error) {
+        console.error('Failed to load budget:', error);
+        // Keep showing 0 or show an error message
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBudget();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <div className="flex justify-between items-center">
+          <h2 className="font-semibold text-gray-800">Budget</h2>
+          <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">Weekly</span>
         </div>
-        <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">⚡ AutoSave</span>
-      </div>
-      <div className="flex justify-between items-end mt-2">
-        <p className="text-4xl font-bold text-gray-900">$700</p>
-        <button className="text-sm font-semibold text-blue-600">Edit</button>
-      </div>
-    </Card>
-  </div>
-);
+        <p className="text-4xl font-bold text-gray-900 mt-2">
+          {isLoading ? '...' : `$${budget.toFixed(2)}`}
+        </p>
+        <div className="flex justify-between items-baseline text-sm text-gray-500 mt-1">
+          <span>Income: ${totalIncome.toFixed(2)} - Expenses: ${totalExpenses.toFixed(2)}</span>
+        </div>
+        <ProgressBar value={Math.abs(budget)} max={totalIncome > 0 ? totalIncome : 1000} color={budget >= 0 ? "bg-green-600" : "bg-red-600"} />
+      </Card>
+      <Card className="bg-green-50">
+        <h3 className="text-lg font-bold text-green-800">You're growing strong!</h3>
+        <p className="text-green-700 mt-1">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
+      </Card>
+      <Card>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-3">
+              <div className="bg-gray-100 p-2 rounded-full">
+                  <BillIcon className="w-6 h-6 text-gray-500" />
+              </div>
+              <h2 className="font-semibold text-gray-800 text-lg">Goal of the Month</h2>
+          </div>
+          <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">⚡ AutoSave</span>
+        </div>
+        <div className="flex justify-between items-end mt-2">
+          <p className="text-4xl font-bold text-gray-900">$700</p>
+          <button className="text-sm font-semibold text-blue-600">Edit</button>
+        </div>
+      </Card>
+    </div>
+  );
+};
 
 const TransactionItem: React.FC<{ transaction: Transaction, showCategory?: boolean }> = ({ transaction, showCategory = false }) => (
     <div className="flex items-center justify-between py-3">

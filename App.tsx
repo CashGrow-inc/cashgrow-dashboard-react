@@ -8,9 +8,17 @@ import {
 import WelcomeScreen, { Logo } from './components/WelcomeScreen';
 import ThankYouScreen from './components/ThankYouScreen';
 import BankConnectionScreen from './components/BankConnectionScreen';
-import { unplannedData, monthliesData, fixedCostsData, incomeData } from './data/mockData';
+import { unplannedData, monthliesData, incomeData } from './data/mockData';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from './AuthContext';
+
+// Helper function to format numbers with thousand separators
+const formatCurrency = (amount: number): string => {
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
 
 // Reusable Components
 
@@ -125,227 +133,830 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScreen }) 
 
 
 // Screens
-const GrowScreen: React.FC = () => (
-  <div className="space-y-4">
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-slate-600 font-medium">Budget</h2>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          <WeeklyIcon className="w-4 h-4 mr-1" />
-          Weekly
-        </span>
-      </div>
-      <div className="text-5xl font-bold text-slate-800 mb-3">$506</div>
-      <ProgressBar value={506} max={750} />
-      <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-        <span>Left to Spend till Wednesday</span>
-        <span>2 Day Left</span>
-      </div>
-    </div>
+const GrowScreen: React.FC = () => {
+  const { fetchBudgetSummary } = useAuth();
+  const [budget, setBudget] = useState<number>(0);
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
+    const saved = localStorage.getItem('monthlyGoal');
+    return saved ? parseFloat(saved) : 700;
+  });
+  const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
+  const [goalInputValue, setGoalInputValue] = useState<string>(monthlyGoal.toString());
 
-    <div className="bg-green-50 rounded-2xl p-5 text-green-800">
-      <h3 className="font-bold text-lg">You're growing strong!</h3>
-      <p className="text-green-700">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
-    </div>
+  React.useEffect(() => {
+    const loadBudget = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching budget summary...');
+        const summary = await fetchBudgetSummary(7, monthlyGoal); // Pass monthly goal
+        console.log('Budget summary received:', summary);
+        setBudget(summary.budget);
+        setTotalIncome(summary.total_income);
+        setTotalExpenses(summary.total_expenses);
+      } catch (error) {
+        console.error('Failed to load budget:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-1">
-        <div className="flex items-center space-x-2">
-          <GoalIcon className="w-8 h-8 text-slate-400" />
-          <h2 className="text-slate-600 font-medium text-lg">Goal of the Month</h2>
+    loadBudget();
+  }, [monthlyGoal]); // Reload when monthly goal changes
+
+  const handleEditGoal = () => {
+    setIsEditingGoal(true);
+    setGoalInputValue(monthlyGoal.toString());
+  };
+
+  const handleSaveGoal = () => {
+    const newGoal = parseFloat(goalInputValue);
+    if (!isNaN(newGoal) && newGoal > 0) {
+      setMonthlyGoal(newGoal);
+      localStorage.setItem('monthlyGoal', newGoal.toString());
+      setIsEditingGoal(false);
+    }
+  };
+
+  const handleCancelGoal = () => {
+    setGoalInputValue(monthlyGoal.toString());
+    setIsEditingGoal(false);
+  };
+
+  const handleGoalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow numbers and decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setGoalInputValue(value);
+    }
+  };
+
+  const handleGoalKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSaveGoal();
+    } else if (e.key === 'Escape') {
+      handleCancelGoal();
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <div className="flex justify-between items-center mb-1">
+          <h2 className="text-slate-600 font-medium">Budget</h2>
+          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <WeeklyIcon className="w-4 h-4 mr-1" />
+            Weekly
+          </span>
         </div>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          <AutosaveIcon className="w-4 h-4 mr-1" />
-          AutoSave
-        </span>
+        <div className="text-5xl font-bold text-slate-800 mb-3">
+          {isLoading ? '...' : `$${formatCurrency(budget)}`}
+        </div>
+        <ProgressBar value={Math.abs(budget)} max={totalIncome > 0 ? totalIncome : 1000} color={budget >= 0 ? 'bg-green-600' : 'bg-red-600'} />
+        <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
+          <span>Income: ${formatCurrency(totalIncome)} - Expenses: ${formatCurrency(totalExpenses)}</span>
+        </div>
       </div>
-      <div className="flex justify-between items-end mt-2">
-        <span className="text-4xl font-bold text-slate-800">$700</span>
-        <button className="text-sm font-semibold text-blue-600">Edit</button>
-      </div>
-    </div>
-  </div>
-);
 
-const UnplannedScreen: React.FC = () => (
-  <div className="space-y-4">
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-slate-600 font-medium">UnPlanned</h2>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          Monthly
-        </span>
+      <div className="bg-green-50 rounded-2xl p-5 text-green-800">
+        <h3 className="font-bold text-lg">You're growing strong!</h3>
+        <p className="text-green-700">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
       </div>
-      <div className="text-5xl font-bold text-slate-800 mb-3">$2,000</div>
-      <ProgressBar value={2000} max={3360} />
-      <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-        <span>Left to Spend till end of month</span>
-        <span>8 Day Left</span>
-      </div>
-    </div>
 
-    {unplannedData.map(week => (
-      <Accordion
-        key={week.id}
-        defaultOpen={week.weekLabel === 'Week 2'}
-        summary={
-          <div className="flex justify-between items-center w-full">
-            <span className="font-semibold text-slate-600">{week.weekLabel}</span>
-            <span className="text-xl font-bold text-slate-800">${week.total.toLocaleString()}</span>
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <div className="flex justify-between items-center mb-1">
+          <div className="flex items-center space-x-2">
+            <GoalIcon className="w-8 h-8 text-slate-400" />
+            <h2 className="text-slate-600 font-medium text-lg">Goal of the Month</h2>
           </div>
-        }
-      >
-        {week.transactions.length > 0 ? (
-          <div className="divide-y divide-slate-100">
-            {week.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
-          </div>
-        ) : <p className="text-sm text-slate-500 text-center py-4">No transactions this week.</p>}
-      </Accordion>
-    ))}
-  </div>
-);
-
-const MonthliesScreen: React.FC = () => (
-  <div className="space-y-4">
-    <div className="px-1">
-      <div className="flex justify-between items-center">
-        <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          Monthly
-        </span>
-      </div>
-    </div>
-    {monthliesData.map(category => (
-      <Accordion
-        key={category.id}
-        summary={
-          <div className="w-full">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className={`w-3 h-3 rounded-full ${category.color.replace('text-', 'bg-')}`}></span>
-                <span className="font-semibold text-slate-800">{category.name}</span>
-              </div>
-              <span className="font-bold text-slate-800">${category.spent} / <span className="text-slate-500">${category.budget}</span></span>
-            </div>
-            <div className="mt-3">
-              <ProgressBar value={category.spent} max={category.budget} color={category.color.replace('text-', 'bg-')} />
-            </div>
-          </div>
-        }
-      >
-        {category.transactions.length > 0 ? (
-          <div className="divide-y divide-slate-100">
-            {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
-          </div>
-        ) : (
-          <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>
-        )}
-      </Accordion>
-    ))}
-  </div>
-);
-
-const FixedScreen: React.FC = () => (
-  <div className="space-y-4">
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-slate-600 font-medium">Fixed Costs</h2>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          Monthly
-        </span>
-      </div>
-      <div className="text-5xl font-bold text-slate-800 mb-3">$4,900</div>
-      <ProgressBar value={670} max={4900} />
-      <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-        <span>Expected expenses per month</span>
-        <span>8 Day Left</span>
-      </div>
-    </div>
-    {fixedCostsData.map(category => (
-      <Accordion
-        key={category.id}
-        summary={
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center space-x-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${category.bgColor}`}>
-                <category.icon className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="font-bold text-slate-800">{category.name}</div>
-                <div className="text-sm text-slate-500">{category.subtitle}</div>
-              </div>
-            </div>
-            <div className="font-bold text-slate-800">${category.spent}/<span className="font-medium text-slate-500">${category.budget}</span></div>
-          </div>
-        }
-      >
-        {category.transactions.length > 0 ? (
-          <div className="divide-y divide-slate-100">
-            {category.transactions.map(tx => <TransactionRow key={tx.id} transaction={tx} />)}
-          </div>
-        ) : <p className="text-sm text-slate-500 text-center py-4">No transactions for this category.</p>}
-      </Accordion>
-    ))}
-  </div>
-);
-
-
-const IncomeScreen: React.FC = () => (
-  <div className="space-y-4">
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="text-slate-600 font-medium">Income</h2>
-        <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-          Monthly
-        </span>
-      </div>
-      <div className="text-5xl font-bold text-slate-800 mb-3">$5,500</div>
-      <ProgressBar value={5500} max={12000} />
-      <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-        <span>Expected income per month</span>
-        <span>8 Day Left</span>
-      </div>
-    </div>
-    {[...incomeData.recurring, ...incomeData.nonRecurring].map(category => (
-      <Accordion
-        key={category.id}
-        summary={
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-600">
-                <category.icon className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="font-bold text-slate-800">{category.name}</div>
-              </div>
-            </div>
-            <div className="font-bold text-slate-800">${(category.received / 1000).toFixed(1)}k/<span className="font-medium text-slate-500">${(category.expected / 1000).toFixed(0)}k</span></div>
-          </div>
-        }
-      >
-        <p className="text-sm text-slate-500 text-center py-4">Income details coming soon.</p>
-      </Accordion>
-    ))}
-    <div className="bg-white rounded-2xl shadow-sm p-4">
-      <Accordion
-        summary={
-          <div className="flex justify-between items-center w-full">
-            <div>
-              <h3 className="font-bold text-slate-800">Non-Cash</h3>
-            </div>
+          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            <AutosaveIcon className="w-4 h-4 mr-1" />
+            AutoSave
+          </span>
+        </div>
+        <div className="flex justify-between items-end mt-2">
+          {isEditingGoal ? (
             <div className="flex items-center space-x-2">
-              <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                Monthly
-              </span>
-              <span className="text-2xl font-bold text-slate-800">${incomeData.nonCash.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-slate-800">$</span>
+              <input
+                type="text"
+                value={goalInputValue}
+                onChange={handleGoalInputChange}
+                onKeyDown={handleGoalKeyPress}
+                className="text-4xl font-bold text-slate-800 border-b-2 border-blue-500 focus:outline-none w-40"
+                autoFocus
+                placeholder="700"
+              />
+            </div>
+          ) : (
+            <span className="text-4xl font-bold text-slate-800">${formatCurrency(monthlyGoal)}</span>
+          )}
+          <div className="flex items-center space-x-2">
+            {isEditingGoal ? (
+              <>
+                <button
+                  onClick={handleSaveGoal}
+                  className="text-sm font-semibold text-green-600 hover:text-green-700 px-3 py-1 bg-green-50 rounded"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancelGoal}
+                  className="text-sm font-semibold text-slate-600 hover:text-slate-700 px-3 py-1 bg-slate-50 rounded"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleEditGoal}
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const UnplannedScreen: React.FC = () => {
+  const { fetchUnplanned } = useAuth();
+  const [weeks, setWeeks] = useState<any[]>([]);
+  const [totalUnplanned, setTotalUnplanned] = useState<number>(0);
+  const [periodLabel, setPeriodLabel] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const loadUnplanned = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching unplanned expenses...');
+        const data = await fetchUnplanned();
+        console.log('Unplanned data received:', data);
+
+        setWeeks(data.weeks);
+        setTotalUnplanned(data.total_unplanned);
+        setPeriodLabel(data.period.label);
+      } catch (error) {
+        console.error('Failed to load unplanned expenses:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUnplanned();
+  }, []);
+
+  const handleToggleWeek = (weekStart: string) => {
+    setExpandedWeek(expandedWeek === weekStart ? null : weekStart);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-8 text-slate-500">Loading unplanned expenses...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="px-1">
+        <div className="flex justify-between items-center">
+          <h2 className="text-slate-800 font-bold text-xl">Unplanned</h2>
+          <span className="flex items-center bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
+            Monthly
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <h3 className="text-slate-600 font-medium mb-2">Total Unplanned</h3>
+        <div className="text-4xl font-bold text-orange-600">${formatCurrency(totalUnplanned)}</div>
+        <p className="text-sm text-slate-500 mt-1">{periodLabel}</p>
+      </div>
+
+      {weeks.length > 0 ? (
+        weeks.map((week) => {
+          const isExpanded = expandedWeek === week.week_start;
+
+          return (
+            <div key={week.week_start} className="bg-white rounded-2xl shadow-sm p-4">
+              <button
+                onClick={() => handleToggleWeek(week.week_start)}
+                className="w-full"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="text-left">
+                    <div className="font-semibold text-slate-800">{week.week_label}</div>
+                    <div className="text-xs text-slate-500">{week.week_range}</div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <div className="font-bold text-orange-600 text-xl">
+                        ${formatCurrency(week.total)}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {week.transactions.length} transaction{week.transactions.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <svg
+                      className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  {week.transactions.length > 0 ? (
+                    <div className="space-y-2">
+                      {week.transactions.map((txn: any) => (
+                        <div key={txn.id} className="flex justify-between items-center py-2">
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-slate-700">{txn.description}</div>
+                            <div className="text-xs text-slate-500">{txn.date}</div>
+                          </div>
+                          <div className="text-sm font-semibold text-orange-600">
+                            ${formatCurrency(txn.amount)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-slate-500 text-sm">No transactions this week</div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">No unplanned expenses this month</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MonthliesScreen: React.FC = () => {
+  const { fetchMonthlies, fetchMonthliesTransactions } = useAuth();
+  const [categories, setCategories] = useState<any[]>([]);
+  const [totalSpent, setTotalSpent] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
+  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
+
+  // Color palette for categories
+  const categoryColors = [
+    'bg-green-500',
+    'bg-blue-500',
+    'bg-purple-500',
+    'bg-orange-500',
+    'bg-pink-500',
+    'bg-yellow-500',
+    'bg-indigo-500',
+    'bg-red-500',
+  ];
+
+  React.useEffect(() => {
+    const loadMonthlies = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching monthlies...');
+        const data = await fetchMonthlies(30); // Last 30 days
+        console.log('Monthlies data received:', data);
+
+        // Assign colors to categories
+        const categoriesWithColors = data.categories.map((cat, index) => ({
+          ...cat,
+          color: categoryColors[index % categoryColors.length],
+          // For now, set budget as 1.5x of spent (you can make this dynamic later)
+          budget: cat.spent * 1.5
+        }));
+
+        setCategories(categoriesWithColors);
+        setTotalSpent(data.total_spent);
+      } catch (error) {
+        console.error('Failed to load monthlies:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMonthlies();
+  }, []);
+
+  const handleToggleCategory = async (categoryName: string) => {
+    if (expandedCategory === categoryName) {
+      setExpandedCategory(null);
+    } else {
+      setExpandedCategory(categoryName);
+
+      // Fetch transactions if not already loaded
+      if (!categoryTransactions[categoryName]) {
+        try {
+          setLoadingTransactions(categoryName);
+          const data = await fetchMonthliesTransactions(categoryName, 30);
+          setCategoryTransactions(prev => ({
+            ...prev,
+            [categoryName]: data.transactions
+          }));
+        } catch (error) {
+          console.error(`Failed to load transactions for ${categoryName}:`, error);
+        } finally {
+          setLoadingTransactions(null);
+        }
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-8 text-slate-500">Loading categories...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="px-1">
+        <div className="flex justify-between items-center">
+          <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
+          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            Monthly
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
+        <div className="text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
+        <p className="text-sm text-slate-500 mt-1">Last 30 days</p>
+      </div>
+
+      {categories.length > 0 ? (
+        categories.map((category, index) => (
+          <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div
+              className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
+              onClick={() => handleToggleCategory(category.category)}
+            >
+              <div className="w-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <ChevronDownIcon
+                      className={`w-4 h-4 text-slate-400 transition-transform ${
+                        expandedCategory === category.category ? 'rotate-180' : ''
+                      }`}
+                    />
+                    <span className={`w-3 h-3 rounded-full ${category.color}`}></span>
+                    <span className="font-semibold text-slate-800">{category.category}</span>
+                  </div>
+                  <span className="font-bold text-slate-800">
+                    ${formatCurrency(category.spent)} / <span className="text-slate-500">${formatCurrency(category.budget)}</span>
+                  </span>
+                </div>
+                <div className="mt-3">
+                  <ProgressBar value={category.spent} max={category.budget} color={category.color} />
+                </div>
+                <p className="text-xs text-slate-500 mt-2">{category.transaction_count} transactions</p>
+              </div>
+            </div>
+
+            {/* Transaction List */}
+            {expandedCategory === category.category && (
+              <div className="border-t border-slate-100 bg-slate-50">
+                {loadingTransactions === category.category ? (
+                  <div className="p-4 text-center text-slate-500 text-sm">Loading transactions...</div>
+                ) : categoryTransactions[category.category]?.length > 0 ? (
+                  <div className="p-4 space-y-2">
+                    {categoryTransactions[category.category].map((txn, txnIndex) => {
+                      let formattedDate = '';
+                      try {
+                        if (txn.date) {
+                          const dateParts = txn.date.split('-');
+                          if (dateParts.length === 3) {
+                            const day = dateParts[2];
+                            const month = dateParts[1];
+                            formattedDate = `${day}/${month}`;
+                          } else {
+                            formattedDate = txn.date;
+                          }
+                        }
+                      } catch (e) {
+                        formattedDate = '';
+                      }
+                      return (
+                        <div key={txnIndex} className="flex justify-between items-center py-2 px-3 bg-white rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-700">{txn.description}</span>
+                            {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
+                          </div>
+                          <span className="text-sm font-semibold text-slate-800">${formatCurrency(txn.amount)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-slate-500 text-sm">No transactions found</div>
+                )}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">No categorized expenses found.</p>
+          <p className="text-sm text-slate-400 mt-2">Sync your Plaid transactions to see categories.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FixedScreen: React.FC = () => {
+  const { fetchFixed, fetchFixedTransactions } = useAuth();
+  const [categories, setCategories] = useState<any[]>([]);
+  const [totalSpent, setTotalSpent] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
+  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
+
+  // Color palette for categories
+  const categoryColors = [
+    'bg-green-500',
+    'bg-blue-500',
+    'bg-purple-500',
+    'bg-orange-500',
+    'bg-pink-500',
+    'bg-yellow-500',
+    'bg-indigo-500',
+    'bg-red-500',
+  ];
+
+  React.useEffect(() => {
+    const loadFixed = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching fixed costs...');
+        const data = await fetchFixed(30); // Last 30 days
+        console.log('Fixed costs data received:', data);
+
+        // Assign colors to categories
+        const categoriesWithColors = data.categories.map((cat, index) => ({
+          ...cat,
+          color: categoryColors[index % categoryColors.length],
+          // For now, set budget as 1.5x of spent (you can make this dynamic later)
+          budget: cat.spent * 1.5
+        }));
+
+        setCategories(categoriesWithColors);
+        setTotalSpent(data.total_spent);
+      } catch (error) {
+        console.error('Failed to load fixed costs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFixed();
+  }, []);
+
+  const handleToggleCategory = async (categoryName: string) => {
+    if (expandedCategory === categoryName) {
+      setExpandedCategory(null);
+    } else {
+      setExpandedCategory(categoryName);
+
+      // Fetch transactions if not already loaded
+      if (!categoryTransactions[categoryName]) {
+        try {
+          setLoadingTransactions(categoryName);
+          const data = await fetchFixedTransactions(categoryName, 30);
+          setCategoryTransactions(prev => ({
+            ...prev,
+            [categoryName]: data.transactions
+          }));
+        } catch (error) {
+          console.error(`Failed to load transactions for ${categoryName}:`, error);
+        } finally {
+          setLoadingTransactions(null);
+        }
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-8 text-slate-500">Loading fixed costs...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="px-1">
+        <div className="flex justify-between items-center">
+          <h2 className="text-slate-800 font-bold text-xl">Fixed Costs</h2>
+          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            Monthly
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
+        <div className="text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
+        <p className="text-sm text-slate-500 mt-1">Last 30 days</p>
+      </div>
+
+      {categories.length > 0 ? (
+        categories.map((category, index) => (
+          <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div
+              className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
+              onClick={() => handleToggleCategory(category.category)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className={`w-3 h-3 rounded-full ${category.color}`}></span>
+                  <span className="font-semibold text-slate-800">{category.category}</span>
+                  <ChevronDownIcon
+                    className={`w-4 h-4 text-slate-400 transition-transform ${
+                      expandedCategory === category.category ? 'rotate-180' : ''
+                    }`}
+                  />
+                </div>
+                <span className="font-bold text-slate-800">
+                  ${formatCurrency(category.spent)} / <span className="text-slate-500">${formatCurrency(category.budget)}</span>
+                </span>
+              </div>
+              <div className="mt-3">
+                <ProgressBar value={category.spent} max={category.budget} color={category.color} />
+              </div>
+              <p className="text-xs text-slate-500 mt-2">{category.transaction_count} transactions</p>
+            </div>
+
+            {/* Transaction List */}
+            {expandedCategory === category.category && (
+              <div className="border-t border-slate-100 bg-slate-50">
+                {loadingTransactions === category.category ? (
+                  <div className="p-4 text-center text-slate-500 text-sm">Loading transactions...</div>
+                ) : categoryTransactions[category.category]?.length > 0 ? (
+                  <div className="p-4 space-y-2">
+                    {categoryTransactions[category.category].map((txn, txnIndex) => {
+                      let formattedDate = '';
+                      try {
+                        if (txn.date) {
+                          const dateParts = txn.date.split('-');
+                          if (dateParts.length === 3) {
+                            const day = dateParts[2];
+                            const month = dateParts[1];
+                            formattedDate = `${day}/${month}`;
+                          } else {
+                            formattedDate = txn.date;
+                          }
+                        }
+                      } catch (e) {
+                        formattedDate = '';
+                      }
+                      return (
+                        <div key={txnIndex} className="flex justify-between items-center py-2 px-3 bg-white rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-700">{txn.description}</span>
+                            {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
+                          </div>
+                          <span className="text-sm font-semibold text-slate-800">${formatCurrency(txn.amount)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-slate-500 text-sm">No transactions found</div>
+                )}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">No fixed cost expenses found.</p>
+          <p className="text-sm text-slate-400 mt-2">Sync your Plaid transactions to see fixed costs.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+const IncomeScreen: React.FC = () => {
+  const { fetchIncome, fetchIncomeTransactions } = useAuth();
+  const [categories, setCategories] = useState<any[]>([]);
+  const [totalEarned, setTotalEarned] = useState<number>(0);
+  const [priorMonthTotal, setPriorMonthTotal] = useState<number>(0);
+  const [currentMonthLabel, setCurrentMonthLabel] = useState<string>('');
+  const [priorMonthLabel, setPriorMonthLabel] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
+  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
+
+  // Color palette for categories
+  const categoryColors = [
+    'bg-green-500',
+    'bg-blue-500',
+    'bg-purple-500',
+    'bg-orange-500',
+    'bg-pink-500',
+    'bg-yellow-500',
+    'bg-indigo-500',
+    'bg-red-500',
+  ];
+
+  React.useEffect(() => {
+    const loadIncome = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching income...');
+        const data = await fetchIncome();
+        console.log('Income data received:', data);
+
+        // Assign colors to categories
+        const categoriesWithColors = data.categories.map((cat, index) => ({
+          ...cat,
+          color: categoryColors[index % categoryColors.length],
+        }));
+
+        setCategories(categoriesWithColors);
+        setTotalEarned(data.current_month_total);
+        setPriorMonthTotal(data.prior_month_total);
+        setCurrentMonthLabel(data.current_month_period.label);
+        setPriorMonthLabel(data.prior_month_period.label);
+      } catch (error) {
+        console.error('Failed to load income:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadIncome();
+  }, []);
+
+  const handleToggleCategory = async (categoryName: string) => {
+    if (expandedCategory === categoryName) {
+      setExpandedCategory(null);
+    } else {
+      setExpandedCategory(categoryName);
+
+      // Fetch transactions if not already loaded
+      if (!categoryTransactions[categoryName]) {
+        try {
+          setLoadingTransactions(categoryName);
+          const data = await fetchIncomeTransactions(categoryName);
+          setCategoryTransactions(prev => ({
+            ...prev,
+            [categoryName]: data.transactions
+          }));
+        } catch (error) {
+          console.error(`Failed to load transactions for ${categoryName}:`, error);
+        } finally {
+          setLoadingTransactions(null);
+        }
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center py-8 text-slate-500">Loading income data...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="px-1">
+        <div className="flex justify-between items-center">
+          <h2 className="text-slate-800 font-bold text-xl">Income</h2>
+          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+            Monthly
+          </span>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm p-5">
+        <h3 className="text-slate-600 font-medium mb-2">Total Earned This Month</h3>
+        <div className="text-4xl font-bold text-green-600">${formatCurrency(totalEarned)}</div>
+        <p className="text-sm text-slate-500 mt-1">{currentMonthLabel}</p>
+        {priorMonthTotal > 0 && (
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">{priorMonthLabel}:</span>
+              <span className="font-semibold text-slate-700">${formatCurrency(priorMonthTotal)}</span>
             </div>
           </div>
-        }>
-        <p className="text-sm text-slate-500 text-center py-4">Non-cash income details here.</p>
-      </Accordion>
+        )}
+      </div>
+
+      {categories.length > 0 ? (
+        categories.map((category) => {
+          const isExpanded = expandedCategory === category.category;
+          const transactions = categoryTransactions[category.category] || [];
+          const isLoadingTxn = loadingTransactions === category.category;
+
+          return (
+            <div key={category.category} className="bg-white rounded-2xl shadow-sm p-4">
+              <button
+                onClick={() => handleToggleCategory(category.category)}
+                className="w-full"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                    <div className="text-left">
+                      <div className="font-semibold text-slate-800 capitalize">
+                        {category.category.replace(/_/g, ' ')}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {category.transaction_count} transaction{category.transaction_count !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <div className="font-bold text-green-600">
+                        ${category.current_month_earned ? formatCurrency(category.current_month_earned) : '0.00'}
+                      </div>
+                      {category.prior_month_earned > 0 && (
+                        <div className="text-xs text-slate-500">
+                          vs ${formatCurrency(category.prior_month_earned)}
+                        </div>
+                      )}
+                    </div>
+                    <svg
+                      className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+
+              {isExpanded && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  {isLoadingTxn ? (
+                    <div className="text-center py-4 text-slate-500 text-sm">Loading transactions...</div>
+                  ) : transactions.length > 0 ? (
+                    <div className="space-y-2">
+                      {transactions.map((txn, txnIndex) => (
+                        <div key={txnIndex} className="flex justify-between items-center py-2">
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-slate-700">{txn.description}</div>
+                            <div className="text-xs text-slate-500">{txn.date}</div>
+                          </div>
+                          <div className="text-sm font-semibold text-green-600">
+                            ${formatCurrency(txn.amount)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-slate-500 text-sm">No transactions found</div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">No income data available</p>
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 
 
