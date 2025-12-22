@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Logo } from './WelcomeScreen';
 import axios from 'axios';
 
-const API_BASE_URL = 'https://cashgrow-new-backend-python-production.up.railway.app/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 interface ResetPasswordScreenProps {
   onResetComplete: () => void;
