@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Screen, Transaction, MonthlyCategory, FixedCostCategory, IncomeData } from './types';
 import {
   GrowIcon, UnplannedIcon, MonthliesIcon, FixedIcon, IncomeIcon, ProfileIcon,
@@ -8,6 +8,8 @@ import {
 import WelcomeScreen, { Logo } from './components/WelcomeScreen';
 import ThankYouScreen from './components/ThankYouScreen';
 import BankConnectionScreen from './components/BankConnectionScreen';
+import VerifyEmailScreen from './components/VerifyEmailScreen';
+import ResetPasswordScreen from './components/ResetPasswordScreen';
 import { unplannedData, monthliesData, incomeData } from './data/mockData';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from './AuthContext';
@@ -965,6 +967,20 @@ const AppContent: React.FC = () => {
   const [isBankConnected, setIsBankConnected] = useState(false);
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showVerifyEmail, setShowVerifyEmail] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+
+  // Check URL on mount to see if we should show verify-email or reset-password
+  useEffect(() => {
+    const path = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (path.includes('/verify-email') || searchParams.has('verify-email')) {
+      setShowVerifyEmail(true);
+    } else if (path.includes('/reset-password') || searchParams.has('reset-password')) {
+      setShowResetPassword(true);
+    }
+  }, []);
 
   const handleSignIn = useCallback(() => {
     setIsSignedIn(true);
@@ -987,6 +1003,18 @@ const AppContent: React.FC = () => {
     setIsBankConnected(false);
   }, []);
 
+  const handleVerificationComplete = useCallback(() => {
+    setShowVerifyEmail(false);
+    // Clear URL parameters
+    window.history.replaceState({}, '', '/');
+  }, []);
+
+  const handleResetComplete = useCallback(() => {
+    setShowResetPassword(false);
+    // Clear URL parameters
+    window.history.replaceState({}, '', '/');
+  }, []);
+
   const renderScreen = () => {
     switch (activeScreen) {
       case Screen.Grow:
@@ -1003,6 +1031,16 @@ const AppContent: React.FC = () => {
         return <GrowScreen />;
     }
   };
+
+  // Show verify email screen if accessed via verification link
+  if (showVerifyEmail) {
+    return <VerifyEmailScreen onVerificationComplete={handleVerificationComplete} />;
+  }
+
+  // Show reset password screen if accessed via reset link
+  if (showResetPassword) {
+    return <ResetPasswordScreen onResetComplete={handleResetComplete} />;
+  }
 
   if (showThankYou) {
     return <ThankYouScreen />;
