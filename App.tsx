@@ -10,6 +10,7 @@ import ThankYouScreen from './components/ThankYouScreen';
 import BankConnectionScreen from './components/BankConnectionScreen';
 import VerifyEmailScreen from './components/VerifyEmailScreen';
 import ResetPasswordScreen from './components/ResetPasswordScreen';
+import AccountsScreen from './components/AccountsScreen';
 import { unplannedData, monthliesData, incomeData } from './data/mockData';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from './AuthContext';
@@ -74,7 +75,7 @@ const Accordion: React.FC<AccordionProps> = ({ summary, children, defaultOpen = 
 
 
 // Header, BottomNav, Layout
-const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => {
+const Header: React.FC<{ onSignOut: () => void; onShowAccounts: () => void }> = ({ onSignOut, onShowAccounts }) => {
   const { user } = useAuth();
 
   return (
@@ -88,6 +89,12 @@ const Header: React.FC<{ onSignOut: () => void }> = ({ onSignOut }) => {
         )}
       </div>
       <div className="flex items-center space-x-4">
+        <button
+          onClick={onShowAccounts}
+          className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          Accounts
+        </button>
         <button
           onClick={onSignOut}
           className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
@@ -969,6 +976,7 @@ const AppContent: React.FC = () => {
   const [showThankYou, setShowThankYou] = useState(false);
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showAccounts, setShowAccounts] = useState(false);
 
   // Check URL on mount to see if we should show verify-email or reset-password
   useEffect(() => {
@@ -1015,6 +1023,14 @@ const AppContent: React.FC = () => {
     window.history.replaceState({}, '', '/');
   }, []);
 
+  const handleShowAccounts = useCallback(() => {
+    setShowAccounts(true);
+  }, []);
+
+  const handleBackFromAccounts = useCallback(() => {
+    setShowAccounts(false);
+  }, []);
+
   const renderScreen = () => {
     switch (activeScreen) {
       case Screen.Grow:
@@ -1059,10 +1075,14 @@ const AppContent: React.FC = () => {
     );
   }
 
+  if (showAccounts) {
+    return <AccountsScreen onBack={handleBackFromAccounts} />;
+  }
+
   return (
     <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-slate-50">
-        <Header onSignOut={handleSignOut} />
+        <Header onSignOut={handleSignOut} onShowAccounts={handleShowAccounts} />
         <main className="p-4 pb-24">
           {renderScreen()}
         </main>

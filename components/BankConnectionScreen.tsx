@@ -87,6 +87,49 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
         const data = await response.json();
         console.log('Bank connected successfully:', data);
 
+        // Automatically sync transactions after linking
+        console.log('Syncing transactions...');
+
+        // Calculate date range: current month + last 3 months
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        // Go back 3 months
+        let startMonth = currentMonth - 3;
+        let startYear = currentYear;
+
+        // Handle year boundary
+        if (startMonth < 0) {
+          startMonth += 12;
+          startYear -= 1;
+        }
+
+        // First day of that month
+        const startDate = new Date(startYear, startMonth, 1).toISOString().split('T')[0];
+        const endDate = today.toISOString().split('T')[0];
+
+        console.log(`Syncing transactions from ${startDate} to ${endDate}`);
+
+        const syncRes = await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            start_date: startDate,
+            end_date: endDate
+          })
+        });
+
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          console.log('Transactions synced:', syncData);
+        } else {
+          console.error('Failed to sync transactions:', await syncRes.text());
+        }
+
         // Connection successful, proceed to main app
         onConnectionComplete();
       } catch (err) {
