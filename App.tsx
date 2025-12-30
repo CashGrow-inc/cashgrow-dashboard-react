@@ -983,7 +983,8 @@ const AppContent: React.FC = () => {
     const path = window.location.pathname;
     const searchParams = new URLSearchParams(window.location.search);
 
-    if (path.includes('/verify-email') || searchParams.has('verify-email')) {
+    // Check if this is an email verification link (has token parameter or /verify-email path)
+    if (path.includes('/verify-email') || searchParams.has('token')) {
       setShowVerifyEmail(true);
     } else if (path.includes('/reset-password') || searchParams.has('reset-password')) {
       setShowResetPassword(true);
