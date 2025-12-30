@@ -35,7 +35,7 @@ const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ onVerificationCom
       setStatus('loading');
       setMessage('Verifying your email...');
 
-      const response = await axios.post(`${API_BASE_URL}/auth/verify-email`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/verify-email`, {
         token: token
       });
 
@@ -68,7 +68,7 @@ const VerifyEmailScreen: React.FC<VerifyEmailScreenProps> = ({ onVerificationCom
 
     try {
       setIsResending(true);
-      const response = await axios.post(`${API_BASE_URL}/auth/resend-verification`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/resend-verification`, {
         email: email
       });
 

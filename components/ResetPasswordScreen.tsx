@@ -85,7 +85,7 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ onResetComple
       setStatus('loading');
       setMessage('Resetting your password...');
 
-      const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
         token: token,
         new_password: newPassword
       });
