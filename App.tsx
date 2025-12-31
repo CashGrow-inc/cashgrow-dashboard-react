@@ -11,6 +11,7 @@ import BankConnectionScreen from './components/BankConnectionScreen';
 import VerifyEmailScreen from './components/VerifyEmailScreen';
 import ResetPasswordScreen from './components/ResetPasswordScreen';
 import AccountsScreen from './components/AccountsScreen';
+import FoundersPage from './components/FoundersPage';
 import { unplannedData, monthliesData, incomeData } from './data/mockData';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from './AuthContext';
@@ -977,6 +978,7 @@ const AppContent: React.FC = () => {
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
+  const [showFounders, setShowFounders] = useState(false);
 
   // Check URL on mount to see if we should show verify-email or reset-password
   useEffect(() => {
@@ -1032,6 +1034,14 @@ const AppContent: React.FC = () => {
     setShowAccounts(false);
   }, []);
 
+  const handleShowFounders = useCallback(() => {
+    setShowFounders(true);
+  }, []);
+
+  const handleBackFromFounders = useCallback(() => {
+    setShowFounders(false);
+  }, []);
+
   const renderScreen = () => {
     switch (activeScreen) {
       case Screen.Grow:
@@ -1063,8 +1073,12 @@ const AppContent: React.FC = () => {
     return <ThankYouScreen />;
   }
 
+  if (showFounders) {
+    return <FoundersPage onBack={handleBackFromFounders} />;
+  }
+
   if (!isSignedIn) {
-    return <WelcomeScreen onSignIn={handleSignIn} onShowThankYou={handleShowThankYou} />;
+    return <WelcomeScreen onSignIn={handleSignIn} onShowThankYou={handleShowThankYou} onShowFounders={handleShowFounders} />;
   }
 
   if (!isBankConnected) {

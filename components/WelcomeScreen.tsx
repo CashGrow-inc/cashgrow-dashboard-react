@@ -232,6 +232,7 @@ const SimpleToUseIcon: React.FC = () => (
 interface WelcomeScreenProps {
   onSignIn: () => void;
   onShowThankYou: () => void;
+  onShowFounders: () => void;
 }
 
 interface FeatureItemProps {
@@ -240,7 +241,7 @@ interface FeatureItemProps {
   description: string;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou, onShowFounders }) => {
   const { login } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -766,7 +767,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
             <div className="md:col-span-3 grid grid-cols-3 gap-6 md:gap-8">
               <div>
-                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Company <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
+                <h3
+                  className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center cursor-pointer hover:text-blue-200 transition-colors"
+                  onClick={onShowFounders}
+                >
+                  Company <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" />
+                </h3>
               </div>
               <div>
                 <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Resources <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
