@@ -762,7 +762,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
       </div>
 
       {/* Footer */}
-      <footer className="relative bg-blue-700 text-white py-4 md:py-8 px-4 md:px-6 z-20 w-[405px] h-[228px] mx-auto md:w-full md:h-auto" style={{ marginTop: '-180px' }}>
+      <footer className="relative bg-blue-700 text-white py-4 md:py-8 px-4 md:px-6 z-20 w-[405px] h-[228px] mx-auto md:w-full md:h-auto" style={{ marginTop: '0px' }}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
             <div className="md:col-span-3 grid grid-cols-3 gap-6 md:gap-8">

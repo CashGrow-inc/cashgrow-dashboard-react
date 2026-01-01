@@ -20,23 +20,22 @@
   <body class="bg-slate-950 text-white antialiased">
     <div id="root">
       <main
-        class="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 flex items-center justify-center p-6"
+        class="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-6 py-12"
       >
         <div
-          class="w-full max-w-3xl bg-slate-900/70 backdrop-blur-md border border-white/5 rounded-3xl shadow-2xl p-8 md:p-12 space-y-8"
+          class="w-full max-w-3xl mx-auto bg-slate-900/70 backdrop-blur-md border border-white/5 rounded-3xl shadow-2xl p-6 md:p-8 space-y-4"
         >
-          <div class="space-y-3 text-center">
+          <div class="space-y-2 text-center">
             <p
               class="inline-flex items-center justify-center gap-2 text-[10px] font-semibold tracking-[0.45em] uppercase text-blue-200/70"
             >
               CashGrow Access Request
             </p>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-white">
               Join the private beta waitlist
             </h1>
-            <p class="text-base text-blue-100/80 max-w-2xl mx-auto">
+            <p class="text-sm text-blue-100/80 max-w-2xl mx-auto">
               Tell us how to reach you and we&rsquo;ll notify you the moment CashGrow opens early access.
-              This static form is used by Netlify to capture submissions even before the React app has loaded.
             </p>
           </div>
 
@@ -45,7 +44,7 @@
             method="POST"
             data-netlify="true"
             data-netlify-honeypot="bot-field"
-            class="grid gap-6"
+            class="grid gap-3"
           >
             <input type="hidden" name="form-name" value="cashgrow-waitlist" />
             <p class="hidden">
@@ -55,7 +54,7 @@
               </label>
             </p>
 
-            <div class="grid gap-2">
+            <div class="grid gap-1">
               <label for="full-name" class="text-sm font-semibold text-slate-200 uppercase tracking-wide">
                 Full Name
               </label>
@@ -65,11 +64,11 @@
                 type="text"
                 required
                 placeholder="Jane Doe"
-                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
 
-            <div class="grid gap-2">
+            <div class="grid gap-1">
               <label for="email" class="text-sm font-semibold text-slate-200 uppercase tracking-wide">Email</label>
               <input
                 id="email"
@@ -77,11 +76,11 @@
                 type="email"
                 required
                 placeholder="you@email.com"
-                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
 
-            <div class="grid gap-2">
+            <div class="grid gap-1">
               <label for="company" class="text-sm font-semibold text-slate-200 uppercase tracking-wide">
                 Company (optional)
               </label>
@@ -90,32 +89,32 @@
                 name="company"
                 type="text"
                 placeholder="Your organization"
-                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
 
-            <div class="grid gap-2">
+            <div class="grid gap-1">
               <label for="message" class="text-sm font-semibold text-slate-200 uppercase tracking-wide">
                 What would you like to accomplish with CashGrow?
               </label>
               <textarea
                 id="message"
                 name="message"
-                rows="4"
+                rows="3"
                 placeholder="Share a sentence or two so we can personalize the onboarding."
-                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                class="w-full rounded-2xl border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               ></textarea>
             </div>
 
             <button
               type="submit"
-              class="w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 py-4 text-lg font-semibold tracking-wide shadow-lg shadow-blue-900/40 transition hover:from-blue-400 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 focus:ring-offset-slate-950"
+              class="w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 py-3 text-base font-semibold tracking-wide shadow-lg shadow-blue-900/40 transition hover:from-blue-400 hover:to-indigo-400 focus:outline-none focus:ring-2 focus:ring-blue-500/70 focus:ring-offset-2 focus:ring-offset-slate-950"
             >
               Request Access
             </button>
           </form>
 
-          <p class="text-center text-sm text-blue-100/60">
+          <p class="text-center text-xs text-blue-100/60">
             The full CashGrow dashboard will load once scripts are ready—this Netlify form ensures submissions are
             captured instantly even on slower connections.
           </p>
