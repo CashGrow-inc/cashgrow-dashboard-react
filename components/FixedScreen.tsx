@@ -4,10 +4,11 @@ import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
 interface FixedScreenProps {
+  hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
-const FixedScreen: React.FC<FixedScreenProps> = ({ onConnectBank }) => {
+const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchFixed, fetchFixedTransactions } = useAuth();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
@@ -28,6 +29,12 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ onConnectBank }) => {
   ];
 
   React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadFixed = async () => {
       try {
         setIsLoading(true);
@@ -51,7 +58,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ onConnectBank }) => {
     };
 
     loadFixed();
-  }, []);
+  }, [hasBankAccount]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -80,6 +87,32 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ onConnectBank }) => {
     return (
       <div className="space-y-4">
         <div className="text-center py-8 text-slate-500">Loading fixed costs...</div>
+      </div>
+    );
+  }
+
+  // Show connect prompt if no bank account
+  if (!hasBankAccount) {
+    return (
+      <div className="space-y-4">
+        <div className="px-1">
+          <div className="flex justify-between items-center">
+            <h2 className="text-slate-800 font-bold text-xl">Fixed Costs</h2>
+            <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+              Monthly
+            </span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">Track your fixed monthly costs</p>
+          <p className="text-sm text-slate-400 mt-2">Connect your bank to see your fixed expenses.</p>
+          <button
+            onClick={onConnectBank}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+          >
+            Connect Bank
+          </button>
+        </div>
       </div>
     );
   }

@@ -4,10 +4,11 @@ import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
 interface MonthliesScreenProps {
+  hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
-const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ onConnectBank }) => {
+const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchMonthlies, fetchMonthliesTransactions } = useAuth();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
@@ -28,6 +29,12 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ onConnectBank }) => {
   ];
 
   React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadMonthlies = async () => {
       try {
         setIsLoading(true);
@@ -51,7 +58,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ onConnectBank }) => {
     };
 
     loadMonthlies();
-  }, []);
+  }, [hasBankAccount]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -80,6 +87,32 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ onConnectBank }) => {
     return (
       <div className="space-y-4">
         <div className="text-center py-8 text-slate-500">Loading categories...</div>
+      </div>
+    );
+  }
+
+  // Show connect prompt if no bank account
+  if (!hasBankAccount) {
+    return (
+      <div className="space-y-4">
+        <div className="px-1">
+          <div className="flex justify-between items-center">
+            <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
+            <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+              Monthly
+            </span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">Track your monthly spending by category</p>
+          <p className="text-sm text-slate-400 mt-2">Connect your bank to see your spending categories.</p>
+          <button
+            onClick={onConnectBank}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+          >
+            Connect Bank
+          </button>
+        </div>
       </div>
     );
   }

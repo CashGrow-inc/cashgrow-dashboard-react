@@ -4,10 +4,11 @@ import { WeeklyIcon, AutosaveIcon, GoalIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
 interface GrowScreenProps {
+  hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
-const GrowScreen: React.FC<GrowScreenProps> = ({ onConnectBank }) => {
+const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchBudgetSummary } = useAuth();
   const [budget, setBudget] = useState<number>(0);
   const [totalIncome, setTotalIncome] = useState<number>(0);
@@ -21,6 +22,12 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ onConnectBank }) => {
   const [goalInputValue, setGoalInputValue] = useState<string>(monthlyGoal.toString());
 
   React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadBudget = async () => {
       try {
         setIsLoading(true);
@@ -38,7 +45,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ onConnectBank }) => {
     };
 
     loadBudget();
-  }, [monthlyGoal]);
+  }, [hasBankAccount, monthlyGoal]);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
@@ -93,7 +100,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ onConnectBank }) => {
         </div>
       </div>
 
-      {!isLoading && totalIncome === 0 && totalExpenses === 0 ? (
+      {!hasBankAccount ? (
         <div className="bg-blue-50 rounded-2xl p-5 text-center">
           <h3 className="font-bold text-lg text-slate-800">Connect your bank to get started</h3>
           <p className="text-slate-600 mt-1">Link your accounts to see your real budget and spending insights.</p>

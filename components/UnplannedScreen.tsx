@@ -3,10 +3,11 @@ import { useAuth } from '../AuthContext';
 import { formatCurrency } from './shared';
 
 interface UnplannedScreenProps {
+  hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
-const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ onConnectBank }) => {
+const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchUnplanned } = useAuth();
   const [weeks, setWeeks] = useState<any[]>([]);
   const [totalUnplanned, setTotalUnplanned] = useState<number>(0);
@@ -15,6 +16,12 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ onConnectBank }) => {
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
 
   React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadUnplanned = async () => {
       try {
         setIsLoading(true);
@@ -33,7 +40,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ onConnectBank }) => {
     };
 
     loadUnplanned();
-  }, []);
+  }, [hasBankAccount]);
 
   const handleToggleWeek = (weekStart: string) => {
     setExpandedWeek(expandedWeek === weekStart ? null : weekStart);
@@ -43,6 +50,32 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ onConnectBank }) => {
     return (
       <div className="space-y-4">
         <div className="text-center py-8 text-slate-500">Loading unplanned expenses...</div>
+      </div>
+    );
+  }
+
+  // Show connect prompt if no bank account
+  if (!hasBankAccount) {
+    return (
+      <div className="space-y-4">
+        <div className="px-1">
+          <div className="flex justify-between items-center">
+            <h2 className="text-slate-800 font-bold text-xl">Unplanned</h2>
+            <span className="flex items-center bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
+              Monthly
+            </span>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
+          <p className="text-slate-500">Track your unplanned spending</p>
+          <p className="text-sm text-slate-400 mt-2">Connect your bank to see unplanned expenses.</p>
+          <button
+            onClick={onConnectBank}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
+          >
+            Connect Bank
+          </button>
+        </div>
       </div>
     );
   }

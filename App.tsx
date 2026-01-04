@@ -23,10 +23,16 @@ import { AuthProvider, useAuth } from './AuthContext';
 const AppContent: React.FC = () => {
   const { isLoggedIn, logout } = useAuth();
 
-  // Persist bank connection state to localStorage
-  const [isBankConnected, setIsBankConnected] = useState(() => {
-    return localStorage.getItem('isBankConnected') === 'true';
+  // Track if user has passed the bank connection screen (skipped OR connected)
+  const [hasPassedBankScreen, setHasPassedBankScreen] = useState(() => {
+    return localStorage.getItem('hasPassedBankScreen') === 'true';
   });
+
+  // Track if user has actually connected a bank account (for data fetching)
+  const [hasBankAccount, setHasBankAccount] = useState(() => {
+    return localStorage.getItem('hasBankAccount') === 'true';
+  });
+
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
@@ -36,25 +42,33 @@ const AppContent: React.FC = () => {
     setShowThankYou(true);
   }, []);
 
+  // User actually connected a bank
   const handleBankConnectionComplete = useCallback(() => {
-    setIsBankConnected(true);
-    localStorage.setItem('isBankConnected', 'true');
+    setHasPassedBankScreen(true);
+    setHasBankAccount(true);
+    localStorage.setItem('hasPassedBankScreen', 'true');
+    localStorage.setItem('hasBankAccount', 'true');
   }, []);
 
+  // User skipped bank connection - pass screen but no bank data
   const handleSkipBankConnection = useCallback(() => {
-    setIsBankConnected(true);
-    localStorage.setItem('isBankConnected', 'true');
+    setHasPassedBankScreen(true);
+    localStorage.setItem('hasPassedBankScreen', 'true');
+    // hasBankAccount stays false - don't fetch data
   }, []);
 
+  // User wants to connect bank from dashboard
   const handleConnectBank = useCallback(() => {
-    setIsBankConnected(false);
-    localStorage.setItem('isBankConnected', 'false');
+    setHasPassedBankScreen(false);
+    localStorage.setItem('hasPassedBankScreen', 'false');
   }, []);
 
   const handleSignOut = useCallback(() => {
     logout();
-    setIsBankConnected(false);
-    localStorage.removeItem('isBankConnected');
+    setHasPassedBankScreen(false);
+    setHasBankAccount(false);
+    localStorage.removeItem('hasPassedBankScreen');
+    localStorage.removeItem('hasBankAccount');
   }, [logout]);
 
   const handleShowAccounts = useCallback(() => {
@@ -76,17 +90,17 @@ const AppContent: React.FC = () => {
   const renderScreen = () => {
     switch (activeScreen) {
       case Screen.Grow:
-        return <GrowScreen onConnectBank={handleConnectBank} />;
+        return <GrowScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Unplanned:
-        return <UnplannedScreen onConnectBank={handleConnectBank} />;
+        return <UnplannedScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Monthlies:
-        return <MonthliesScreen onConnectBank={handleConnectBank} />;
+        return <MonthliesScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Fixed:
-        return <FixedScreen onConnectBank={handleConnectBank} />;
+        return <FixedScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Income:
-        return <IncomeScreen onConnectBank={handleConnectBank} />;
+        return <IncomeScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       default:
-        return <GrowScreen onConnectBank={handleConnectBank} />;
+        return <GrowScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
     }
   };
 
@@ -102,7 +116,7 @@ const AppContent: React.FC = () => {
     return <WelcomeScreen onShowThankYou={handleShowThankYou} onShowFounders={handleShowFounders} />;
   }
 
-  if (!isBankConnected) {
+  if (!hasPassedBankScreen) {
     return (
       <BankConnectionScreen
         onConnectionComplete={handleBankConnectionComplete}
