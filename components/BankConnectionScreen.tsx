@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { Logo } from './WelcomeScreen';
 import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 interface BankConnectionScreenProps {
   onConnectionComplete: () => void;
@@ -13,9 +14,6 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user, token } = useAuth();
-
-  // Get API URL from environment variable
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   // Fetch link_token from backend
   useEffect(() => {
@@ -47,7 +45,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
     };
 
     createLinkToken();
-  }, [API_BASE_URL, token, user]);
+  }, [token, user]);
 
   const { open, ready } = usePlaidLink({
     token: linkToken!,

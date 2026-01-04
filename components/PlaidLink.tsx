@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
-
-// Get API base URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+import { API_BASE_URL } from "../config/api";
 
 // Get auth token from localStorage (set this after login)
-const getAuthToken = () => localStorage.getItem("auth_token");
+const getAuthToken = () => localStorage.getItem("authToken");
 
 export default function PlaidLink() {
   const [linkToken, setLinkToken] = useState<string | null>(null);
@@ -21,7 +19,7 @@ export default function PlaidLink() {
       }
 
       try {
-        const res = await fetch(`${API_BASE_URL}/plaid/create_link_token`, {
+        const res = await fetch(`${API_BASE_URL}/api/plaid/create_link_token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -56,7 +54,7 @@ const { open, ready } = usePlaidLink({
 
     try {
       // Exchange public token for access token
-      const res = await fetch(`${API_BASE_URL}/plaid/exchange_public_token`, {
+      const res = await fetch(`${API_BASE_URL}/api/plaid/exchange_public_token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,7 +70,7 @@ const { open, ready } = usePlaidLink({
       console.log("✅ Bank accounts linked:", data);
 
       // Automatically sync transactions after linking
-      const syncRes = await fetch(`${API_BASE_URL}/plaid/sync_transactions`, {
+      const syncRes = await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from './config/api';
 
 interface BudgetSummary {
     budget: number;  // Total income - total expenses
@@ -108,9 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [token, setToken] = useState<string | null>(localStorage.getItem('authToken'));
     const [user, setUser] = useState<any>(null);
-
-    // Get API URL from environment variable - falls back to localhost for development
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     const login = async (email: string, password: string) => {
         try {

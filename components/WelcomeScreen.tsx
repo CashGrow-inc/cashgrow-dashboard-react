@@ -247,7 +247,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
   const [email, setEmail] = useState('');
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
-  const [isForgotPasswordModalOpen, setForgotPasswordModalOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -257,9 +256,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
   const [registerCountry, setRegisterCountry] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [registerSuccess, setRegisterSuccess] = useState('');
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSuccess, setForgotSuccess] = useState('');
-  const [forgotError, setForgotError] = useState('');
   const [videoError, setVideoError] = useState(false);
   const [videoPaused, setVideoPaused] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
@@ -350,21 +346,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
     setRegisterSuccess('');
   };
 
-  const openForgotPasswordModal = () => {
-    closeLoginModal();
-    setForgotPasswordModalOpen(true);
-    setForgotEmail('');
-    setForgotSuccess('');
-    setForgotError('');
-  };
-
-  const closeForgotPasswordModal = () => {
-    setForgotPasswordModalOpen(false);
-    setForgotEmail('');
-    setForgotSuccess('');
-    setForgotError('');
-  };
-
   const handleRegisterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setRegisterError('');
@@ -394,35 +375,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
       }
     } catch (error) {
       setRegisterError('Network error. Please try again.');
-    }
-  };
-
-  const handleForgotPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setForgotError('');
-    setForgotSuccess('');
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: forgotEmail
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setForgotSuccess(data.message);
-        setTimeout(() => {
-          closeForgotPasswordModal();
-        }, 3000);
-      } else {
-        setForgotError(data.detail || 'Request failed. Please try again.');
-      }
-    } catch (error) {
-      setForgotError('Network error. Please try again.');
     }
   };
 
@@ -548,7 +500,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
               <p className="mt-4 text-lg text-gray-600">
                 Make progress, know your status, and be in control
               </p>
-              <form name="cashgrow-waitlist" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <form name="cashgrow-waitlist" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
                 <input type="hidden" name="form-name" value="cashgrow-waitlist" />
                 <div style={{ display: 'none' }}>
                   <label>Don't fill this out: <input name="bot-field" /></label>
@@ -648,7 +600,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
                 Make progress, know your status, and be in control
               </p>
               <div className="max-w-xs mx-auto">
-                <form name="cashgrow-waitlist" netlify netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
+                <form name="cashgrow-waitlist" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
                   <input type="hidden" name="form-name" value="cashgrow-waitlist" />
                   <div style={{ display: 'none' }}>
                     <label>Don't fill this out: <input name="bot-field" /></label>
@@ -799,7 +751,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
           </div>
         </div>
       </footer>
-      <form name="cashgrow-waitlist" netlify hidden>
+      <form name="cashgrow-waitlist" data-netlify="true" hidden>
         <input name="name" type="text" />
         <input name="email" type="email" />
       </form>
@@ -839,15 +791,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
                   placeholder="Enter your password"
                 />
                 {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
-              </div>
-              <div className="text-right">
-                <button
-                  type="button"
-                  onClick={openForgotPasswordModal}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
-                >
-                  Forgot Password?
-                </button>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -960,59 +903,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
                   className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
                 >
                   Sign Up
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isForgotPasswordModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Forgot Password</h3>
-            <p className="text-sm text-slate-600 mb-6">
-              Enter your email address and we'll send you a link to reset your password.
-            </p>
-            <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="forgot-email" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Email
-                </label>
-                <input
-                  id="forgot-email"
-                  type="email"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={forgotEmail}
-                  onChange={(event) => setForgotEmail(event.target.value)}
-                  placeholder="Enter your email"
-                  autoFocus
-                  required
-                />
-              </div>
-              {forgotError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                  {forgotError}
-                </div>
-              )}
-              {forgotSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
-                  {forgotSuccess}
-                </div>
-              )}
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={closeForgotPasswordModal}
-                  className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
-                >
-                  Send Reset Link
                 </button>
               </div>
             </form>

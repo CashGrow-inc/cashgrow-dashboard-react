@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 interface BankAccount {
   id: string;
@@ -27,8 +28,6 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(new Set());
   const { token } = useAuth();
-
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
   // Fetch accounts on component mount
   useEffect(() => {
