@@ -230,7 +230,6 @@ const SimpleToUseIcon: React.FC = () => (
 );
 
 interface WelcomeScreenProps {
-  onSignIn: () => void;
   onShowThankYou: () => void;
   onShowFounders: () => void;
 }
@@ -241,7 +240,7 @@ interface FeatureItemProps {
   description: string;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou, onShowFounders }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFounders }) => {
   const { login } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -320,7 +319,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSignIn, onShowThankYou,
     try {
       await login(loginEmail, loginPassword);
       closeLoginModal();
-      onSignIn();
+      // No need to call onSignIn - AuthContext's isLoggedIn is now the single source of truth
     } catch (error) {
       setLoginError('Login failed. Check credentials.');
     }

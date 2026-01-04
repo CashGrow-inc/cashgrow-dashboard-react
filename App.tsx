@@ -18,19 +18,19 @@ import FixedScreen from './components/FixedScreen';
 import IncomeScreen from './components/IncomeScreen';
 
 // Context
-import { AuthProvider } from './AuthContext';
+import { AuthProvider, useAuth } from './AuthContext';
 
 const AppContent: React.FC = () => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [isBankConnected, setIsBankConnected] = useState(false);
+  const { isLoggedIn, logout } = useAuth();
+
+  // Persist bank connection state to localStorage
+  const [isBankConnected, setIsBankConnected] = useState(() => {
+    return localStorage.getItem('isBankConnected') === 'true';
+  });
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
   const [showFounders, setShowFounders] = useState(false);
-
-  const handleSignIn = useCallback(() => {
-    setIsSignedIn(true);
-  }, []);
 
   const handleShowThankYou = useCallback(() => {
     setShowThankYou(true);
@@ -38,20 +38,24 @@ const AppContent: React.FC = () => {
 
   const handleBankConnectionComplete = useCallback(() => {
     setIsBankConnected(true);
+    localStorage.setItem('isBankConnected', 'true');
   }, []);
 
   const handleSkipBankConnection = useCallback(() => {
     setIsBankConnected(true);
+    localStorage.setItem('isBankConnected', 'true');
   }, []);
 
   const handleConnectBank = useCallback(() => {
     setIsBankConnected(false);
+    localStorage.setItem('isBankConnected', 'false');
   }, []);
 
   const handleSignOut = useCallback(() => {
-    setIsSignedIn(false);
+    logout();
     setIsBankConnected(false);
-  }, []);
+    localStorage.removeItem('isBankConnected');
+  }, [logout]);
 
   const handleShowAccounts = useCallback(() => {
     setShowAccounts(true);
@@ -94,8 +98,8 @@ const AppContent: React.FC = () => {
     return <FoundersPage onBack={handleBackFromFounders} />;
   }
 
-  if (!isSignedIn) {
-    return <WelcomeScreen onSignIn={handleSignIn} onShowThankYou={handleShowThankYou} onShowFounders={handleShowFounders} />;
+  if (!isLoggedIn) {
+    return <WelcomeScreen onShowThankYou={handleShowThankYou} onShowFounders={handleShowFounders} />;
   }
 
   if (!isBankConnected) {
@@ -112,7 +116,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans text-slate-800">
+    <div className="bg-slate-50 min-h-screen min-h-dvh w-full overflow-x-hidden font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-slate-50">
         <Header onSignOut={handleSignOut} onShowAccounts={handleShowAccounts} />
         <main className="p-4 pb-24">
