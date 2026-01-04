@@ -683,7 +683,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
       <div className="relative block md:hidden w-[405px] h-[650px] mx-auto bg-gray-50 overflow-hidden">
         <div className="absolute bottom-8 left-0 right-0 z-10 h-[32px] bg-gradient-to-t from-gray-50 to-transparent"></div>
         <div className="relative z-20 p-4 text-center">
-          <h1 className="text-xl font-bold text-gray-800 mb-4">In control on Your expense</h1>
+          <h1 className="text-xl font-bold text-gray-800 mb-4">In control of your expenses</h1>
           <div className="relative" style={{ width: '375px', height: '600px' }}>
             {/* Left Card: Fixed Costs (Back layer) */}
             <div
