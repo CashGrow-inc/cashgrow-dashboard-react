@@ -88,6 +88,7 @@ interface UnplannedData {
 
 interface AuthContextType {
     isLoggedIn: boolean;
+    isAuthLoading: boolean;
     token: string | null;
     user: any;
     login: (email: string, password: string) => Promise<void>;
@@ -106,9 +107,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [token, setToken] = useState<string | null>(localStorage.getItem('authToken'));
-    const [user, setUser] = useState<any>(null);
+    // Initialize isLoggedIn based on whether token exists to prevent race condition
+    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('authToken'));
+    // Initialize user from localStorage if available
+    const [user, setUser] = useState<any>(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    // Loading state for initial auth check
+    const [isAuthLoading, setIsAuthLoading] = useState(!!localStorage.getItem('authToken'));
 
     const login = async (email: string, password: string) => {
         try {
@@ -128,7 +136,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const fetchUserProfile = async () => {
-        if (!token) return;
+        if (!token) {
+            setIsAuthLoading(false);
+            return;
+        }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
@@ -138,8 +149,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             console.log('User profile response:', response.data);
             setUser(response.data);
-        } catch (error) {
+            // Persist user data to localStorage
+            localStorage.setItem('user', JSON.stringify(response.data));
+        } catch (error: any) {
             console.error('Failed to fetch user profile:', error);
+            // If token is invalid/expired (401), log the user out
+            if (error?.response?.status === 401) {
+                console.log('Token expired or invalid, logging out');
+                logout();
+            }
+        } finally {
+            setIsAuthLoading(false);
         }
     };
 
@@ -299,7 +319,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoggedIn(false);
         setToken(null);
         setUser(null);
+        setIsAuthLoading(false);
         localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
     };
 
     React.useEffect(() => {
@@ -310,7 +332,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned }}>
             {children}
         </AuthContext.Provider>
     );

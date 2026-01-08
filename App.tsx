@@ -21,7 +21,7 @@ import IncomeScreen from './components/IncomeScreen';
 import { AuthProvider, useAuth } from './AuthContext';
 
 const AppContent: React.FC = () => {
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, isAuthLoading, logout } = useAuth();
 
   // Track if user has passed the bank connection screen (skipped OR connected)
   const [hasPassedBankScreen, setHasPassedBankScreen] = useState(() => {
@@ -110,6 +110,18 @@ const AppContent: React.FC = () => {
 
   if (showFounders) {
     return <FoundersPage onBack={handleBackFromFounders} />;
+  }
+
+  // Show loading while checking auth state
+  if (isAuthLoading) {
+    return (
+      <div className="bg-slate-50 min-h-screen min-h-dvh w-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!isLoggedIn) {
