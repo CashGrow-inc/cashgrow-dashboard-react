@@ -26,12 +26,12 @@ const founders: Founder[] = [
     linkedInUrl: 'https://www.linkedin.com/in/guy-paiss/',
     imageUrl: GuyPaissPhoto,
   },
-  {
-    name: 'Zlil Sheloach',
-    title: 'Co-Founder',
-    linkedInUrl: 'https://www.linkedin.com/in/zlil-sheloach/',
-    imageUrl: ZlilPhoto,
-  },
+  // {
+  //   name: 'Zlil Sheloach',
+  //   title: 'Co-Founder',
+  //   linkedInUrl: 'https://www.linkedin.com/in/zlil-sheloach/',
+  //   imageUrl: ZlilPhoto,
+  // },
   {
     name: 'Guy Sirton',
     title: 'Co-Founder',
