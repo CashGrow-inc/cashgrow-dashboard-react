@@ -3,7 +3,6 @@ import { LinkedInIcon } from './Icons';
 import { Logo } from './WelcomeScreen';
 import TomerPhoto from '../assets/Founders photo/Tomer.jpg';
 import GuyPaissPhoto from '../assets/Founders photo/Guy Paiss.jpg';
-import ZlilPhoto from '../assets/Founders photo/Zlil.jpg';
 import GuySirtonPhoto from '../assets/Founders photo/Guy Sirton.jpg';
 
 interface Founder {
@@ -26,12 +25,6 @@ const founders: Founder[] = [
     linkedInUrl: 'https://www.linkedin.com/in/guy-paiss/',
     imageUrl: GuyPaissPhoto,
   },
-  // {
-  //   name: 'Zlil Sheloach',
-  //   title: 'Co-Founder',
-  //   linkedInUrl: 'https://www.linkedin.com/in/zlil-sheloach/',
-  //   imageUrl: ZlilPhoto,
-  // },
   {
     name: 'Guy Sirton',
     title: 'Co-Founder',
