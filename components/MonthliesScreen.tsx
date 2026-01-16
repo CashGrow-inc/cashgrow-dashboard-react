@@ -206,13 +206,9 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       ) : (
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
           <p className="text-slate-500">No categorized expenses found.</p>
-          <p className="text-sm text-slate-400 mt-2">Connect your bank to see your monthly spending categories.</p>
-          <button
-            onClick={onConnectBank}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
-          >
-            Connect Bank
-          </button>
+          <p className="text-sm text-slate-400 mt-2">
+            Your monthly spending categories will appear here.
+          </p>
         </div>
       )}
     </div>

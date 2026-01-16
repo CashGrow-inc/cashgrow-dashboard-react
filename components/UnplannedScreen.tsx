@@ -160,13 +160,9 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
       ) : (
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
           <p className="text-slate-500">No unplanned expenses this month</p>
-          <p className="text-sm text-slate-400 mt-2">Connect your bank to track unplanned spending.</p>
-          <button
-            onClick={onConnectBank}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300"
-          >
-            Connect Bank
-          </button>
+          <p className="text-sm text-slate-400 mt-2">
+            Great job! You have no unplanned spending to track.
+          </p>
         </div>
       )}
     </div>
