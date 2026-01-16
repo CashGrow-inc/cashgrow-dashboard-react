@@ -39,7 +39,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       try {
         setIsLoading(true);
         console.log('Fetching monthlies...');
-        const data = await fetchMonthlies(30);
+        const data = await fetchMonthlies();
         console.log('Monthlies data received:', data);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
@@ -69,7 +69,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
-          const data = await fetchMonthliesTransactions(categoryName, 30);
+          const data = await fetchMonthliesTransactions(categoryName);
           setCategoryTransactions(prev => ({
             ...prev,
             [categoryName]: data.transactions

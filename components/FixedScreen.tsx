@@ -39,7 +39,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
       try {
         setIsLoading(true);
         console.log('Fetching fixed costs...');
-        const data = await fetchFixed(30);
+        const data = await fetchFixed();
         console.log('Fixed costs data received:', data);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
@@ -69,7 +69,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
-          const data = await fetchFixedTransactions(categoryName, 30);
+          const data = await fetchFixedTransactions(categoryName);
           setCategoryTransactions(prev => ({
             ...prev,
             [categoryName]: data.transactions

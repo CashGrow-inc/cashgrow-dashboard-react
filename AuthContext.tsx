@@ -185,14 +185,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchMonthlies = async (periodDays: number = 30): Promise<MonthliesData> => {
+    const fetchMonthlies = async (periodDays?: number): Promise<MonthliesData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/monthlies`, {
-                params: { period_days: periodDays },
+                params: periodDays ? { period_days: periodDays } : undefined,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -204,14 +204,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchFixed = async (periodDays: number = 30): Promise<MonthliesData> => {
+    const fetchFixed = async (periodDays?: number): Promise<MonthliesData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fixed`, {
-                params: { period_days: periodDays },
+                params: periodDays ? { period_days: periodDays } : undefined,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -223,14 +223,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchFixedTransactions = async (category: string, periodDays: number = 30): Promise<CategoryTransactionsData> => {
+    const fetchFixedTransactions = async (category: string, periodDays?: number): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/fixed/transactions/${encodeURIComponent(category)}`, {
-                params: { period_days: periodDays },
+                params: periodDays ? { period_days: periodDays } : undefined,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -242,14 +242,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchMonthliesTransactions = async (category: string, periodDays: number = 30): Promise<CategoryTransactionsData> => {
+    const fetchMonthliesTransactions = async (category: string, periodDays?: number): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
 
         try {
             const response = await axios.get(`${API_BASE_URL}/api/monthlies/transactions/${encodeURIComponent(category)}`, {
-                params: { period_days: periodDays },
+                params: periodDays ? { period_days: periodDays } : undefined,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
