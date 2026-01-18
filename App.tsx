@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Screen } from './types';
 
 // Components
@@ -20,8 +20,11 @@ import IncomeScreen from './components/IncomeScreen';
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
 
+// Config
+import { API_BASE_URL } from './config/api';
+
 const AppContent: React.FC = () => {
-  const { isLoggedIn, isAuthLoading, logout } = useAuth();
+  const { isLoggedIn, isAuthLoading, logout, token } = useAuth();
 
   // Track if user has passed the bank connection screen (skipped OR connected)
   const [hasPassedBankScreen, setHasPassedBankScreen] = useState(() => {
@@ -33,10 +36,72 @@ const AppContent: React.FC = () => {
     return localStorage.getItem('hasBankAccount') === 'true';
   });
 
+  // Track if we're verifying bank connection status with backend
+  const [isVerifyingBankStatus, setIsVerifyingBankStatus] = useState(false);
+
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
   const [showFounders, setShowFounders] = useState(false);
+
+  // Verify bank connection status with backend on login
+  useEffect(() => {
+    const verifyBankConnectionStatus = async () => {
+      if (!isLoggedIn || !token || isAuthLoading) {
+        return;
+      }
+
+      try {
+        setIsVerifyingBankStatus(true);
+        const response = await fetch(`${API_BASE_URL}/api/plaid/accounts`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('Failed to verify bank connection status');
+          return;
+        }
+
+        const data = await response.json();
+        const hasConnectedAccounts = data.accounts && data.accounts.length > 0;
+
+        console.log('Bank connection verification:', {
+          accountsFound: data.accounts?.length || 0,
+          hasConnectedAccounts,
+          localStorageHasBankAccount: localStorage.getItem('hasBankAccount'),
+        });
+
+        // Sync frontend state with backend reality
+        if (hasConnectedAccounts) {
+          // User has accounts in backend - ensure frontend reflects this
+          if (!hasBankAccount) {
+            console.log('Syncing: Backend has accounts, updating frontend state');
+            setHasBankAccount(true);
+            setHasPassedBankScreen(true);
+            localStorage.setItem('hasBankAccount', 'true');
+            localStorage.setItem('hasPassedBankScreen', 'true');
+          }
+        } else {
+          // User has no accounts in backend - reset frontend state
+          if (hasBankAccount) {
+            console.log('Syncing: Backend has no accounts, resetting frontend state');
+            setHasBankAccount(false);
+            localStorage.setItem('hasBankAccount', 'false');
+          }
+        }
+      } catch (err) {
+        console.error('Error verifying bank connection status:', err);
+      } finally {
+        setIsVerifyingBankStatus(false);
+      }
+    };
+
+    verifyBankConnectionStatus();
+  }, [isLoggedIn, token, isAuthLoading]);
 
   const handleShowThankYou = useCallback(() => {
     setShowThankYou(true);
@@ -112,13 +177,13 @@ const AppContent: React.FC = () => {
     return <FoundersPage onBack={handleBackFromFounders} />;
   }
 
-  // Show loading while checking auth state
-  if (isAuthLoading) {
+  // Show loading while checking auth state or verifying bank connection
+  if (isAuthLoading || isVerifyingBankStatus) {
     return (
       <div className="bg-slate-50 min-h-screen min-h-dvh w-full flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading...</p>
+          <p className="text-slate-600">{isVerifyingBankStatus ? 'Checking accounts...' : 'Loading...'}</p>
         </div>
       </div>
     );

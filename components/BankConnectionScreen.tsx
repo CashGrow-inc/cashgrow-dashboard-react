@@ -18,6 +18,18 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
   // Fetch link_token from backend
   useEffect(() => {
     const createLinkToken = async () => {
+      // Wait for user to be fully loaded before creating link token
+      if (!user?.id && !user?.email) {
+        console.log('Waiting for user data to load...');
+        return;
+      }
+
+      const userId = user.id || user.email;
+      if (!userId) {
+        setError('User information not available. Please try logging out and back in.');
+        return;
+      }
+
       try {
         setError(null);
         const response = await fetch(`${API_BASE_URL}/api/plaid/create_link_token`, {
@@ -27,7 +39,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
             'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            userId: user?.id || user?.email || '12345',
+            userId: userId,
           }),
         });
 
