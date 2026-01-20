@@ -8,6 +8,8 @@ import BankConnectionScreen from './components/BankConnectionScreen';
 import AccountsScreen from './components/AccountsScreen';
 import FoundersPage from './components/FoundersPage';
 import VerifyEmailScreen from './components/VerifyEmailScreen';
+import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import ResetPasswordScreen from './components/ResetPasswordScreen';
 import { Header, BottomNav } from './components/Layout';
 
 // Screens
@@ -220,11 +222,19 @@ const AppContent: React.FC = () => {
 };
 
 export default function App() {
-  // Check if current path is /verify-email
-  const isVerifyEmailPath = window.location.pathname === '/verify-email';
+  const pathname = window.location.pathname;
 
-  if (isVerifyEmailPath) {
+  // Handle standalone auth pages (no AuthProvider needed)
+  if (pathname === '/verify-email') {
     return <VerifyEmailScreen />;
+  }
+
+  if (pathname === '/forgot-password') {
+    return <ForgotPasswordScreen />;
+  }
+
+  if (pathname === '/reset-password') {
+    return <ResetPasswordScreen />;
   }
 
   return (
