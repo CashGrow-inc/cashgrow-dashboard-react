@@ -9,6 +9,7 @@ import {
 } from './Icons';
 import BgVideo from '../assets/background-video_H264.mp4';
 import { useAuth } from '../AuthContext';
+import { API_BASE_URL } from '../config/api';
 
 const Logo: React.FC<{ flowerColor?: string; textColor?: string }> = ({ flowerColor = "#304FFE", textColor = "#2A2A2A" }) => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -316,12 +317,43 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoginError('');
+
     try {
-      await login(loginEmail, loginPassword);
-      closeLoginModal();
-      // No need to call onSignIn - AuthContext's isLoggedIn is now the single source of truth
+      // Call API directly to get detailed error response
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Login successful - use the login function to set state
+        await login(loginEmail, loginPassword);
+        closeLoginModal();
+      } else {
+        // Check if error is due to unverified email
+        const errorMessage = data.detail || '';
+        if (
+          errorMessage.toLowerCase().includes('not verified') ||
+          errorMessage.toLowerCase().includes('verify your email') ||
+          errorMessage.toLowerCase().includes('email verification')
+        ) {
+          // Redirect to resend verification page with email pre-filled
+          window.location.href = `/resend-verification?email=${encodeURIComponent(loginEmail)}`;
+        } else {
+          setLoginError(errorMessage || 'Login failed. Check credentials.');
+        }
+      }
     } catch (error) {
-      setLoginError('Login failed. Check credentials.');
+      setLoginError('Network error. Please try again.');
     }
   };
 

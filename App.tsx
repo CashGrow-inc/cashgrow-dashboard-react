@@ -10,6 +10,7 @@ import FoundersPage from './components/FoundersPage';
 import VerifyEmailScreen from './components/VerifyEmailScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 import ResetPasswordScreen from './components/ResetPasswordScreen';
+import ResendVerificationScreen from './components/ResendVerificationScreen';
 import { Header, BottomNav } from './components/Layout';
 
 // Screens
@@ -235,6 +236,10 @@ export default function App() {
 
   if (pathname === '/reset-password') {
     return <ResetPasswordScreen />;
+  }
+
+  if (pathname === '/resend-verification') {
+    return <ResendVerificationScreen />;
   }
 
   return (
