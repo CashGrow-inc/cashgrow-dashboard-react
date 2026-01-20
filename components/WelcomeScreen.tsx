@@ -790,6 +790,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
                   placeholder="Enter your password"
                 />
                 {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
+                <div className="text-right mt-2">
+                  <a
+                    href="/forgot-password"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    Forgot Password?
+                  </a>
+                </div>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
