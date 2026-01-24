@@ -22,9 +22,9 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
       return;
     }
 
-    const loadUnplanned = async () => {
+    const loadUnplanned = async (showLoading = true) => {
       try {
-        setIsLoading(true);
+        if (showLoading) setIsLoading(true);
         console.log('Fetching unplanned expenses...');
         const data = await fetchUnplanned();
         console.log('Unplanned data received:', data);
@@ -40,6 +40,13 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     };
 
     loadUnplanned();
+
+    // Poll for new data every 30 seconds
+    const interval = setInterval(() => {
+      loadUnplanned(false); // Don't show loading spinner on background refresh
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [hasBankAccount]);
 
   const handleToggleWeek = (weekStart: string) => {

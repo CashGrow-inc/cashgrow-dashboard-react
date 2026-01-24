@@ -28,9 +28,9 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
       return;
     }
 
-    const loadBudget = async () => {
+    const loadBudget = async (showLoading = true) => {
       try {
-        setIsLoading(true);
+        if (showLoading) setIsLoading(true);
         console.log('Fetching budget summary...');
         const summary = await fetchBudgetSummary(7, monthlyGoal);
         console.log('Budget summary received:', summary);
@@ -45,6 +45,13 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     };
 
     loadBudget();
+
+    // Poll for new data every 30 seconds
+    const interval = setInterval(() => {
+      loadBudget(false); // Don't show loading spinner on background refresh
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [hasBankAccount, monthlyGoal]);
 
   const handleEditGoal = () => {
