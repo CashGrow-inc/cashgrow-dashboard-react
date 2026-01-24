@@ -5,7 +5,9 @@ import {
   FacebookIcon,
   InstagramIcon,
   LinkedInIcon,
-  YouTubeIcon
+  YouTubeIcon,
+  EyeIcon,
+  EyeOffIcon
 } from './Icons';
 import BgVideo from '../assets/background-video_H264.mp4';
 import { useAuth } from '../AuthContext';
@@ -256,6 +258,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
   const [registerCountry, setRegisterCountry] = useState('');
   const [registerError, setRegisterError] = useState('');
   const [registerSuccess, setRegisterSuccess] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [videoPaused, setVideoPaused] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
@@ -813,14 +817,27 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
                 <label htmlFor="login-password" className="block text-sm font-semibold text-slate-700 mb-2">
                   Password
                 </label>
-                <input
-                  id="login-password"
-                  type="password"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={loginPassword}
-                  onChange={(event) => setLoginPassword(event.target.value)}
-                  placeholder="Enter your password"
-                />
+                <div className="relative">
+                  <input
+                    id="login-password"
+                    type={showLoginPassword ? "text" : "password"}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={loginPassword}
+                    onChange={(event) => setLoginPassword(event.target.value)}
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                  >
+                    {showLoginPassword ? (
+                      <EyeOffIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
                 {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
                 <div className="text-right mt-2">
                   <a
@@ -892,15 +909,28 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
                 <label htmlFor="register-password" className="block text-sm font-semibold text-slate-700 mb-2">
                   Password
                 </label>
-                <input
-                  id="register-password"
-                  type="password"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={registerPassword}
-                  onChange={(event) => setRegisterPassword(event.target.value)}
-                  placeholder="Enter your password"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    id="register-password"
+                    type={showRegisterPassword ? "text" : "password"}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={registerPassword}
+                    onChange={(event) => setRegisterPassword(event.target.value)}
+                    placeholder="Enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                  >
+                    {showRegisterPassword ? (
+                      <EyeOffIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
                 <p className="text-xs text-slate-500 mt-1">
                   Must be at least 8 characters with uppercase letter and digit
                 </p>

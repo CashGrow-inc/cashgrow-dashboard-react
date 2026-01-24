@@ -9,7 +9,9 @@ import {
   MonthliesIcon,
   FixedIcon,
   IncomeIcon,
-  ProfileIcon
+  ProfileIcon,
+  EyeIcon,
+  EyeOffIcon
 } from './Icons';
 
 interface HeaderProps {
@@ -27,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
   const [confirmationMessage, setConfirmationMessage] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menu when clicking outside
@@ -191,16 +194,30 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
                 <label htmlFor="delete-password" className="block text-sm font-semibold text-slate-700 mb-2">
                   Password
                 </label>
-                <input
-                  id="delete-password"
-                  type="password"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                  disabled={isDeleting}
-                />
+                <div className="relative">
+                  <input
+                    id="delete-password"
+                    type={showDeletePassword ? "text" : "password"}
+                    className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    disabled={isDeleting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePassword(!showDeletePassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                    disabled={isDeleting}
+                  >
+                    {showDeletePassword ? (
+                      <EyeOffIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
               {deleteError && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">

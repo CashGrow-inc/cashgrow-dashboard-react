@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
 import { Logo } from './WelcomeScreen';
+import { EyeIcon, EyeOffIcon } from './Icons';
 
 type ResetStatus = 'idle' | 'loading' | 'success' | 'error' | 'invalid_token';
 
@@ -11,6 +12,8 @@ const ResetPasswordScreen: React.FC = () => {
   const [status, setStatus] = useState<ResetStatus>('idle');
   const [message, setMessage] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -221,16 +224,30 @@ const ResetPasswordScreen: React.FC = () => {
                   <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
                     New Password
                   </label>
-                  <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    disabled={status === 'loading'}
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      className="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                      disabled={status === 'loading'}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      disabled={status === 'loading'}
+                    >
+                      {showPassword ? (
+                        <EyeOffIcon className="w-5 h-5" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                   <p className="mt-1 text-xs text-slate-500">
                     Must be at least 8 characters with 1 uppercase letter and 1 digit.
                   </p>
@@ -240,16 +257,30 @@ const ResetPasswordScreen: React.FC = () => {
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700 mb-1">
                     Confirm Password
                   </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                    disabled={status === 'loading'}
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      id="confirmPassword"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                      disabled={status === 'loading'}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      disabled={status === 'loading'}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOffIcon className="w-5 h-5" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {validationError && (
