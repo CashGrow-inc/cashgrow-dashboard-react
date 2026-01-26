@@ -25,11 +25,21 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
-  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
+  const accountIds = useMemo(() => Array.from(checkedAccountIds), [checkedAccountIds]);
+  const hasCheckedAccounts = checkedAccountIds.size > 0;
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
     if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
+
+    // If no accounts are checked, show zero state without calling API
+    if (!hasCheckedAccounts) {
+      setBudget(0);
+      setTotalIncome(0);
+      setTotalExpenses(0);
       setIsLoading(false);
       return;
     }
@@ -58,7 +68,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, monthlyGoal, accountIdsKey]);
+  }, [hasBankAccount, monthlyGoal, accountIdsKey, hasCheckedAccounts]);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
