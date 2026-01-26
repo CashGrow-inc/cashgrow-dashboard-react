@@ -102,20 +102,16 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       } else {
         // User has previously set preferences (even if empty)
         // Restore from storage, keeping only IDs that still exist
-        // Add any NEW accounts as checked by default
+        // Note: New accounts will appear unchecked - user must manually check them
         const validStoredIds = new Set(
           Array.from(storedIds).filter(id => currentAccountIds.has(id))
         );
 
-        // Add any new accounts that weren't in storage
-        fetchedAccounts.forEach(acc => {
-          if (!storedIds.has(acc.id)) {
-            validStoredIds.add(acc.id);
-          }
-        });
-
         setCheckedAccountIds(validStoredIds);
-        saveToStorage(validStoredIds);
+        // Only save if some IDs were removed (account was deleted)
+        if (validStoredIds.size !== storedIds.size) {
+          saveToStorage(validStoredIds);
+        }
       }
     } catch (error) {
       console.error('Error fetching accounts for filter:', error);
