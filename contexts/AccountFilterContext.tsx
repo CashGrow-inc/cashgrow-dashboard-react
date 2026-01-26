@@ -35,22 +35,24 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [checkedAccountIds, setCheckedAccountIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false);
 
   // Load checked IDs from localStorage
-  const loadFromStorage = useCallback((): Set<string> => {
+  // Returns null if no key exists (never initialized)
+  // Returns Set (possibly empty) if key exists
+  const loadFromStorage = useCallback((): Set<string> | null => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const ids = JSON.parse(stored);
-        if (Array.isArray(ids)) {
-          return new Set(ids);
-        }
+      if (stored === null) {
+        return null; // Key doesn't exist - never initialized
+      }
+      const ids = JSON.parse(stored);
+      if (Array.isArray(ids)) {
+        return new Set(ids); // Could be empty Set if user unchecked all
       }
     } catch (e) {
       console.error('Failed to load account filter from storage:', e);
     }
-    return new Set();
+    return null;
   }, []);
 
   // Save checked IDs to localStorage
@@ -92,13 +94,15 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       const storedIds = loadFromStorage();
       const currentAccountIds = new Set(fetchedAccounts.map(acc => acc.id));
 
-      if (!hasInitialized || storedIds.size === 0) {
-        // First load or no stored selection: check all accounts
+      if (storedIds === null) {
+        // First time ever - no localStorage key exists
+        // Initialize with all accounts checked
         setCheckedAccountIds(currentAccountIds);
         saveToStorage(currentAccountIds);
       } else {
-        // Restore from storage, but only keep IDs that still exist
-        // Also add any new accounts as checked by default
+        // User has previously set preferences (even if empty)
+        // Restore from storage, keeping only IDs that still exist
+        // Add any NEW accounts as checked by default
         const validStoredIds = new Set(
           Array.from(storedIds).filter(id => currentAccountIds.has(id))
         );
@@ -113,14 +117,12 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
         setCheckedAccountIds(validStoredIds);
         saveToStorage(validStoredIds);
       }
-
-      setHasInitialized(true);
     } catch (error) {
       console.error('Error fetching accounts for filter:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [token, isLoggedIn, loadFromStorage, saveToStorage, hasInitialized]);
+  }, [token, isLoggedIn, loadFromStorage, saveToStorage]);
 
   // Fetch accounts on mount and when auth changes
   useEffect(() => {
@@ -130,7 +132,6 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       setAccounts([]);
       setCheckedAccountIds(new Set());
       setIsLoading(false);
-      setHasInitialized(false);
     }
   }, [isLoggedIn, token]);
 
