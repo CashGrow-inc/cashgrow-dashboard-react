@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
@@ -10,6 +11,7 @@ interface MonthliesScreenProps {
 
 const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchMonthlies, fetchMonthliesTransactions } = useAuth();
+  const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,6 +30,10 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     'bg-red-500',
   ];
 
+  // Convert Set to stable string for dependency comparison
+  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
+
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
     if (!hasBankAccount) {
@@ -39,7 +45,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching monthlies...');
-        const data = await fetchMonthlies();
+        const data = await fetchMonthlies(undefined, accountIds);
         console.log('Monthlies data received:', data);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
@@ -67,7 +73,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount]);
+  }, [hasBankAccount, accountIdsKey]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -78,7 +84,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
-          const data = await fetchMonthliesTransactions(categoryName);
+          const data = await fetchMonthliesTransactions(categoryName, undefined, accountIds);
           setCategoryTransactions(prev => ({
             ...prev,
             [categoryName]: data.transactions

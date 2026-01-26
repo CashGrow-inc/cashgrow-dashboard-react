@@ -1,65 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter, BankAccount } from '../contexts/AccountFilterContext';
 import { API_BASE_URL } from '../config/api';
-
-interface BankAccount {
-  id: string;
-  plaid_account_id: string;
-  name: string;
-  official_name: string | null;
-  institution_name: string;
-  type: string;
-  subtype: string | null;
-  current_balance: number;
-  available_balance: number | null;
-  currency_code: string;
-  last_synced_at: string;
-  created_at: string;
-}
 
 interface AccountsScreenProps {
   onBack: () => void;
 }
 
 const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
-  const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
-  const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(new Set());
   const { token } = useAuth();
+  const { accounts, checkedAccountIds, toggleAccount, setAllChecked, refreshAccounts, isLoading: filterLoading } = useAccountFilter();
 
   // Fetch accounts on component mount
   useEffect(() => {
-    fetchAccounts();
-  }, []);
-
-  const fetchAccounts = async () => {
-    try {
+    const loadAccounts = async () => {
       setLoading(true);
       setError(null);
-
-      const response = await fetch(`${API_BASE_URL}/api/plaid/accounts`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch accounts');
+      try {
+        await refreshAccounts();
+      } catch (err) {
+        console.error('Error fetching accounts:', err);
+        setError('Failed to load accounts. Please try again.');
+      } finally {
+        setLoading(false);
       }
-
-      const data = await response.json();
-      setAccounts(data.accounts || []);
-    } catch (err) {
-      console.error('Error fetching accounts:', err);
-      setError('Failed to load accounts. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    loadAccounts();
+  }, []);
 
   const handleDeleteAccount = async (accountId: string, accountName: string) => {
     if (!confirm(`Are you sure you want to delete "${accountName}"? This will also delete all transactions for this account.`)) {
@@ -85,13 +55,8 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
       const data = await response.json();
       console.log('Account deleted:', data);
 
-      // Remove from UI
-      setAccounts(accounts.filter(acc => acc.id !== accountId));
-      setSelectedAccounts(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(accountId);
-        return newSet;
-      });
+      // Refresh accounts to update the list and filter state
+      await refreshAccounts();
 
       alert(`Account deleted successfully! ${data.transactions_deleted} transactions were also removed.`);
     } catch (err) {
@@ -99,68 +64,6 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
       setError('Failed to delete account. Please try again.');
     } finally {
       setDeletingAccountId(null);
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedAccounts.size === 0) {
-      alert('Please select accounts to delete');
-      return;
-    }
-
-    if (!confirm(`Are you sure you want to delete ${selectedAccounts.size} account(s)? This will also delete all associated transactions.`)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      const deletePromises = Array.from(selectedAccounts).map(async (accountId) => {
-        const response = await fetch(`${API_BASE_URL}/api/plaid/accounts/${accountId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to delete account ${accountId}`);
-        }
-
-        return response.json();
-      });
-
-      const results = await Promise.all(deletePromises);
-      const totalTransactionsDeleted = results.reduce((sum, result) => sum + result.transactions_deleted, 0);
-
-      // Remove deleted accounts from UI
-      setAccounts(accounts.filter(acc => !selectedAccounts.has(acc.id)));
-      setSelectedAccounts(new Set());
-
-      alert(`${results.length} account(s) deleted successfully! ${totalTransactionsDeleted} transactions were also removed.`);
-    } catch (err) {
-      console.error('Error during bulk delete:', err);
-      setError('Failed to delete some accounts. Please try again.');
-    }
-  };
-
-  const toggleAccountSelection = (accountId: string) => {
-    setSelectedAccounts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(accountId)) {
-        newSet.delete(accountId);
-      } else {
-        newSet.add(accountId);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedAccounts.size === accounts.length) {
-      setSelectedAccounts(new Set());
-    } else {
-      setSelectedAccounts(new Set(accounts.map(acc => acc.id)));
     }
   };
 
@@ -196,6 +99,9 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
     }
   };
 
+  const isAllChecked = accounts.length > 0 && checkedAccountIds.size === accounts.length;
+  const checkedCount = checkedAccountIds.size;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 p-4 pb-20">
       {/* Header */}
@@ -214,24 +120,30 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
           <div className="w-20"></div> {/* Spacer for center alignment */}
         </div>
 
-        {/* Bulk Actions Bar */}
-        {selectedAccounts.size > 0 && (
-          <div className="bg-blue-600 text-white rounded-xl p-4 mb-4 flex items-center justify-between">
-            <span className="font-medium">{selectedAccounts.size} account(s) selected</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setSelectedAccounts(new Set())}
-                className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                onClick={handleBulkDelete}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors font-medium"
-              >
-                Delete Selected
-              </button>
+        {/* Filter Status Indicator */}
+        {accounts.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="text-blue-800 font-medium">
+                  Showing transactions from {checkedCount} of {accounts.length} account{accounts.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              {checkedCount < accounts.length && (
+                <button
+                  onClick={() => setAllChecked(true)}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Show all
+                </button>
+              )}
             </div>
+            <p className="text-sm text-blue-600 mt-1">
+              Check accounts below to include their transactions in your dashboard.
+            </p>
           </div>
         )}
 
@@ -243,7 +155,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
         )}
 
         {/* Loading State */}
-        {loading ? (
+        {(loading || filterLoading) ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
@@ -258,11 +170,13 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
               <div className="bg-white rounded-xl p-4 mb-4 flex items-center">
                 <input
                   type="checkbox"
-                  checked={selectedAccounts.size === accounts.length}
-                  onChange={toggleSelectAll}
+                  checked={isAllChecked}
+                  onChange={() => setAllChecked(!isAllChecked)}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
-                <label className="ml-3 text-slate-700 font-medium">Select All</label>
+                <label className="ml-3 text-slate-700 font-medium">
+                  {isAllChecked ? 'Uncheck All' : 'Select All'}
+                </label>
               </div>
             )}
 
@@ -272,15 +186,15 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
                 <div
                   key={account.id}
                   className={`bg-white rounded-xl shadow-sm p-6 transition-all ${
-                    selectedAccounts.has(account.id) ? 'ring-2 ring-blue-500' : ''
+                    checkedAccountIds.has(account.id) ? 'ring-2 ring-blue-500' : 'opacity-75'
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     {/* Checkbox */}
                     <input
                       type="checkbox"
-                      checked={selectedAccounts.has(account.id)}
-                      onChange={() => toggleAccountSelection(account.id)}
+                      checked={checkedAccountIds.has(account.id)}
+                      onChange={() => toggleAccount(account.id)}
                       className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                     />
 

@@ -22,6 +22,7 @@ import IncomeScreen from './components/IncomeScreen';
 
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
+import { AccountFilterProvider } from './contexts/AccountFilterContext';
 
 // Config
 import { API_BASE_URL } from './config/api';
@@ -244,7 +245,9 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <AppContent />
+      <AccountFilterProvider>
+        <AppContent />
+      </AccountFilterProvider>
     </AuthProvider>
   );
 }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
@@ -10,6 +11,7 @@ interface FixedScreenProps {
 
 const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchFixed, fetchFixedTransactions } = useAuth();
+  const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,6 +30,10 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
     'bg-red-500',
   ];
 
+  // Convert Set to stable string for dependency comparison
+  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
+
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
     if (!hasBankAccount) {
@@ -39,7 +45,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching fixed costs...');
-        const data = await fetchFixed();
+        const data = await fetchFixed(undefined, accountIds);
         console.log('Fixed costs data received:', data);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
@@ -67,7 +73,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount]);
+  }, [hasBankAccount, accountIdsKey]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -78,7 +84,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
-          const data = await fetchFixedTransactions(categoryName);
+          const data = await fetchFixedTransactions(categoryName, undefined, accountIds);
           setCategoryTransactions(prev => ({
             ...prev,
             [categoryName]: data.transactions

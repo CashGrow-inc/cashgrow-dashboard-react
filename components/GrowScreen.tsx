@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { WeeklyIcon, AutosaveIcon, GoalIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 
@@ -10,6 +11,7 @@ interface GrowScreenProps {
 
 const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchBudgetSummary } = useAuth();
+  const { checkedAccountIds } = useAccountFilter();
   const [budget, setBudget] = useState<number>(0);
   const [totalIncome, setTotalIncome] = useState<number>(0);
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
@@ -20,6 +22,10 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
   });
   const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
   const [goalInputValue, setGoalInputValue] = useState<string>(monthlyGoal.toString());
+
+  // Convert Set to stable string for dependency comparison
+  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -32,7 +38,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching budget summary...');
-        const summary = await fetchBudgetSummary(7, monthlyGoal);
+        const summary = await fetchBudgetSummary(7, monthlyGoal, accountIds);
         console.log('Budget summary received:', summary);
         setBudget(summary.budget);
         setTotalIncome(summary.total_income);
@@ -52,7 +58,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, monthlyGoal]);
+  }, [hasBankAccount, monthlyGoal, accountIdsKey]);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);

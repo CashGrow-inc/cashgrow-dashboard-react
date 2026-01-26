@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { formatCurrency } from './shared';
 
 interface IncomeScreenProps {
@@ -9,6 +10,7 @@ interface IncomeScreenProps {
 
 const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchIncome, fetchIncomeTransactions } = useAuth();
+  const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalEarned, setTotalEarned] = useState<number>(0);
   const [priorMonthTotal, setPriorMonthTotal] = useState<number>(0);
@@ -30,6 +32,10 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     'bg-red-500',
   ];
 
+  // Convert Set to stable string for dependency comparison
+  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
+
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
     if (!hasBankAccount) {
@@ -41,7 +47,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching income...');
-        const data = await fetchIncome();
+        const data = await fetchIncome(accountIds);
         console.log('Income data received:', data);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
@@ -71,7 +77,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount]);
+  }, [hasBankAccount, accountIdsKey]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -82,7 +88,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
-          const data = await fetchIncomeTransactions(categoryName);
+          const data = await fetchIncomeTransactions(categoryName, accountIds);
           setCategoryTransactions(prev => ({
             ...prev,
             [categoryName]: data.transactions

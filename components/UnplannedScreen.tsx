@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
+import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { formatCurrency } from './shared';
 
 interface UnplannedScreenProps {
@@ -9,11 +10,16 @@ interface UnplannedScreenProps {
 
 const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
   const { fetchUnplanned } = useAuth();
+  const { checkedAccountIds } = useAccountFilter();
   const [weeks, setWeeks] = useState<any[]>([]);
   const [totalUnplanned, setTotalUnplanned] = useState<number>(0);
   const [periodLabel, setPeriodLabel] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
+
+  // Convert Set to stable string for dependency comparison
+  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const accountIds = useMemo(() => checkedAccountIds.size > 0 ? Array.from(checkedAccountIds) : undefined, [checkedAccountIds]);
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -26,7 +32,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching unplanned expenses...');
-        const data = await fetchUnplanned();
+        const data = await fetchUnplanned(accountIds);
         console.log('Unplanned data received:', data);
 
         setWeeks(data.weeks);
@@ -47,7 +53,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount]);
+  }, [hasBankAccount, accountIdsKey]);
 
   const handleToggleWeek = (weekStart: string) => {
     setExpandedWeek(expandedWeek === weekStart ? null : weekStart);
