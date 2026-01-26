@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { usePlaidLink } from 'react-plaid-link';
 import { Screen } from '../types';
 import { useAuth } from '../AuthContext';
 import { Logo } from './WelcomeScreen';
@@ -11,7 +12,8 @@ import {
   IncomeIcon,
   ProfileIcon,
   EyeIcon,
-  EyeOffIcon
+  EyeOffIcon,
+  BankIcon
 } from './Icons';
 
 interface HeaderProps {
@@ -32,6 +34,11 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
   const [showDeletePassword, setShowDeletePassword] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Plaid connection state
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [isConnectingBank, setIsConnectingBank] = useState(false);
+  const [bankConnectionError, setBankConnectionError] = useState<string | null>(null);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,6 +50,135 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Create Plaid link token
+  const createLinkToken = useCallback(async () => {
+    if (!user?.id && !user?.email) {
+      setBankConnectionError('User information not available. Please try logging out and back in.');
+      return null;
+    }
+
+    const userId = user.id || user.email;
+    try {
+      setBankConnectionError(null);
+      const response = await fetch(`${API_BASE_URL}/api/plaid/create_link_token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create link token');
+      }
+
+      const data = await response.json();
+      return data.link_token;
+    } catch (err) {
+      console.error('Error creating link token:', err);
+      setBankConnectionError('Unable to connect to banking service. Please try again later.');
+      return null;
+    }
+  }, [user, token]);
+
+  // Handle Plaid Link success
+  const onPlaidSuccess = useCallback(async (public_token: string, metadata: any) => {
+    setIsConnectingBank(true);
+    try {
+      const institutionName = metadata.institution?.name || 'Unknown Bank';
+
+      // Exchange public token for access token
+      const response = await fetch(`${API_BASE_URL}/api/plaid/exchange_public_token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          public_token,
+          institution_name: institutionName,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Failed to exchange token: ${response.status} ${JSON.stringify(errorData)}`);
+      }
+
+      // Sync transactions for the new connection
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+
+      let startMonth = currentMonth - 3;
+      let startYear = currentYear;
+      if (startMonth < 0) {
+        startMonth += 12;
+        startYear -= 1;
+      }
+
+      const startDate = new Date(startYear, startMonth, 1).toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+
+      await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ start_date: startDate, end_date: endDate }),
+      });
+
+      // Refresh the accounts view
+      onShowAccounts();
+    } catch (err) {
+      console.error('Error connecting bank:', err);
+      setBankConnectionError(`Failed to complete bank connection: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setIsConnectingBank(false);
+      setLinkToken(null);
+    }
+  }, [token, onShowAccounts]);
+
+  // Handle Plaid Link exit
+  const onPlaidExit = useCallback((err: any) => {
+    if (err) {
+      console.error('Plaid Link exit error:', err);
+      setBankConnectionError('Connection was interrupted. Please try again.');
+    }
+    setIsConnectingBank(false);
+    setLinkToken(null);
+  }, []);
+
+  // Plaid Link hook
+  const { open: openPlaidLink, ready: plaidReady } = usePlaidLink({
+    token: linkToken || '',
+    onSuccess: onPlaidSuccess,
+    onExit: onPlaidExit,
+  });
+
+  // Open Plaid Link when token is ready
+  useEffect(() => {
+    if (linkToken && plaidReady) {
+      openPlaidLink();
+    }
+  }, [linkToken, plaidReady, openPlaidLink]);
+
+  // Handle connect bank click
+  const handleConnectBankClick = async () => {
+    setIsProfileMenuOpen(false);
+    setBankConnectionError(null);
+    setIsConnectingBank(true);
+
+    const token = await createLinkToken();
+    if (token) {
+      setLinkToken(token);
+    } else {
+      setIsConnectingBank(false);
+    }
+  };
 
   const handleDeleteAccountClick = () => {
     setIsProfileMenuOpen(false);
@@ -163,6 +299,15 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
             {isProfileMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-30">
                 <button
+                  onClick={handleConnectBankClick}
+                  disabled={isConnectingBank}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
+                >
+                  <BankIcon className="w-4 h-4" />
+                  <span>{isConnectingBank ? 'Connecting...' : 'Connect Bank'}</span>
+                </button>
+                <div className="border-t border-slate-200 my-1"></div>
+                <button
                   onClick={handleDeleteAccountClick}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
@@ -173,6 +318,30 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
           </div>
         </div>
       </header>
+
+      {/* Bank Connection Error Notification */}
+      {bankConnectionError && (
+        <div className="fixed top-20 right-4 z-50 max-w-sm animate-in slide-in-from-right">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg">
+            <div className="flex items-start space-x-3">
+              <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm text-red-700">{bankConnectionError}</p>
+              </div>
+              <button
+                onClick={() => setBankConnectionError(null)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Account Modal - Step 1: Password */}
       {isDeleteModalOpen && (
