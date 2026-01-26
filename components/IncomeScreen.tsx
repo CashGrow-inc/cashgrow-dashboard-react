@@ -34,8 +34,6 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
-  const accountIds = useMemo(() => Array.from(checkedAccountIds), [checkedAccountIds]);
-  const hasCheckedAccounts = checkedAccountIds.size > 0;
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -44,8 +42,11 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       return;
     }
 
+    // Derive accountIds from accountIdsKey to ensure it's fresh
+    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+
     // If no accounts are checked, show empty state without calling API
-    if (!hasCheckedAccounts) {
+    if (accountIds.length === 0) {
       setCategories([]);
       setTotalEarned(0);
       setPriorMonthTotal(0);
@@ -59,7 +60,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     const loadIncome = async (showLoading = true) => {
       try {
         if (showLoading) setIsLoading(true);
-        console.log('Fetching income...');
+        console.log('Fetching income with accounts:', accountIds);
         const data = await fetchIncome(accountIds);
         console.log('Income data received:', data);
 
@@ -90,7 +91,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, hasCheckedAccounts]);
+  }, [hasBankAccount, accountIdsKey, fetchIncome]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -101,6 +102,8 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
+          // Derive accountIds from accountIdsKey to ensure it's fresh
+          const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
           const data = await fetchIncomeTransactions(categoryName, accountIds);
           setCategoryTransactions(prev => ({
             ...prev,

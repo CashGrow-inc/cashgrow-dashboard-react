@@ -19,8 +19,6 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
-  const accountIds = useMemo(() => Array.from(checkedAccountIds), [checkedAccountIds]);
-  const hasCheckedAccounts = checkedAccountIds.size > 0;
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -29,8 +27,11 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
       return;
     }
 
+    // Derive accountIds from accountIdsKey to ensure it's fresh
+    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+
     // If no accounts are checked, show empty state without calling API
-    if (!hasCheckedAccounts) {
+    if (accountIds.length === 0) {
       setWeeks([]);
       setTotalUnplanned(0);
       setPeriodLabel('No accounts selected');
@@ -41,7 +42,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     const loadUnplanned = async (showLoading = true) => {
       try {
         if (showLoading) setIsLoading(true);
-        console.log('Fetching unplanned expenses...');
+        console.log('Fetching unplanned expenses with accounts:', accountIds);
         const data = await fetchUnplanned(accountIds);
         console.log('Unplanned data received:', data);
 
@@ -63,7 +64,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, hasCheckedAccounts]);
+  }, [hasBankAccount, accountIdsKey, fetchUnplanned]);
 
   const handleToggleWeek = (weekStart: string) => {
     setExpandedWeek(expandedWeek === weekStart ? null : weekStart);

@@ -32,8 +32,6 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
-  const accountIds = useMemo(() => Array.from(checkedAccountIds), [checkedAccountIds]);
-  const hasCheckedAccounts = checkedAccountIds.size > 0;
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -42,8 +40,11 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       return;
     }
 
+    // Derive accountIds from accountIdsKey to ensure it's fresh
+    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+
     // If no accounts are checked, show empty state without calling API
-    if (!hasCheckedAccounts) {
+    if (accountIds.length === 0) {
       setCategories([]);
       setTotalSpent(0);
       setCategoryTransactions({});
@@ -54,7 +55,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     const loadMonthlies = async (showLoading = true) => {
       try {
         if (showLoading) setIsLoading(true);
-        console.log('Fetching monthlies...');
+        console.log('Fetching monthlies with accounts:', accountIds);
         const data = await fetchMonthlies(undefined, accountIds);
         console.log('Monthlies data received:', data);
 
@@ -83,7 +84,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, hasCheckedAccounts]);
+  }, [hasBankAccount, accountIdsKey, fetchMonthlies]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -94,6 +95,8 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       if (!categoryTransactions[categoryName]) {
         try {
           setLoadingTransactions(categoryName);
+          // Derive accountIds from accountIdsKey to ensure it's fresh
+          const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
           const data = await fetchMonthliesTransactions(categoryName, undefined, accountIds);
           setCategoryTransactions(prev => ({
             ...prev,
