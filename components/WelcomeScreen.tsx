@@ -406,7 +406,17 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
           closeRegisterModal();
         }, 3000);
       } else {
-        setRegisterError(data.detail || 'Registration failed. Please try again.');
+        // Handle Pydantic validation error format (array) or string error
+        let errorMessage = 'Registration failed. Please try again.';
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            // Pydantic returns array of validation errors - extract messages
+            errorMessage = data.detail.map((err: any) => err.msg).join('. ');
+          } else if (typeof data.detail === 'string') {
+            errorMessage = data.detail;
+          }
+        }
+        setRegisterError(errorMessage);
       }
     } catch (error) {
       setRegisterError('Network error. Please try again.');
