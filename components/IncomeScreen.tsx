@@ -57,7 +57,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       return;
     }
 
-    const loadIncome = async (showLoading = true) => {
+    const loadIncome = async (showLoading = true, clearCache = true) => {
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching income with accounts:', accountIds);
@@ -74,8 +74,10 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
         setPriorMonthTotal(data.prior_month_total);
         setCurrentMonthLabel(data.current_month_period.label);
         setPriorMonthLabel(data.prior_month_period.label);
-        // Clear cached transactions so they get refreshed on next expand
-        setCategoryTransactions({});
+        // Only clear cached transactions on initial load, not background refresh
+        if (clearCache) {
+          setCategoryTransactions({});
+        }
       } catch (error) {
         console.error('Failed to load income:', error);
       } finally {
@@ -87,7 +89,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
 
     // Poll for new data every 30 seconds
     const interval = setInterval(() => {
-      loadIncome(false); // Don't show loading spinner on background refresh
+      loadIncome(false, false); // Don't show loading spinner or clear cache on background refresh
     }, 30000);
 
     return () => clearInterval(interval);

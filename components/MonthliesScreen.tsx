@@ -52,7 +52,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       return;
     }
 
-    const loadMonthlies = async (showLoading = true) => {
+    const loadMonthlies = async (showLoading = true, clearCache = true) => {
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching monthlies with accounts:', accountIds);
@@ -67,8 +67,10 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
         setCategories(categoriesWithColors);
         setTotalSpent(data.total_spent);
-        // Clear cached transactions so they get refreshed on next expand
-        setCategoryTransactions({});
+        // Only clear cached transactions on initial load, not background refresh
+        if (clearCache) {
+          setCategoryTransactions({});
+        }
       } catch (error) {
         console.error('Failed to load monthlies:', error);
       } finally {
@@ -80,7 +82,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
     // Poll for new data every 30 seconds
     const interval = setInterval(() => {
-      loadMonthlies(false); // Don't show loading spinner on background refresh
+      loadMonthlies(false, false); // Don't show loading spinner or clear cache on background refresh
     }, 30000);
 
     return () => clearInterval(interval);

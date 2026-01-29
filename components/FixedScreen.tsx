@@ -52,7 +52,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
       return;
     }
 
-    const loadFixed = async (showLoading = true) => {
+    const loadFixed = async (showLoading = true, clearCache = true) => {
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching fixed costs with accounts:', accountIds);
@@ -67,8 +67,10 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
 
         setCategories(categoriesWithColors);
         setTotalSpent(data.total_spent);
-        // Clear cached transactions so they get refreshed on next expand
-        setCategoryTransactions({});
+        // Only clear cached transactions on initial load, not background refresh
+        if (clearCache) {
+          setCategoryTransactions({});
+        }
       } catch (error) {
         console.error('Failed to load fixed costs:', error);
       } finally {
@@ -80,7 +82,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
 
     // Poll for new data every 30 seconds
     const interval = setInterval(() => {
-      loadFixed(false); // Don't show loading spinner on background refresh
+      loadFixed(false, false); // Don't show loading spinner or clear cache on background refresh
     }, 30000);
 
     return () => clearInterval(interval);
