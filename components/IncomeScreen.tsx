@@ -9,13 +9,12 @@ interface IncomeScreenProps {
 }
 
 const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchIncome, fetchIncomeTransactions } = useAuth();
+  const { fetchIncome, fetchIncomeTransactions, fetchThreeMonthAverage } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalEarned, setTotalEarned] = useState<number>(0);
-  const [priorMonthTotal, setPriorMonthTotal] = useState<number>(0);
+  const [threeMonthAverage, setThreeMonthAverage] = useState<number>(0);
   const [currentMonthLabel, setCurrentMonthLabel] = useState<string>('');
-  const [priorMonthLabel, setPriorMonthLabel] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
@@ -49,9 +48,8 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     if (accountIds.length === 0) {
       setCategories([]);
       setTotalEarned(0);
-      setPriorMonthTotal(0);
+      setThreeMonthAverage(0);
       setCurrentMonthLabel('No accounts selected');
-      setPriorMonthLabel('');
       setCategoryTransactions({});
       setIsLoading(false);
       return;
@@ -61,8 +59,15 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching income with accounts:', accountIds);
-        const data = await fetchIncome(accountIds);
+
+        // Fetch both income data and 3-month average in parallel
+        const [data, averageData] = await Promise.all([
+          fetchIncome(accountIds),
+          fetchThreeMonthAverage('income', accountIds).catch(() => null)
+        ]);
+
         console.log('Income data received:', data);
+        console.log('3-month average received:', averageData);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
           ...cat,
@@ -71,9 +76,8 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
 
         setCategories(categoriesWithColors);
         setTotalEarned(data.current_month_total);
-        setPriorMonthTotal(data.prior_month_total);
+        setThreeMonthAverage(averageData?.average || 0);
         setCurrentMonthLabel(data.current_month_period.label);
-        setPriorMonthLabel(data.prior_month_period.label);
         // Only clear cached transactions on initial load, not background refresh
         if (clearCache) {
           setCategoryTransactions({});
@@ -93,7 +97,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchIncome]);
+  }, [hasBankAccount, accountIdsKey, fetchIncome, fetchThreeMonthAverage]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -169,12 +173,19 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
         <h3 className="text-slate-600 font-medium mb-2">Total Earned This Month</h3>
         <div className="text-4xl font-bold text-green-600">${formatCurrency(totalEarned)}</div>
         <p className="text-sm text-slate-500 mt-1">{currentMonthLabel}</p>
-        {priorMonthTotal > 0 && (
+        {threeMonthAverage > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-200">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">{priorMonthLabel}:</span>
-              <span className="font-semibold text-slate-700">${formatCurrency(priorMonthTotal)}</span>
+              <span className="text-slate-500">3-month average:</span>
+              <span className="font-semibold text-slate-700">${formatCurrency(threeMonthAverage)}</span>
             </div>
+            {totalEarned !== threeMonthAverage && (
+              <div className="flex justify-end mt-1">
+                <span className={`text-xs font-medium ${totalEarned >= threeMonthAverage ? 'text-green-600' : 'text-red-500'}`}>
+                  {totalEarned >= threeMonthAverage ? '+' : ''}{formatCurrency(totalEarned - threeMonthAverage)} ({totalEarned >= threeMonthAverage ? '+' : ''}{((totalEarned - threeMonthAverage) / threeMonthAverage * 100).toFixed(1)}%)
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -208,11 +219,6 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
                       <div className="font-bold text-green-600">
                         ${category.current_month_earned ? formatCurrency(category.current_month_earned) : '0.00'}
                       </div>
-                      {category.prior_month_earned > 0 && (
-                        <div className="text-xs text-slate-500">
-                          vs ${formatCurrency(category.prior_month_earned)}
-                        </div>
-                      )}
                     </div>
                     <svg
                       className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}

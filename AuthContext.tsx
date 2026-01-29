@@ -86,6 +86,17 @@ interface UnplannedData {
     period: PeriodInfo;
 }
 
+interface MonthlyTotal {
+    month: string;
+    total: number;
+}
+
+interface ThreeMonthAverageData {
+    category_group: string;
+    months: MonthlyTotal[];
+    average: number;
+}
+
 interface AuthContextType {
     isLoggedIn: boolean;
     isAuthLoading: boolean;
@@ -102,6 +113,7 @@ interface AuthContextType {
     fetchIncome: (accountIds?: string[]) => Promise<IncomeComparisonData>;
     fetchIncomeTransactions: (category: string, accountIds?: string[]) => Promise<CategoryTransactionsData>;
     fetchUnplanned: (accountIds?: string[]) => Promise<UnplannedData>;
+    fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[]) => Promise<ThreeMonthAverageData>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -362,6 +374,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchThreeMonthAverage = async (categoryGroup: string, accountIds?: string[]): Promise<ThreeMonthAverageData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = {};
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            const response = await axios.get(`${API_BASE_URL}/api/average/${encodeURIComponent(categoryGroup)}`, {
+                params: Object.keys(params).length > 0 ? params : undefined,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch 3-month average for ${categoryGroup}:`, error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         setIsLoggedIn(false);
         setToken(null);
@@ -379,7 +414,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchThreeMonthAverage }}>
             {children}
         </AuthContext.Provider>
     );

@@ -10,10 +10,11 @@ interface MonthliesScreenProps {
 }
 
 const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchMonthlies, fetchMonthliesTransactions } = useAuth();
+  const { fetchMonthlies, fetchMonthliesTransactions, fetchThreeMonthAverage } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
+  const [threeMonthAverage, setThreeMonthAverage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
@@ -47,6 +48,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     if (accountIds.length === 0) {
       setCategories([]);
       setTotalSpent(0);
+      setThreeMonthAverage(0);
       setCategoryTransactions({});
       setIsLoading(false);
       return;
@@ -56,8 +58,15 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       try {
         if (showLoading) setIsLoading(true);
         console.log('Fetching monthlies with accounts:', accountIds);
-        const data = await fetchMonthlies(undefined, accountIds);
+
+        // Fetch both monthlies data and 3-month average in parallel
+        const [data, averageData] = await Promise.all([
+          fetchMonthlies(undefined, accountIds),
+          fetchThreeMonthAverage('monthlies', accountIds).catch(() => null)
+        ]);
+
         console.log('Monthlies data received:', data);
+        console.log('3-month average received:', averageData);
 
         const categoriesWithColors = data.categories.map((cat, index) => ({
           ...cat,
@@ -67,6 +76,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
         setCategories(categoriesWithColors);
         setTotalSpent(data.total_spent);
+        setThreeMonthAverage(averageData?.average || 0);
         // Only clear cached transactions on initial load, not background refresh
         if (clearCache) {
           setCategoryTransactions({});
@@ -86,7 +96,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchMonthlies]);
+  }, [hasBankAccount, accountIdsKey, fetchMonthlies, fetchThreeMonthAverage]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -162,6 +172,21 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
         <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
         <div className="text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
         <p className="text-sm text-slate-500 mt-1">Last 30 days</p>
+        {threeMonthAverage > 0 && (
+          <div className="mt-3 pt-3 border-t border-slate-200">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">3-month average:</span>
+              <span className="font-semibold text-slate-700">${formatCurrency(threeMonthAverage)}</span>
+            </div>
+            {totalSpent !== threeMonthAverage && (
+              <div className="flex justify-end mt-1">
+                <span className={`text-xs font-medium ${totalSpent <= threeMonthAverage ? 'text-green-600' : 'text-red-500'}`}>
+                  {totalSpent <= threeMonthAverage ? '' : '+'}{formatCurrency(totalSpent - threeMonthAverage)} ({totalSpent <= threeMonthAverage ? '' : '+'}{((totalSpent - threeMonthAverage) / threeMonthAverage * 100).toFixed(1)}%)
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {categories.length > 0 ? (
