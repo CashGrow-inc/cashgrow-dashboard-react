@@ -28,20 +28,29 @@ interface AccountFilterContextType {
 
 const AccountFilterContext = createContext<AccountFilterContextType | null>(null);
 
-const STORAGE_KEY = 'accountFilter_checkedIds';
+const STORAGE_KEY_PREFIX = 'accountFilter_checkedIds_';
 
 export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { token, isLoggedIn } = useAuth();
+  const { token, isLoggedIn, user } = useAuth();
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [checkedAccountIds, setCheckedAccountIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get user-specific storage key
+  const getStorageKey = useCallback(() => {
+    const userId = user?.id;
+    return userId ? `${STORAGE_KEY_PREFIX}${userId}` : null;
+  }, [user]);
 
   // Load checked IDs from localStorage
   // Returns null if no key exists (never initialized)
   // Returns Set (possibly empty) if key exists
   const loadFromStorage = useCallback((): Set<string> | null => {
+    const storageKey = getStorageKey();
+    if (!storageKey) return null;
+
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored === null) {
         return null; // Key doesn't exist - never initialized
       }
@@ -53,20 +62,23 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error('Failed to load account filter from storage:', e);
     }
     return null;
-  }, []);
+  }, [getStorageKey]);
 
   // Save checked IDs to localStorage
   const saveToStorage = useCallback((ids: Set<string>) => {
+    const storageKey = getStorageKey();
+    if (!storageKey) return;
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(ids)));
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(ids)));
     } catch (e) {
       console.error('Failed to save account filter to storage:', e);
     }
-  }, []);
+  }, [getStorageKey]);
 
   // Fetch accounts from API
   const refreshAccounts = useCallback(async () => {
-    if (!token || !isLoggedIn) {
+    if (!token || !isLoggedIn || !user?.id) {
       setAccounts([]);
       setIsLoading(false);
       return;
@@ -95,14 +107,13 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       const currentAccountIds = new Set(fetchedAccounts.map(acc => acc.id));
 
       if (storedIds === null) {
-        // First time ever - no localStorage key exists
+        // First time for this user - no localStorage key exists
         // Initialize with all accounts checked
         setCheckedAccountIds(currentAccountIds);
         saveToStorage(currentAccountIds);
       } else {
         // User has previously set preferences (even if empty)
         // Restore from storage, keeping only IDs that still exist
-        // Note: New accounts will appear unchecked - user must manually check them
         const validStoredIds = new Set(
           Array.from(storedIds).filter(id => currentAccountIds.has(id))
         );
@@ -118,18 +129,18 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [token, isLoggedIn, loadFromStorage, saveToStorage]);
+  }, [token, isLoggedIn, user?.id, loadFromStorage, saveToStorage]);
 
   // Fetch accounts on mount and when auth changes
   useEffect(() => {
-    if (isLoggedIn && token) {
+    if (isLoggedIn && token && user?.id) {
       refreshAccounts();
     } else {
       setAccounts([]);
       setCheckedAccountIds(new Set());
       setIsLoading(false);
     }
-  }, [isLoggedIn, token]);
+  }, [isLoggedIn, token, user?.id]);
 
   // Toggle single account
   const toggleAccount = useCallback((id: string) => {
