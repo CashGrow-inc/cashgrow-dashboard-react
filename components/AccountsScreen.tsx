@@ -11,6 +11,8 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
+  const [accountToDelete, setAccountToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { token } = useAuth();
   const { accounts, checkedAccountIds, toggleAccount, setAllChecked, refreshAccounts, isLoading: filterLoading } = useAccountFilter();
 
@@ -31,16 +33,19 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
     loadAccounts();
   }, []);
 
-  const handleDeleteAccount = async (accountId: string, accountName: string) => {
-    if (!confirm(`Are you sure you want to delete "${accountName}"? This will also delete all transactions for this account.`)) {
-      return;
-    }
+  const handleDeleteClick = (accountId: string, accountName: string) => {
+    setAccountToDelete({ id: accountId, name: accountName });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!accountToDelete) return;
 
     try {
-      setDeletingAccountId(accountId);
+      setDeletingAccountId(accountToDelete.id);
+      setAccountToDelete(null);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/plaid/accounts/${accountId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/plaid/accounts/${accountToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -58,13 +63,19 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
       // Refresh accounts to update the list and filter state
       await refreshAccounts();
 
-      alert(`Account deleted successfully! ${data.transactions_deleted} transactions were also removed.`);
+      // Show success message
+      setSuccessMessage(data.message || 'Account deleted successfully!');
+      setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err) {
       console.error('Error deleting account:', err);
       setError('Failed to delete account. Please try again.');
     } finally {
       setDeletingAccountId(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setAccountToDelete(null);
   };
 
   const formatCurrency = (amount: number, currencyCode: string) => {
@@ -104,6 +115,75 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 p-4 pb-20">
+      {/* Animation keyframes */}
+      <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translate(-50%, -20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
+
+      {/* Success Toast */}
+      {successMessage && (
+        <div
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+          style={{ animation: 'fadeInDown 0.3s ease-out' }}
+        >
+          <div className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-2 hover:bg-green-700 rounded p-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {accountToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            style={{ animation: 'scaleIn 0.2s ease-out' }}
+          >
+            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 text-center mb-2">Delete Account</h3>
+            <p className="text-slate-600 text-center mb-6">
+              Are you sure you want to delete <span className="font-semibold">"{accountToDelete.name}"</span>?
+              This will permanently remove all transactions associated with this account.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCancelDelete}
+                className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -235,7 +315,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
                           Last synced: {formatDate(account.last_synced_at)}
                         </p>
                         <button
-                          onClick={() => handleDeleteAccount(account.id, account.name)}
+                          onClick={() => handleDeleteClick(account.id, account.name)}
                           disabled={deletingAccountId === account.id}
                           className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
