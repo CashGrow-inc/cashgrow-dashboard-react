@@ -176,7 +176,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
         {threeMonthAverage > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-200">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">3-month average:</span>
+              <span className="text-slate-500">Previous 3 months average:</span>
               <span className="font-semibold text-slate-700">${formatCurrency(threeMonthAverage)}</span>
             </div>
             {totalEarned !== threeMonthAverage && (
