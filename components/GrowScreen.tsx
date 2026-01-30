@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { WeeklyIcon, AutosaveIcon, GoalIcon } from './Icons';
-import { formatCurrency, ProgressBar } from './shared';
+import { formatCurrency } from './shared';
 
 interface GrowScreenProps {
   hasBankAccount: boolean;
@@ -10,11 +10,10 @@ interface GrowScreenProps {
 }
 
 const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchBudgetSummary } = useAuth();
+  const { fetchGrow } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
-  const [budget, setBudget] = useState<number>(0);
-  const [totalIncome, setTotalIncome] = useState<number>(0);
-  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [growValue, setGrowValue] = useState<number>(0);
+  const [currentWeekLabel, setCurrentWeekLabel] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
     const saved = localStorage.getItem('monthlyGoal');
@@ -38,38 +37,56 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
 
     // If no accounts are checked, show zero state without calling API
     if (accountIds.length === 0) {
-      setBudget(0);
-      setTotalIncome(0);
-      setTotalExpenses(0);
+      setGrowValue(0);
+      setCurrentWeekLabel('');
       setIsLoading(false);
       return;
     }
 
-    const loadBudget = async (showLoading = true) => {
+    const loadGrowData = async (showLoading = true) => {
       try {
         if (showLoading) setIsLoading(true);
-        console.log('Fetching budget summary with accounts:', accountIds);
-        const summary = await fetchBudgetSummary(7, monthlyGoal, accountIds);
-        console.log('Budget summary received:', summary);
-        setBudget(summary.budget);
-        setTotalIncome(summary.total_income);
-        setTotalExpenses(summary.total_expenses);
+        console.log('Fetching grow data with accounts:', accountIds, 'and monthly goal:', monthlyGoal);
+        const data = await fetchGrow(monthlyGoal, accountIds);
+        console.log('Grow data received:', data);
+
+        // Find the current week (the week that contains today's date)
+        if (data.weeks && data.weeks.length > 0) {
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+          const currentWeek = data.weeks.find(week => {
+            return today >= week.week_start && today <= week.week_end;
+          });
+
+          if (currentWeek) {
+            setGrowValue(currentWeek.grow);
+            setCurrentWeekLabel(currentWeek.week_range);
+            console.log('Current week grow value:', currentWeek.grow);
+          } else {
+            // Fall back to the last week if today isn't in any week
+            const lastWeek = data.weeks[data.weeks.length - 1];
+            setGrowValue(lastWeek.grow);
+            setCurrentWeekLabel(lastWeek.week_range);
+          }
+        } else {
+          setGrowValue(0);
+          setCurrentWeekLabel('');
+        }
       } catch (error) {
-        console.error('Failed to load budget:', error);
+        console.error('Failed to load grow data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadBudget();
+    loadGrowData();
 
     // Poll for new data every 30 seconds
     const interval = setInterval(() => {
-      loadBudget(false); // Don't show loading spinner on background refresh
+      loadGrowData(false); // Don't show loading spinner on background refresh
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, monthlyGoal, accountIdsKey, fetchBudgetSummary]);
+  }, [hasBankAccount, monthlyGoal, accountIdsKey, fetchGrow]);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
@@ -109,19 +126,24 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     <div className="space-y-4">
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-center mb-1">
-          <h2 className="text-slate-600 font-medium">Budget</h2>
+          <h2 className="text-slate-600 font-medium">Weekly Budget</h2>
           <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
             <WeeklyIcon className="w-4 h-4 mr-1" />
-            Weekly
+            This Week
           </span>
         </div>
-        <div className="text-5xl font-bold text-slate-800 mb-3">
-          {isLoading ? '...' : `$${formatCurrency(budget)}`}
+        <div className={`text-5xl font-bold mb-3 ${growValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {isLoading ? '...' : `$${formatCurrency(Math.abs(growValue))}`}
         </div>
-        <ProgressBar value={Math.abs(budget)} max={totalIncome > 0 ? totalIncome : 1000} color={budget >= 0 ? 'bg-green-600' : 'bg-red-600'} />
-        <div className="flex justify-between items-center mt-2 text-sm text-slate-500">
-          <span>Income: ${formatCurrency(totalIncome)} - Expenses: ${formatCurrency(totalExpenses)}</span>
-        </div>
+        <p className="text-slate-600">
+          {isLoading ? '' : growValue >= 0
+            ? `You have $${formatCurrency(growValue)} left to spend this week`
+            : `You're $${formatCurrency(Math.abs(growValue))} over budget this week`
+          }
+        </p>
+        {currentWeekLabel && (
+          <p className="text-sm text-slate-500 mt-1">{currentWeekLabel}</p>
+        )}
       </div>
 
       {!hasBankAccount ? (
@@ -135,12 +157,17 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
             Connect Bank
           </button>
         </div>
-      ) : (
+      ) : growValue > 0 ? (
         <div className="bg-green-50 rounded-2xl p-5 text-green-800">
           <h3 className="font-bold text-lg">You're growing strong!</h3>
-          <p className="text-green-700">You spent 25% less on takeout this week. That's $32 growing in your pocket!</p>
+          <p className="text-green-700">Keep up the good work! Your budget is on track this week.</p>
         </div>
-      )}
+      ) : growValue < 0 ? (
+        <div className="bg-red-50 rounded-2xl p-5 text-red-800">
+          <h3 className="font-bold text-lg">Watch your spending</h3>
+          <p className="text-red-700">You've exceeded your weekly budget. Consider cutting back on unplanned expenses.</p>
+        </div>
+      ) : null}
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-center mb-1">

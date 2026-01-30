@@ -86,6 +86,32 @@ interface UnplannedData {
     period: PeriodInfo;
 }
 
+interface GrowWeek {
+    week_num: number;
+    week_start: string;
+    week_end: string;
+    week_label: string;
+    week_range: string;
+    unplanned_spent: number;
+    grow: number;
+}
+
+interface BudgetBreakdown {
+    avg_income: number;
+    avg_fixed: number;
+    avg_monthlies: number;
+    monthly_goal: number;
+    available_budget: number;
+    weekly_budget: number;
+    num_weeks: number;
+}
+
+interface GrowData {
+    weeks: GrowWeek[];
+    budget_breakdown: BudgetBreakdown;
+    period: PeriodInfo;
+}
+
 interface MonthlyTotal {
     month: string;
     total: number;
@@ -113,6 +139,7 @@ interface AuthContextType {
     fetchIncome: (accountIds?: string[]) => Promise<IncomeComparisonData>;
     fetchIncomeTransactions: (category: string, accountIds?: string[]) => Promise<CategoryTransactionsData>;
     fetchUnplanned: (accountIds?: string[]) => Promise<UnplannedData>;
+    fetchGrow: (monthlyGoal?: number, accountIds?: string[]) => Promise<GrowData>;
     fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[]) => Promise<ThreeMonthAverageData>;
 }
 
@@ -374,6 +401,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchGrow = async (monthlyGoal?: number, accountIds?: string[]): Promise<GrowData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = {};
+            if (monthlyGoal !== undefined) {
+                params.monthly_goal = monthlyGoal;
+            }
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            const response = await axios.get(`${API_BASE_URL}/api/budget/grow`, {
+                params: Object.keys(params).length > 0 ? params : undefined,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch grow data:', error);
+            throw error;
+        }
+    };
+
     const fetchThreeMonthAverage = async (categoryGroup: string, accountIds?: string[]): Promise<ThreeMonthAverageData> => {
         if (!token) {
             throw new Error('No authentication token available');
@@ -414,7 +467,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchThreeMonthAverage }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchThreeMonthAverage }}>
             {children}
         </AuthContext.Provider>
     );
