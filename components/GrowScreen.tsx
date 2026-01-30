@@ -120,6 +120,22 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
         await updateMonthlyGoal(newGoal);
         setMonthlyGoal(newGoal);
         setIsEditingGoal(false);
+
+        // Refresh grow data with new goal
+        const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+        if (accountIds.length > 0) {
+          const data = await fetchGrow(accountIds);
+          if (data.weeks && data.weeks.length > 0) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentWeek = data.weeks.find(week => today >= week.week_start && today <= week.week_end);
+            if (currentWeek) {
+              setGrowValue(currentWeek.grow);
+            } else {
+              const lastWeek = data.weeks[data.weeks.length - 1];
+              setGrowValue(lastWeek.grow);
+            }
+          }
+        }
       } catch (error) {
         console.error('Failed to save monthly goal:', error);
       } finally {
