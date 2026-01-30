@@ -10,20 +10,33 @@ interface GrowScreenProps {
 }
 
 const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchGrow } = useAuth();
+  const { fetchGrow, fetchMonthlyGoal, updateMonthlyGoal } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
   const [growValue, setGrowValue] = useState<number>(0);
   const [currentWeekLabel, setCurrentWeekLabel] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(() => {
-    const saved = localStorage.getItem('monthlyGoal');
-    return saved ? parseFloat(saved) : 700;
-  });
+  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
   const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
-  const [goalInputValue, setGoalInputValue] = useState<string>(monthlyGoal.toString());
+  const [goalInputValue, setGoalInputValue] = useState<string>('0');
+  const [isSavingGoal, setIsSavingGoal] = useState<boolean>(false);
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+
+  // Fetch monthly goal from database on mount
+  React.useEffect(() => {
+    const loadMonthlyGoal = async () => {
+      try {
+        const data = await fetchMonthlyGoal();
+        setMonthlyGoal(data.monthly_goal);
+        setGoalInputValue(data.monthly_goal.toString());
+      } catch (error) {
+        console.error('Failed to load monthly goal:', error);
+      }
+    };
+
+    loadMonthlyGoal();
+  }, [fetchMonthlyGoal]);
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
@@ -46,9 +59,15 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     const loadGrowData = async (showLoading = true) => {
       try {
         if (showLoading) setIsLoading(true);
-        console.log('Fetching grow data with accounts:', accountIds, 'and monthly goal:', monthlyGoal);
-        const data = await fetchGrow(monthlyGoal, accountIds);
+        console.log('Fetching grow data with accounts:', accountIds);
+        const data = await fetchGrow(accountIds);
         console.log('Grow data received:', data);
+
+        // Update monthly goal from budget breakdown
+        if (data.budget_breakdown) {
+          setMonthlyGoal(data.budget_breakdown.monthly_goal);
+          setGoalInputValue(data.budget_breakdown.monthly_goal.toString());
+        }
 
         // Find the current week (the week that contains today's date)
         if (data.weeks && data.weeks.length > 0) {
@@ -86,19 +105,26 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, monthlyGoal, accountIdsKey, fetchGrow]);
+  }, [hasBankAccount, accountIdsKey, fetchGrow]);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
     setGoalInputValue(monthlyGoal.toString());
   };
 
-  const handleSaveGoal = () => {
+  const handleSaveGoal = async () => {
     const newGoal = parseFloat(goalInputValue);
-    if (!isNaN(newGoal) && newGoal > 0) {
-      setMonthlyGoal(newGoal);
-      localStorage.setItem('monthlyGoal', newGoal.toString());
-      setIsEditingGoal(false);
+    if (!isNaN(newGoal) && newGoal >= 0) {
+      try {
+        setIsSavingGoal(true);
+        await updateMonthlyGoal(newGoal);
+        setMonthlyGoal(newGoal);
+        setIsEditingGoal(false);
+      } catch (error) {
+        console.error('Failed to save monthly goal:', error);
+      } finally {
+        setIsSavingGoal(false);
+      }
     }
   };
 
@@ -133,7 +159,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
           </span>
         </div>
         <div className={`text-5xl font-bold mb-3 ${growValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {isLoading ? '...' : `$${formatCurrency(Math.abs(growValue))}`}
+          {isLoading ? '...' : growValue >= 0 ? `$${formatCurrency(growValue)}` : `-$${formatCurrency(Math.abs(growValue))}`}
         </div>
         <p className="text-slate-600">
           {isLoading ? '' : growValue >= 0
@@ -202,13 +228,15 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
               <>
                 <button
                   onClick={handleSaveGoal}
-                  className="text-sm font-semibold text-green-600 hover:text-green-700 px-3 py-1 bg-green-50 rounded"
+                  disabled={isSavingGoal}
+                  className="text-sm font-semibold text-green-600 hover:text-green-700 px-3 py-1 bg-green-50 rounded disabled:opacity-50"
                 >
-                  Save
+                  {isSavingGoal ? 'Saving...' : 'Save'}
                 </button>
                 <button
                   onClick={handleCancelGoal}
-                  className="text-sm font-semibold text-slate-600 hover:text-slate-700 px-3 py-1 bg-slate-50 rounded"
+                  disabled={isSavingGoal}
+                  className="text-sm font-semibold text-slate-600 hover:text-slate-700 px-3 py-1 bg-slate-50 rounded disabled:opacity-50"
                 >
                   Cancel
                 </button>

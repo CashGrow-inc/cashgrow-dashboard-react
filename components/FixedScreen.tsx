@@ -178,6 +178,13 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
               <span className="text-slate-500">Expected:</span>
               <span className="font-semibold text-slate-700">${formatCurrency(threeMonthAverage)}</span>
             </div>
+            {totalSpent !== threeMonthAverage && (
+              <div className="flex justify-end mt-1">
+                <span className={`text-xs font-medium ${totalSpent <= threeMonthAverage ? 'text-green-600' : 'text-red-500'}`}>
+                  {totalSpent <= threeMonthAverage ? '-' : '+'}${formatCurrency(Math.abs(totalSpent - threeMonthAverage))}
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>
