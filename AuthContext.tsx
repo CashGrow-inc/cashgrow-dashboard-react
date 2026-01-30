@@ -29,6 +29,7 @@ interface TransactionDetail {
     description: string;
     amount: number;
     date: string;
+    status?: 'pending' | 'posted';
 }
 
 interface CategoryTransactionsData {

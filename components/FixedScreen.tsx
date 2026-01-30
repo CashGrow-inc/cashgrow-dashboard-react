@@ -239,12 +239,15 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
                         formattedDate = '';
                       }
                       return (
-                        <div key={txnIndex} className="flex justify-between items-center py-2 px-3 bg-white rounded-lg">
+                        <div key={txnIndex} className={`flex justify-between items-center py-2 px-3 rounded-lg ${txn.status === 'pending' ? 'bg-amber-50 border border-amber-200' : 'bg-white'}`}>
                           <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-700">{txn.description}</span>
+                            <span className={`text-sm ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>{txn.description}</span>
                             {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
+                            {txn.status === 'pending' && (
+                              <span className="text-xs px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded font-medium">Pending</span>
+                            )}
                           </div>
-                          <span className="text-sm font-semibold text-slate-800">${formatCurrency(txn.amount)}</span>
+                          <span className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-800'}`}>${formatCurrency(txn.amount)}</span>
                         </div>
                       );
                     })}

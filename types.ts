@@ -15,6 +15,7 @@ export interface Transaction {
   amount: number;
   categoryTag: string;
   categoryColor: string;
+  status?: 'pending' | 'posted';
 }
 
 export interface UnplannedWeek {

@@ -239,12 +239,17 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
                   ) : transactions.length > 0 ? (
                     <div className="space-y-2">
                       {transactions.map((txn, txnIndex) => (
-                        <div key={txnIndex} className="flex justify-between items-center py-2">
+                        <div key={txnIndex} className={`flex justify-between items-center py-2 px-2 rounded-lg ${txn.status === 'pending' ? 'bg-amber-50 border border-amber-200' : ''}`}>
                           <div className="flex-1">
-                            <div className="text-sm font-medium text-slate-700">{txn.description}</div>
+                            <div className={`text-sm font-medium ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>
+                              {txn.description}
+                              {txn.status === 'pending' && (
+                                <span className="ml-2 text-xs px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded font-medium">Pending</span>
+                              )}
+                            </div>
                             <div className="text-xs text-slate-500">{txn.date}</div>
                           </div>
-                          <div className="text-sm font-semibold text-green-600">
+                          <div className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-600' : 'text-green-600'}`}>
                             ${formatCurrency(txn.amount)}
                           </div>
                         </div>
