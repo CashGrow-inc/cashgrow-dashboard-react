@@ -118,10 +118,17 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
           Array.from(storedIds).filter(id => currentAccountIds.has(id))
         );
 
-        setCheckedAccountIds(validStoredIds);
-        // Only save if some IDs were removed (account was deleted)
-        if (validStoredIds.size !== storedIds.size) {
-          saveToStorage(validStoredIds);
+        // Find new accounts that weren't in storage (newly connected accounts)
+        // These should be checked by default
+        const newAccountIds = Array.from(currentAccountIds).filter(id => !storedIds.has(id));
+
+        // Combine previously checked accounts with new accounts
+        const finalCheckedIds = new Set([...validStoredIds, ...newAccountIds]);
+
+        setCheckedAccountIds(finalCheckedIds);
+        // Save if IDs changed (accounts added or removed)
+        if (finalCheckedIds.size !== storedIds.size || newAccountIds.length > 0) {
+          saveToStorage(finalCheckedIds);
         }
       }
     } catch (error) {
