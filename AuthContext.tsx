@@ -124,6 +124,14 @@ interface ThreeMonthAverageData {
     average: number;
 }
 
+interface SpecificCategoryAverageData {
+    category_name: string;
+    category_group: string;
+    average: number;
+    months: MonthlyTotal[];
+    transaction_count: number;
+}
+
 interface AvailableCategory {
     id: number;
     plaid_detailed: string;
@@ -162,6 +170,7 @@ interface AuthContextType {
     fetchMonthlyGoal: () => Promise<MonthlyGoalData>;
     updateMonthlyGoal: (monthlyGoal: number) => Promise<MonthlyGoalData>;
     fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[]) => Promise<ThreeMonthAverageData>;
+    fetchCategoryAverage: (categoryName: string, accountIds?: string[]) => Promise<SpecificCategoryAverageData>;
     fetchAvailableCategories: (transactionId: string) => Promise<AvailableCategoriesData>;
     updateTransactionCategory: (transactionId: string, categoryId: number) => Promise<void>;
     updateTransactionRecurring: (transactionId: string, isRecurring: boolean) => Promise<void>;
@@ -510,6 +519,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchCategoryAverage = async (categoryName: string, accountIds?: string[]): Promise<SpecificCategoryAverageData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = {};
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            const response = await axios.get(`${API_BASE_URL}/finances/average/category/${encodeURIComponent(categoryName)}`, {
+                params: Object.keys(params).length > 0 ? params : undefined,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch 3-month average for category ${categoryName}:`, error);
+            throw error;
+        }
+    };
+
     const fetchAvailableCategories = async (transactionId: string): Promise<AvailableCategoriesData> => {
         if (!token) {
             throw new Error('No authentication token available');
@@ -602,7 +634,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

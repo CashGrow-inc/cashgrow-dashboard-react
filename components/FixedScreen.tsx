@@ -12,7 +12,7 @@ interface FixedScreenProps {
 }
 
 const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchFixed, fetchFixedTransactions, fetchThreeMonthAverage } = useAuth();
+  const { fetchFixed, fetchFixedTransactions, fetchThreeMonthAverage, fetchCategoryAverage } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
@@ -76,11 +76,26 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
         console.log('Fixed costs data received:', data);
         console.log('3-month average received:', averageData);
 
-        const categoriesWithColors = data.categories.map((cat, index) => ({
-          ...cat,
-          color: categoryColors[index % categoryColors.length],
-          budget: cat.spent * 1.5
-        }));
+        // Fetch 3-month average for each category in parallel
+        const categoryAverages = await Promise.all(
+          data.categories.map(cat =>
+            fetchCategoryAverage(cat.category, accountIds)
+              .then(avg => ({ category: cat.category, average: avg.average }))
+              .catch(() => ({ category: cat.category, average: 0 }))
+          )
+        );
+
+        // Create a map for quick lookup
+        const averageMap = new Map(categoryAverages.map(ca => [ca.category, ca.average]));
+
+        const categoriesWithColors = data.categories.map((cat, index) => {
+          const categoryAverage = averageMap.get(cat.category) || 0;
+          return {
+            ...cat,
+            color: categoryColors[index % categoryColors.length],
+            budget: categoryAverage > 0 ? categoryAverage : cat.spent
+          };
+        });
 
         setCategories(categoriesWithColors);
         setTotalSpent(data.total_spent);
@@ -104,7 +119,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchFixed, fetchThreeMonthAverage]);
+  }, [hasBankAccount, accountIdsKey, fetchFixed, fetchThreeMonthAverage, fetchCategoryAverage]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
