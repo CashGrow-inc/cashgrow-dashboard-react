@@ -124,6 +124,20 @@ interface ThreeMonthAverageData {
     average: number;
 }
 
+interface AvailableCategory {
+    id: number;
+    plaid_detailed: string;
+    cashgrow_category: string;
+    cashgrow_group: string;
+}
+
+interface AvailableCategoriesData {
+    transaction_id: string;
+    transaction_type: 'INCOME' | 'EXPENSE';
+    current_category_id: number | null;
+    categories: AvailableCategory[];
+}
+
 interface MonthlyGoalData {
     monthly_goal: number;
 }
@@ -148,6 +162,10 @@ interface AuthContextType {
     fetchMonthlyGoal: () => Promise<MonthlyGoalData>;
     updateMonthlyGoal: (monthlyGoal: number) => Promise<MonthlyGoalData>;
     fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[]) => Promise<ThreeMonthAverageData>;
+    fetchAvailableCategories: (transactionId: string) => Promise<AvailableCategoriesData>;
+    updateTransactionCategory: (transactionId: string, categoryId: number) => Promise<void>;
+    updateTransactionRecurring: (transactionId: string, isRecurring: boolean) => Promise<void>;
+    resetTransactionCategory: (transactionId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -492,6 +510,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchAvailableCategories = async (transactionId: string): Promise<AvailableCategoriesData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const response = await axios.get(`${API_BASE_URL}/transactions/${transactionId}/available-categories`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch available categories for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const updateTransactionCategory = async (transactionId: string, categoryId: number): Promise<void> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            await axios.patch(`${API_BASE_URL}/transactions/${transactionId}/category`,
+                { category_id: categoryId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        } catch (error) {
+            console.error(`Failed to update category for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const updateTransactionRecurring = async (transactionId: string, isRecurring: boolean): Promise<void> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            await axios.patch(`${API_BASE_URL}/transactions/${transactionId}/recurring`,
+                { is_recurring: isRecurring },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        } catch (error) {
+            console.error(`Failed to update recurring status for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const resetTransactionCategory = async (transactionId: string): Promise<void> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            await axios.delete(`${API_BASE_URL}/transactions/${transactionId}/category`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        } catch (error) {
+            console.error(`Failed to reset category for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
     const logout = () => {
         setIsLoggedIn(false);
         setToken(null);
@@ -509,7 +602,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

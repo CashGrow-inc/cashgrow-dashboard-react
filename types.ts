@@ -69,3 +69,28 @@ export interface IncomeSource {
     isNonCash?: boolean;
     period?: string;
 }
+
+// Transaction edit modal types
+export interface AvailableCategory {
+    id: number;
+    plaid_detailed: string;
+    cashgrow_category: string;
+    cashgrow_group: string;
+}
+
+export interface TransactionEditState {
+    isOpen: boolean;
+    transaction: TransactionWithId | null;
+    transactionType: 'INCOME' | 'EXPENSE';
+}
+
+// Extended transaction type that includes ID for editing
+export interface TransactionWithId {
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    category?: string;
+    status?: 'pending' | 'posted';
+    is_recurring?: boolean;
+}

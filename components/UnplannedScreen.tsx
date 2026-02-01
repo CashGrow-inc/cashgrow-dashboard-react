@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { formatCurrency } from './shared';
+import TransactionEditModal from './TransactionEditModal';
+import { TransactionWithId, TransactionEditState } from '../types';
 
 interface UnplannedScreenProps {
   hasBankAccount: boolean;
@@ -16,6 +18,12 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
   const [periodLabel, setPeriodLabel] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
+  const [editModalState, setEditModalState] = useState<TransactionEditState>({
+    isOpen: false,
+    transaction: null,
+    transactionType: 'EXPENSE',
+  });
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
@@ -70,6 +78,47 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     setExpandedWeek(expandedWeek === weekStart ? null : weekStart);
   };
 
+  const handleTransactionClick = (txn: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const transaction: TransactionWithId = {
+      id: txn.id,
+      date: txn.date,
+      description: txn.description,
+      amount: txn.amount,
+      category: txn.category,
+      status: txn.status,
+      is_recurring: txn.is_recurring,
+    };
+    setEditModalState({
+      isOpen: true,
+      transaction,
+      transactionType: 'EXPENSE',
+    });
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalState({
+      isOpen: false,
+      transaction: null,
+      transactionType: 'EXPENSE',
+    });
+  };
+
+  const handleEditSuccess = () => {
+    // Show success message
+    setSuccessMessage('Transaction updated successfully!');
+    setTimeout(() => setSuccessMessage(null), 4000);
+    // Re-fetch data
+    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+    fetchUnplanned(accountIds)
+      .then(data => {
+        setWeeks(data.weeks);
+        setTotalUnplanned(data.total_unplanned);
+        setPeriodLabel(data.period.label);
+      })
+      .catch(err => console.error('Failed to refresh unplanned:', err));
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -106,6 +155,36 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
 
   return (
     <div className="space-y-4">
+      {/* Success Toast */}
+      {successMessage && (
+        <div
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+          style={{ animation: 'fadeInDown 0.3s ease-out' }}
+        >
+          <div className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-2 hover:bg-green-700 rounded p-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translate(-50%, -20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+      `}</style>
+
       <div className="px-1">
         <div className="flex justify-between items-center">
           <h2 className="text-slate-800 font-bold text-xl">Unplanned</h2>
@@ -162,7 +241,15 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
                   {week.transactions.length > 0 ? (
                     <div className="space-y-2">
                       {week.transactions.map((txn: any) => (
-                        <div key={txn.id} className={`flex justify-between items-center py-2 px-2 rounded-lg ${txn.status === 'pending' ? 'bg-amber-50 border border-amber-200' : ''}`}>
+                        <div
+                          key={txn.id}
+                          onClick={(e) => handleTransactionClick(txn, e)}
+                          className={`flex justify-between items-center py-2 px-2 rounded-lg cursor-pointer transition-colors ${
+                            txn.status === 'pending'
+                              ? 'bg-amber-50 border border-amber-200 hover:bg-amber-100'
+                              : 'hover:bg-slate-100'
+                          }`}
+                        >
                           <div className="flex-1">
                             <div className={`text-sm font-medium ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>
                               {txn.description}
@@ -172,8 +259,13 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
                             </div>
                             <div className="text-xs text-slate-500">{txn.date}</div>
                           </div>
-                          <div className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-600' : 'text-orange-600'}`}>
-                            ${formatCurrency(txn.amount)}
+                          <div className="flex items-center gap-2">
+                            <div className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-600' : 'text-orange-600'}`}>
+                              ${formatCurrency(txn.amount)}
+                            </div>
+                            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
                           </div>
                         </div>
                       ))}
@@ -194,6 +286,15 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
           </p>
         </div>
       )}
+
+      {/* Transaction Edit Modal */}
+      <TransactionEditModal
+        isOpen={editModalState.isOpen}
+        transaction={editModalState.transaction}
+        transactionType={editModalState.transactionType}
+        onClose={handleEditModalClose}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };

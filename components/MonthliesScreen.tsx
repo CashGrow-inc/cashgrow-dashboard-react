@@ -3,6 +3,8 @@ import { useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
+import TransactionEditModal from './TransactionEditModal';
+import { TransactionWithId, TransactionEditState } from '../types';
 
 interface MonthliesScreenProps {
   hasBankAccount: boolean;
@@ -19,6 +21,12 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
   const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
+  const [editModalState, setEditModalState] = useState<TransactionEditState>({
+    isOpen: false,
+    transaction: null,
+    transactionType: 'EXPENSE',
+  });
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const categoryColors = [
     'bg-green-500',
@@ -123,6 +131,52 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     }
   };
 
+  const handleTransactionClick = (txn: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const transaction: TransactionWithId = {
+      id: txn.id,
+      date: txn.date,
+      description: txn.description,
+      amount: txn.amount,
+      category: txn.category,
+      status: txn.status,
+      is_recurring: txn.is_recurring,
+    };
+    setEditModalState({
+      isOpen: true,
+      transaction,
+      transactionType: 'EXPENSE',
+    });
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalState({
+      isOpen: false,
+      transaction: null,
+      transactionType: 'EXPENSE',
+    });
+  };
+
+  const handleEditSuccess = () => {
+    // Clear cached transactions to force refresh
+    setCategoryTransactions({});
+    // Show success message
+    setSuccessMessage('Transaction updated successfully!');
+    setTimeout(() => setSuccessMessage(null), 4000);
+    // Re-fetch the expanded category if any
+    if (expandedCategory) {
+      const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+      fetchMonthliesTransactions(expandedCategory, undefined, accountIds)
+        .then(data => {
+          setCategoryTransactions(prev => ({
+            ...prev,
+            [expandedCategory]: data.transactions
+          }));
+        })
+        .catch(err => console.error('Failed to refresh transactions:', err));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -159,6 +213,36 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
   return (
     <div className="space-y-4">
+      {/* Success Toast */}
+      {successMessage && (
+        <div
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+          style={{ animation: 'fadeInDown 0.3s ease-out' }}
+        >
+          <div className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+            <button
+              onClick={() => setSuccessMessage(null)}
+              className="ml-2 hover:bg-green-700 rounded p-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translate(-50%, -20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+      `}</style>
+
       <div className="px-1">
         <div className="flex justify-between items-center">
           <h2 className="text-slate-800 font-bold text-xl">Monthlies</h2>
@@ -241,7 +325,15 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                         formattedDate = '';
                       }
                       return (
-                        <div key={txnIndex} className={`flex justify-between items-center py-2 px-3 rounded-lg ${txn.status === 'pending' ? 'bg-amber-50 border border-amber-200' : 'bg-white'}`}>
+                        <div
+                          key={txnIndex}
+                          onClick={(e) => handleTransactionClick(txn, e)}
+                          className={`flex justify-between items-center py-2 px-3 rounded-lg cursor-pointer transition-colors ${
+                            txn.status === 'pending'
+                              ? 'bg-amber-50 border border-amber-200 hover:bg-amber-100'
+                              : 'bg-white hover:bg-slate-100'
+                          }`}
+                        >
                           <div className="flex items-center gap-3">
                             <span className={`text-sm ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>{txn.description}</span>
                             {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
@@ -249,7 +341,12 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                               <span className="text-xs px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded font-medium">Pending</span>
                             )}
                           </div>
-                          <span className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-800'}`}>${formatCurrency(txn.amount)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-800'}`}>${formatCurrency(txn.amount)}</span>
+                            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
                         </div>
                       );
                     })}
@@ -269,6 +366,15 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
           </p>
         </div>
       )}
+
+      {/* Transaction Edit Modal */}
+      <TransactionEditModal
+        isOpen={editModalState.isOpen}
+        transaction={editModalState.transaction}
+        transactionType={editModalState.transactionType}
+        onClose={handleEditModalClose}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };
