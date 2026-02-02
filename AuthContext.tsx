@@ -529,7 +529,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/finances/average/category`, {
+            const response = await axios.get(`${API_BASE_URL}/api/average/category`, {
                 params,
                 headers: {
                     Authorization: `Bearer ${token}`,
