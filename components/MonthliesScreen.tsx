@@ -42,15 +42,12 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  // Helper to get current accountIds from the key
+  const getAccountIds = () => accountIdsKey ? accountIdsKey.split(',') : [];
 
-    // Derive accountIds from accountIdsKey to ensure it's fresh
-    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+  // Refactored load function that can be called from useEffect and handleEditSuccess
+  const loadMonthlies = React.useCallback(async (showLoading = true, clearCache = true) => {
+    const accountIds = getAccountIds();
 
     // If no accounts are checked, show empty state without calling API
     if (accountIds.length === 0) {
@@ -62,54 +59,60 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       return;
     }
 
-    const loadMonthlies = async (showLoading = true, clearCache = true) => {
-      try {
-        if (showLoading) setIsLoading(true);
-        console.log('Fetching monthlies with accounts:', accountIds);
+    try {
+      if (showLoading) setIsLoading(true);
+      console.log('Fetching monthlies with accounts:', accountIds);
 
-        // Fetch both monthlies data and 3-month average in parallel
-        const [data, averageData] = await Promise.all([
-          fetchMonthlies(undefined, accountIds),
-          fetchThreeMonthAverage('monthlies', accountIds).catch(() => null)
-        ]);
+      // Fetch both monthlies data and 3-month average in parallel
+      const [data, averageData] = await Promise.all([
+        fetchMonthlies(undefined, accountIds),
+        fetchThreeMonthAverage('monthlies', accountIds).catch(() => null)
+      ]);
 
-        console.log('Monthlies data received:', data);
-        console.log('3-month average received:', averageData);
+      console.log('Monthlies data received:', data);
+      console.log('3-month average received:', averageData);
 
-        // Fetch 3-month average for each category in parallel
-        const categoryAverages = await Promise.all(
-          data.categories.map(cat =>
-            fetchCategoryAverage(cat.category, accountIds)
-              .then(avg => ({ category: cat.category, average: avg.average }))
-              .catch(() => ({ category: cat.category, average: 0 }))
-          )
-        );
+      // Fetch 3-month average for each category in parallel
+      const categoryAverages = await Promise.all(
+        data.categories.map(cat =>
+          fetchCategoryAverage(cat.category, accountIds)
+            .then(avg => ({ category: cat.category, average: avg.average }))
+            .catch(() => ({ category: cat.category, average: 0 }))
+        )
+      );
 
-        // Create a map for quick lookup
-        const averageMap = new Map(categoryAverages.map(ca => [ca.category, ca.average]));
+      // Create a map for quick lookup
+      const averageMap = new Map(categoryAverages.map(ca => [ca.category, ca.average]));
 
-        const categoriesWithColors = data.categories.map((cat, index) => {
-          const categoryAverage = averageMap.get(cat.category) || 0;
-          return {
-            ...cat,
-            color: categoryColors[index % categoryColors.length],
-            budget: categoryAverage > 0 ? categoryAverage : cat.spent
-          };
-        });
+      const categoriesWithColors = data.categories.map((cat, index) => {
+        const categoryAverage = averageMap.get(cat.category) || 0;
+        return {
+          ...cat,
+          color: categoryColors[index % categoryColors.length],
+          budget: categoryAverage > 0 ? categoryAverage : cat.spent
+        };
+      });
 
-        setCategories(categoriesWithColors);
-        setTotalSpent(data.total_spent);
-        setThreeMonthAverage(averageData?.average || 0);
-        // Only clear cached transactions on initial load, not background refresh
-        if (clearCache) {
-          setCategoryTransactions({});
-        }
-      } catch (error) {
-        console.error('Failed to load monthlies:', error);
-      } finally {
-        setIsLoading(false);
+      setCategories(categoriesWithColors);
+      setTotalSpent(data.total_spent);
+      setThreeMonthAverage(averageData?.average || 0);
+      // Only clear cached transactions on initial load, not background refresh
+      if (clearCache) {
+        setCategoryTransactions({});
       }
-    };
+    } catch (error) {
+      console.error('Failed to load monthlies:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [accountIdsKey, fetchMonthlies, fetchThreeMonthAverage, fetchCategoryAverage]);
+
+  React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
 
     loadMonthlies();
 
@@ -119,7 +122,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchMonthlies, fetchThreeMonthAverage, fetchCategoryAverage]);
+  }, [hasBankAccount, loadMonthlies]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -172,15 +175,18 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     });
   };
 
-  const handleEditSuccess = () => {
-    // Clear cached transactions to force refresh
-    setCategoryTransactions({});
+  const handleEditSuccess = async () => {
     // Show success message
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
-    // Re-fetch the expanded category if any
+
+    // Re-fetch all category data (this also clears transaction cache)
+    // This ensures counts, totals, and category list are updated after reassignment
+    await loadMonthlies(false, true);
+
+    // Re-fetch the expanded category transactions if any
     if (expandedCategory) {
-      const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+      const accountIds = getAccountIds();
       fetchMonthliesTransactions(expandedCategory, undefined, accountIds)
         .then(data => {
           setCategoryTransactions(prev => ({

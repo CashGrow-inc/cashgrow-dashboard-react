@@ -42,15 +42,12 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
   // Convert Set to stable string for dependency comparison
   const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  // Helper to get current accountIds from the key
+  const getAccountIds = () => accountIdsKey ? accountIdsKey.split(',') : [];
 
-    // Derive accountIds from accountIdsKey to ensure it's fresh
-    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+  // Refactored load function that can be called from useEffect and handleEditSuccess
+  const loadIncome = React.useCallback(async (showLoading = true, clearCache = true) => {
+    const accountIds = getAccountIds();
 
     // If no accounts are checked, show empty state without calling API
     if (accountIds.length === 0) {
@@ -63,39 +60,45 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       return;
     }
 
-    const loadIncome = async (showLoading = true, clearCache = true) => {
-      try {
-        if (showLoading) setIsLoading(true);
-        console.log('Fetching income with accounts:', accountIds);
+    try {
+      if (showLoading) setIsLoading(true);
+      console.log('Fetching income with accounts:', accountIds);
 
-        // Fetch both income data and 3-month average in parallel
-        const [data, averageData] = await Promise.all([
-          fetchIncome(accountIds),
-          fetchThreeMonthAverage('income', accountIds).catch(() => null)
-        ]);
+      // Fetch both income data and 3-month average in parallel
+      const [data, averageData] = await Promise.all([
+        fetchIncome(accountIds),
+        fetchThreeMonthAverage('income', accountIds).catch(() => null)
+      ]);
 
-        console.log('Income data received:', data);
-        console.log('3-month average received:', averageData);
+      console.log('Income data received:', data);
+      console.log('3-month average received:', averageData);
 
-        const categoriesWithColors = data.categories.map((cat, index) => ({
-          ...cat,
-          color: categoryColors[index % categoryColors.length],
-        }));
+      const categoriesWithColors = data.categories.map((cat, index) => ({
+        ...cat,
+        color: categoryColors[index % categoryColors.length],
+      }));
 
-        setCategories(categoriesWithColors);
-        setTotalEarned(data.current_month_total);
-        setThreeMonthAverage(averageData?.average || 0);
-        setCurrentMonthLabel(data.current_month_period.label);
-        // Only clear cached transactions on initial load, not background refresh
-        if (clearCache) {
-          setCategoryTransactions({});
-        }
-      } catch (error) {
-        console.error('Failed to load income:', error);
-      } finally {
-        setIsLoading(false);
+      setCategories(categoriesWithColors);
+      setTotalEarned(data.current_month_total);
+      setThreeMonthAverage(averageData?.average || 0);
+      setCurrentMonthLabel(data.current_month_period.label);
+      // Only clear cached transactions on initial load, not background refresh
+      if (clearCache) {
+        setCategoryTransactions({});
       }
-    };
+    } catch (error) {
+      console.error('Failed to load income:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [accountIdsKey, fetchIncome, fetchThreeMonthAverage]);
+
+  React.useEffect(() => {
+    // Don't fetch if user hasn't connected a bank
+    if (!hasBankAccount) {
+      setIsLoading(false);
+      return;
+    }
 
     loadIncome();
 
@@ -105,7 +108,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchIncome, fetchThreeMonthAverage]);
+  }, [hasBankAccount, loadIncome]);
 
   const handleToggleCategory = async (categoryName: string) => {
     if (expandedCategory === categoryName) {
@@ -158,15 +161,18 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
     });
   };
 
-  const handleEditSuccess = () => {
-    // Clear cached transactions to force refresh
-    setCategoryTransactions({});
+  const handleEditSuccess = async () => {
     // Show success message
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
-    // Re-fetch the expanded category if any
+
+    // Re-fetch all category data (this also clears transaction cache)
+    // This ensures counts, totals, and category list are updated after reassignment
+    await loadIncome(false, true);
+
+    // Re-fetch the expanded category transactions if any
     if (expandedCategory) {
-      const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
+      const accountIds = getAccountIds();
       fetchIncomeTransactions(expandedCategory, accountIds)
         .then(data => {
           setCategoryTransactions(prev => ({
