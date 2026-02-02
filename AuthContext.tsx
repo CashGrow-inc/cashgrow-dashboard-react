@@ -319,15 +319,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-            const params: Record<string, any> = {};
+            const params: Record<string, any> = { category };
             if (periodDays) {
                 params.period_days = periodDays;
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/api/fixed/transactions/${encodeURIComponent(category)}`, {
-                params: Object.keys(params).length > 0 ? params : undefined,
+            const response = await axios.get(`${API_BASE_URL}/api/fixed/transactions`, {
+                params,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -345,15 +345,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-            const params: Record<string, any> = {};
+            const params: Record<string, any> = { category };
             if (periodDays) {
                 params.period_days = periodDays;
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/api/monthlies/transactions/${encodeURIComponent(category)}`, {
-                params: Object.keys(params).length > 0 ? params : undefined,
+            const response = await axios.get(`${API_BASE_URL}/api/monthlies/transactions`, {
+                params,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -394,12 +394,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         try {
-            const params: Record<string, any> = {};
+            const params: Record<string, any> = { category };
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/income/transactions/${encodeURIComponent(category)}`, {
-                params: Object.keys(params).length > 0 ? params : undefined,
+            const response = await axios.get(`${API_BASE_URL}/income/transactions`, {
+                params,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
