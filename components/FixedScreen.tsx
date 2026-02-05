@@ -124,11 +124,20 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
     return () => clearInterval(interval);
   }, [hasBankAccount, loadFixed]);
 
-  const handleToggleCategory = async (categoryName: string) => {
+  const handleToggleCategory = async (categoryName: string, transactionCount: number) => {
     if (expandedCategory === categoryName) {
       setExpandedCategory(null);
     } else {
       setExpandedCategory(categoryName);
+
+      // Skip API call if category has no transactions
+      if (transactionCount === 0) {
+        setCategoryTransactions(prev => ({
+          ...prev,
+          [categoryName]: []
+        }));
+        return;
+      }
 
       if (!categoryTransactions[categoryName]) {
         try {
@@ -299,7 +308,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
           <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div
               className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
-              onClick={() => handleToggleCategory(category.category)}
+              onClick={() => handleToggleCategory(category.category, category.transaction_count)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -371,7 +380,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
                     })}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-slate-500 text-sm">No transactions found</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">No transactions this month</div>
                 )}
               </div>
             )}

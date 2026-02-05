@@ -124,11 +124,20 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     return () => clearInterval(interval);
   }, [hasBankAccount, loadMonthlies]);
 
-  const handleToggleCategory = async (categoryName: string) => {
+  const handleToggleCategory = async (categoryName: string, transactionCount: number) => {
     if (expandedCategory === categoryName) {
       setExpandedCategory(null);
     } else {
       setExpandedCategory(categoryName);
+
+      // Skip API call if category has no transactions
+      if (transactionCount === 0) {
+        setCategoryTransactions(prev => ({
+          ...prev,
+          [categoryName]: []
+        }));
+        return;
+      }
 
       if (!categoryTransactions[categoryName]) {
         try {
@@ -299,7 +308,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
           <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div
               className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
-              onClick={() => handleToggleCategory(category.category)}
+              onClick={() => handleToggleCategory(category.category, category.transaction_count)}
             >
               <div className="w-full">
                 <div className="flex items-center justify-between">
@@ -373,7 +382,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                     })}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-slate-500 text-sm">No transactions found</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">No transactions this month</div>
                 )}
               </div>
             )}
