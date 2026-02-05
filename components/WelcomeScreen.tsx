@@ -885,6 +885,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
             <p className="text-sm text-slate-600 mb-6">
               Create your account to start managing your finances.
             </p>
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+              <p className="text-sm text-red-700 font-semibold">
+                Do not use your bank credentials to sign up. Please create a unique email and password for your CashGrow account.
+              </p>
+            </div>
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div>
                 <label htmlFor="register-name" className="block text-sm font-semibold text-slate-700 mb-2">
