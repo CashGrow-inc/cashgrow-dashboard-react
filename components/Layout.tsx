@@ -16,6 +16,27 @@ import {
   BankIcon
 } from './Icons';
 
+// Lazy Plaid Link component - only mounts (and loads Plaid script) when user initiates bank connection
+const PlaidLinkLoader: React.FC<{
+  linkToken: string;
+  onSuccess: (public_token: string, metadata: any) => void;
+  onExit: (err: any) => void;
+}> = ({ linkToken, onSuccess, onExit }) => {
+  const { open, ready } = usePlaidLink({
+    token: linkToken,
+    onSuccess,
+    onExit,
+  });
+
+  useEffect(() => {
+    if (ready) {
+      open();
+    }
+  }, [ready, open]);
+
+  return null;
+};
+
 interface HeaderProps {
   onSignOut: () => void;
   onShowAccounts: () => void;
@@ -158,20 +179,6 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
     setIsConnectingBank(false);
     setLinkToken(null);
   }, []);
-
-  // Plaid Link hook
-  const { open: openPlaidLink, ready: plaidReady } = usePlaidLink({
-    token: linkToken || '',
-    onSuccess: onPlaidSuccess,
-    onExit: onPlaidExit,
-  });
-
-  // Open Plaid Link when token is ready
-  useEffect(() => {
-    if (linkToken && plaidReady) {
-      openPlaidLink();
-    }
-  }, [linkToken, plaidReady, openPlaidLink]);
 
   // Handle connect bank click
   const handleConnectBankClick = async () => {
@@ -461,6 +468,15 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
             </div>
           </div>
         </div>
+      )}
+
+      {/* Only mount Plaid Link when user has requested a connection */}
+      {linkToken && (
+        <PlaidLinkLoader
+          linkToken={linkToken}
+          onSuccess={onPlaidSuccess}
+          onExit={onPlaidExit}
+        />
       )}
     </>
   );
