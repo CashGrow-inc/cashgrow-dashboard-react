@@ -122,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
       const startDate = new Date(startYear, startMonth, 1).toISOString().split('T')[0];
       const endDate = today.toISOString().split('T')[0];
 
-      await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
+      const syncRes = await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,6 +130,13 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
         },
         body: JSON.stringify({ start_date: startDate, end_date: endDate }),
       });
+
+      if (syncRes.ok) {
+        const syncData = await syncRes.json();
+        if (syncData.warnings && syncData.warnings.length > 0) {
+          console.warn('Sync warnings:', syncData.warnings);
+        }
+      }
 
       // Refresh the accounts view
       onShowAccounts();

@@ -136,6 +136,9 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
         if (syncRes.ok) {
           const syncData = await syncRes.json();
           console.log('Transactions synced:', syncData);
+          if (syncData.warnings && syncData.warnings.length > 0) {
+            console.warn('Sync warnings:', syncData.warnings);
+          }
         } else {
           console.error('Failed to sync transactions:', await syncRes.text());
         }
@@ -209,6 +212,7 @@ const BankConnectionScreen: React.FC<BankConnectionScreenProps> = ({ onConnectio
               <p className="text-red-700 text-sm">{error}</p>
             </div>
           )}
+
 
           {/* Connect Button */}
           <button
