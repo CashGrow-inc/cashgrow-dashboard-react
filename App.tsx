@@ -6,6 +6,7 @@ import WelcomeScreen from './components/WelcomeScreen';
 import ThankYouScreen from './components/ThankYouScreen';
 import BankConnectionScreen from './components/BankConnectionScreen';
 import AccountsScreen from './components/AccountsScreen';
+import SettingsScreen from './components/SettingsScreen';
 import FoundersPage from './components/FoundersPage';
 import VerifyEmailScreen from './components/VerifyEmailScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
@@ -46,6 +47,8 @@ const AppContent: React.FC = () => {
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
   const [showThankYou, setShowThankYou] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [deleteAccountRequested, setDeleteAccountRequested] = useState(false);
   const [showFounders, setShowFounders] = useState(false);
 
   // Verify bank connection status with backend on login
@@ -148,6 +151,23 @@ const AppContent: React.FC = () => {
     setShowAccounts(false);
   }, []);
 
+  const handleShowSettings = useCallback(() => {
+    setShowSettings(true);
+  }, []);
+
+  const handleBackFromSettings = useCallback(() => {
+    setShowSettings(false);
+  }, []);
+
+  const handleDeleteAccountFromSettings = useCallback(() => {
+    setShowSettings(false);
+    setDeleteAccountRequested(true);
+  }, []);
+
+  const handleDeleteAccountHandled = useCallback(() => {
+    setDeleteAccountRequested(false);
+  }, []);
+
   const handleShowFounders = useCallback(() => {
     setShowFounders(true);
   }, []);
@@ -210,10 +230,14 @@ const AppContent: React.FC = () => {
     return <AccountsScreen onBack={handleBackFromAccounts} />;
   }
 
+  if (showSettings) {
+    return <SettingsScreen onBack={handleBackFromSettings} onDeleteAccount={handleDeleteAccountFromSettings} onSignOut={handleSignOut} />;
+  }
+
   return (
     <div className="bg-slate-50 min-h-screen min-h-dvh w-full overflow-x-hidden font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-slate-50">
-        <Header onSignOut={handleSignOut} onShowAccounts={handleShowAccounts} />
+        <Header onSignOut={handleSignOut} onShowAccounts={handleShowAccounts} onShowSettings={handleShowSettings} deleteAccountRequested={deleteAccountRequested} onDeleteAccountHandled={handleDeleteAccountHandled} />
         <main className="p-4 pb-24">
           {renderScreen()}
         </main>

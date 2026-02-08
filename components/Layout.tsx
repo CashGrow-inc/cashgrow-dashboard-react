@@ -40,9 +40,12 @@ const PlaidLinkLoader: React.FC<{
 interface HeaderProps {
   onSignOut: () => void;
   onShowAccounts: () => void;
+  onShowSettings: () => void;
+  deleteAccountRequested?: boolean;
+  onDeleteAccountHandled?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => {
+export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts, onShowSettings, deleteAccountRequested, onDeleteAccountHandled }) => {
   const { user, token } = useAuth();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -54,6 +57,16 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeletePassword, setShowDeletePassword] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Auto-open delete modal when triggered from Settings page
+  useEffect(() => {
+    if (deleteAccountRequested) {
+      setIsDeleteModalOpen(true);
+      setDeletePassword('');
+      setDeleteError('');
+      onDeleteAccountHandled?.();
+    }
+  }, [deleteAccountRequested, onDeleteAccountHandled]);
 
   // Plaid connection state
   const [linkToken, setLinkToken] = useState<string | null>(null);
@@ -319,16 +332,16 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
                 <span>{isConnectingBank ? 'Connecting...' : 'Connect Bank'}</span>
               </button>
               <button
-                onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
+                onClick={() => { setIsProfileMenuOpen(false); onShowSettings(); }}
                 className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6]"
               >
-                Sign Out
+                Settings
               </button>
               <button
-                onClick={handleDeleteAccountClick}
-                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-red-600 text-[16px] text-left hover:bg-red-50 transition-colors"
+                onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
+                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors"
               >
-                Delete Account
+                Sign Out
               </button>
             </div>
           )}
