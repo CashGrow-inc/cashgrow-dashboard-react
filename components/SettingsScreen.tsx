@@ -114,7 +114,7 @@ function detectDefaultCurrency(): string {
       if (localeToCurrency[key]) return localeToCurrency[key];
     }
   } catch {}
-  return 'USD';
+  return 'CAD';
 }
 
 function detectDefaultLanguage(): { code: string; name: string } {
