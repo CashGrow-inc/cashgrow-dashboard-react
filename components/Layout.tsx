@@ -303,31 +303,30 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
             </button>
 
           {isProfileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-30">
+            <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-[12px] shadow-lg overflow-hidden z-30">
               <button
                 onClick={() => { setIsProfileMenuOpen(false); onShowAccounts(); }}
-                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6]"
               >
                 Accounts
               </button>
               <button
                 onClick={handleConnectBankClick}
                 disabled={isConnectingBank}
-                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
+                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px] disabled:opacity-50"
               >
                 <BankIcon className="w-4 h-4" />
                 <span>{isConnectingBank ? 'Connecting...' : 'Connect Bank'}</span>
               </button>
               <button
                 onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
-                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6]"
               >
                 Sign Out
               </button>
-              <div className="border-t border-slate-200 my-1"></div>
               <button
                 onClick={handleDeleteAccountClick}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-red-600 text-[16px] text-left hover:bg-red-50 transition-colors"
               >
                 Delete Account
               </button>
