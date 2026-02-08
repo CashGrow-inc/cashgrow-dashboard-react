@@ -474,6 +474,44 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
 
   return (
     <div className="bg-slate-50 font-sans text-slate-800">
+      {/* Sticky Header */}
+      <header className="sticky top-0 left-0 right-0 z-50 bg-white shadow-sm">
+        <div className="hidden md:flex p-4 md:p-6 justify-between items-center max-w-full">
+          <Logo />
+          <div className="flex gap-3">
+            <button
+              onClick={openLoginModal}
+              className="bg-white hover:bg-gray-100 text-blue-600 font-bold py-2 px-6 rounded-full text-sm transition duration-300 border border-blue-600"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={openRegisterModal}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+        <div className="md:hidden h-[50px] flex justify-between items-center px-4">
+          <Logo />
+          <div className="flex gap-2">
+            <button
+              onClick={openLoginModal}
+              className="bg-white hover:bg-gray-100 text-blue-600 font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300 border border-blue-600"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={openRegisterModal}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      </header>
+
       <div className="relative overflow-hidden z-10 hidden md:block">
         <video
           ref={desktopVideoRef}
@@ -487,25 +525,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
           webkit-playsinline="true"
         />
         <div className="relative bg-gradient-to-br from-blue-100/80 via-white/60 to-slate-100/80 overflow-hidden z-10">
-          <header className="absolute top-0 left-0 right-0 p-4 md:p-6 flex justify-between items-center z-30">
-            <Logo />
-            <div className="flex gap-3">
-              <button
-                onClick={openLoginModal}
-                className="bg-white hover:bg-gray-100 text-blue-600 font-bold py-2 px-6 rounded-full text-sm transition duration-300 border border-blue-600"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={openRegisterModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-sm transition duration-300"
-              >
-                Sign Up
-              </button>
-            </div>
-          </header>
 
-          <div className="relative z-10 pt-32 pb-16 md:pt-40 lg:pb-40">
+          <div className="relative z-10 pt-16 pb-16 md:pt-20 lg:pb-40">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 {/* Left Column */}
@@ -596,24 +617,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
 
       {/* Mobile Container */}
       <div className="block md:hidden w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
-        <div className="h-[50px] flex justify-between items-center px-4 bg-white z-20">
-          <Logo />
-          <div className="flex gap-2">
-            <button
-              onClick={openLoginModal}
-              className="bg-white hover:bg-gray-100 text-blue-600 font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300 border border-blue-600"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={openRegisterModal}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300"
-            >
-              Sign Up
-            </button>
-          </div>
-        </div>
-        <div className="h-[calc(100%-50px)] relative">
+        <div className="h-full relative">
           <video
             ref={mobileVideoRef}
             src={BgVideo}
@@ -759,40 +763,49 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
       </div>
 
       {/* Footer */}
-      <footer className="relative bg-blue-700 text-white py-4 md:py-8 px-4 md:px-6 z-20 w-[405px] h-[228px] mx-auto md:w-full md:h-auto" style={{ marginTop: '0px' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8 mb-8 md:mb-10">
-            <div className="md:col-span-3 grid grid-cols-3 gap-6 md:gap-8">
+      <footer className="relative bg-[#304ffe] text-white px-[30px] py-[40px] md:py-8 md:px-6 z-20" style={{ marginTop: '0px' }}>
+        <div className="max-w-6xl mx-auto flex flex-col gap-[30px]">
+          {/* Nav + Logo section */}
+          <div className="flex flex-col gap-10 md:grid md:grid-cols-4 md:gap-8">
+            {/* Nav items: vertical on mobile, horizontal on desktop */}
+            <div className="md:col-span-3 flex flex-col gap-5 md:grid md:grid-cols-3 md:gap-8">
               <div>
                 <h3
-                  className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center cursor-pointer hover:text-blue-200 transition-colors"
+                  className="font-bold text-base md:text-lg flex justify-between items-center cursor-pointer hover:text-blue-200 transition-colors"
                   onClick={onShowFounders}
                 >
-                  Company <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" />
+                  Company <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5" />
                 </h3>
               </div>
               <div>
-                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Resources <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
+                <h3 className="font-bold text-base md:text-lg flex justify-between items-center">Resources <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5" /></h3>
               </div>
               <div>
-                <h3 className="font-bold text-base md:text-lg mb-2 md:mb-4 flex justify-between items-center">Legal <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5 md:block hidden" /></h3>
+                <h3 className="font-bold text-base md:text-lg flex justify-between items-center">Legal <ChevronDownIcon className="w-4 h-4 md:w-5 md:h-5" /></h3>
               </div>
             </div>
-            <div className="text-center md:text-right">
-              <div className="flex justify-start mb-2 md:mb-4">
+            {/* Logo + social icons */}
+            <div className="flex flex-col gap-3 md:text-right">
+              <div className="flex justify-start md:justify-end">
                 <Logo flowerColor="#FFFFFF" textColor="#FFFFFF" />
               </div>
-
+              <div className="flex space-x-3 md:space-x-4 md:hidden">
+                <a href="#" aria-label="Facebook"><FacebookIcon className="w-5 h-5 hover:text-blue-300" /></a>
+                <a href="#" aria-label="Instagram"><InstagramIcon className="w-5 h-5 hover:text-blue-300" /></a>
+                <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-5 h-5 hover:text-blue-300" /></a>
+                <a href="#" aria-label="YouTube"><YouTubeIcon className="w-5 h-5 hover:text-blue-300" /></a>
+              </div>
             </div>
           </div>
-          <div className="border-t border-blue-600 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="flex space-x-3 md:space-x-4 mb-4 md:mb-0">
-              <a href="#" aria-label="Facebook"><FacebookIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="Instagram"><InstagramIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
-              <a href="#" aria-label="YouTube"><YouTubeIcon className="w-5 h-5 md:w-6 md:h-6 hover:text-blue-300" /></a>
+          {/* Divider + bottom section */}
+          <div className="border-t border-white/30 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div className="hidden md:flex space-x-4 mb-4 md:mb-0">
+              <a href="#" aria-label="Facebook"><FacebookIcon className="w-6 h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="Instagram"><InstagramIcon className="w-6 h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-6 h-6 hover:text-blue-300" /></a>
+              <a href="#" aria-label="YouTube"><YouTubeIcon className="w-6 h-6 hover:text-blue-300" /></a>
             </div>
-            <p className="text-xs md:text-sm text-blue-200">@2025 Cashgrow</p>
+            <p className="text-xs md:text-sm opacity-70">@2025 Cashgrow</p>
           </div>
         </div>
       </footer>
