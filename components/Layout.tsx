@@ -9,6 +9,7 @@ import {
   UnplannedIcon,
   MonthliesIcon,
   FixedIcon,
+  OthersIcon,
   IncomeIcon,
   ProfileIcon,
   EyeIcon,
@@ -519,6 +520,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScr
     { screen: Screen.Unplanned, Icon: UnplannedIcon, label: 'Unplanned' },
     { screen: Screen.Monthlies, Icon: MonthliesIcon, label: 'Monthlies' },
     { screen: Screen.Fixed, Icon: FixedIcon, label: 'Fixed' },
+    { screen: Screen.Others, Icon: OthersIcon, label: 'Others' },
     { screen: Screen.Income, Icon: IncomeIcon, label: 'Income' },
   ];
 
@@ -530,7 +532,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScr
           <button
             key={screen}
             onClick={() => setActiveScreen(screen)}
-            className="flex flex-col items-center justify-center w-1/5 text-xs font-medium"
+            className="flex flex-col items-center justify-center w-1/6 text-xs font-medium"
           >
             <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
             <span className={isActive ? 'text-blue-600' : 'text-slate-500'}>{label}</span>

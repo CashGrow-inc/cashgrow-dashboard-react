@@ -19,6 +19,7 @@ import UnplannedScreen from './components/UnplannedScreen';
 import MonthliesScreen from './components/MonthliesScreen';
 import FixedScreen from './components/FixedScreen';
 import IncomeScreen from './components/IncomeScreen';
+import OthersScreen from './components/OthersScreen';
 
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
@@ -180,6 +181,8 @@ const AppContent: React.FC = () => {
         return <MonthliesScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Fixed:
         return <FixedScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
+      case Screen.Others:
+        return <OthersScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       case Screen.Income:
         return <IncomeScreen hasBankAccount={hasBankAccount} onConnectBank={handleConnectBank} />;
       default:

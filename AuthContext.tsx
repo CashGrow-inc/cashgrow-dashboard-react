@@ -132,6 +132,24 @@ interface SpecificCategoryAverageData {
     transaction_count: number;
 }
 
+interface OffBudgetCategory {
+    category: string;
+    category_group: string;
+    transaction_type: 'INCOME' | 'EXPENSE';
+    total: number;
+    transaction_count: number;
+}
+
+interface OffBudgetSummaryData {
+    income_categories: OffBudgetCategory[];
+    expense_categories: OffBudgetCategory[];
+    total_in: number;
+    total_out: number;
+    net: number;
+    period_start: string;
+    period_end: string;
+}
+
 interface AvailableCategory {
     id: number;
     plaid_detailed: string;
@@ -165,6 +183,8 @@ interface AuthContextType {
     fetchMonthliesTransactions: (category: string, periodDays?: number, accountIds?: string[]) => Promise<CategoryTransactionsData>;
     fetchIncome: (accountIds?: string[]) => Promise<IncomeComparisonData>;
     fetchIncomeTransactions: (category: string, accountIds?: string[]) => Promise<CategoryTransactionsData>;
+    fetchOffBudget: (accountIds?: string[]) => Promise<OffBudgetSummaryData>;
+    fetchOffBudgetTransactions: (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[]) => Promise<CategoryTransactionsData>;
     fetchUnplanned: (accountIds?: string[]) => Promise<UnplannedData>;
     fetchGrow: (accountIds?: string[]) => Promise<GrowData>;
     fetchMonthlyGoal: () => Promise<MonthlyGoalData>;
@@ -411,6 +431,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const fetchOffBudget = async (accountIds?: string[]): Promise<OffBudgetSummaryData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = {};
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            const response = await axios.get(`${API_BASE_URL}/finances/off-budget`, {
+                params: Object.keys(params).length > 0 ? params : undefined,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch off-budget data:', error);
+            throw error;
+        }
+    };
+
+    const fetchOffBudgetTransactions = async (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[]): Promise<CategoryTransactionsData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = { category, transaction_type: transactionType };
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            const response = await axios.get(`${API_BASE_URL}/finances/off-budget/transactions`, {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch off-budget transactions for ${category}:`, error);
+            throw error;
+        }
+    };
+
     const fetchUnplanned = async (accountIds?: string[]): Promise<UnplannedData> => {
         if (!token) {
             throw new Error('No authentication token available');
@@ -634,7 +700,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

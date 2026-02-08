@@ -5,6 +5,7 @@ export enum Screen {
   Unplanned,
   Monthlies,
   Fixed,
+  Others,
   Income,
 }
 
