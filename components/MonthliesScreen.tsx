@@ -27,6 +27,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     transactionType: 'EXPENSE',
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [currentPeriodLabel, setCurrentPeriodLabel] = useState<string>('');
 
   const categoryColors = [
     'bg-green-500',
@@ -96,6 +97,13 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       setCategories(categoriesWithColors);
       setTotalSpent(data.total_spent);
       setThreeMonthAverage(averageData?.average || 0);
+      // Format period label from start/end dates
+      if (data.period_start && data.period_end) {
+        const start = new Date(data.period_start + 'T00:00:00');
+        const end = new Date(data.period_end + 'T00:00:00');
+        const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+        setCurrentPeriodLabel(`${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`);
+      }
       // Only clear cached transactions on initial load, not background refresh
       if (clearCache) {
         setCategoryTransactions({});
@@ -285,7 +293,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
         <div className="text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
-        <p className="text-sm text-slate-500 mt-1">Last 30 days</p>
+        <p className="text-sm text-slate-500 mt-1">{currentPeriodLabel}</p>
         {threeMonthAverage > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-200">
             <div className="flex justify-between text-sm">
