@@ -152,7 +152,7 @@ const GrowView: React.FC = () => {
               <div className="bg-gray-100 p-2 rounded-full">
                   <BillIcon className="w-6 h-6 text-gray-500" />
               </div>
-              <h2 className="font-semibold text-gray-800 text-lg">Goal of the Month</h2>
+              <h2 className="font-semibold text-gray-800 text-lg">Monthly Saving Goal</h2>
           </div>
           <span className="text-xs font-medium bg-green-100 text-green-700 px-2 py-1 rounded-full">⚡ AutoSave</span>
         </div>

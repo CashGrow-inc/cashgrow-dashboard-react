@@ -215,7 +215,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
         <div className="flex justify-between items-center mb-1">
           <div className="flex items-center space-x-2">
             <GoalIcon className="w-8 h-8 text-slate-400" />
-            <h2 className="text-slate-600 font-medium text-lg">Goal of the Month</h2>
+            <h2 className="text-slate-600 font-medium text-lg">Monthly Saving Goal</h2>
           </div>
           <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
             <AutosaveIcon className="w-4 h-4 mr-1" />
