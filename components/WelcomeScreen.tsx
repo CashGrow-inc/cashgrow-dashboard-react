@@ -22,12 +22,6 @@ const Logo: React.FC<{ flowerColor?: string; textColor?: string }> = ({ flowerCo
 
 const ACCESS_PASSWORD = 'CashGrow2025';
 
-const EmailIcon: React.FC = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-  </svg>
-);
-
 const BankIcon: React.FC<{ className?: string }> = ({ className = "h-6 w-6" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="43 4 44 45" fill="currentColor">
     <path d="M85.25 45.5623H84.6875V42.7498C84.6875 40.3198 83.1777 38.8123 80.75 38.8123H80.1875V26.4373H80.75C83.1777 26.4373 84.6875 24.9298 84.6875 22.4998V16.7418C84.6875 15.2411 83.8527 13.8912 82.5095 13.2207L67.2635 5.59787C65.8437 4.89137 64.1518 4.89137 62.7365 5.59787L47.4905 13.2207C46.1473 13.8912 45.3125 15.2411 45.3125 16.7418V22.4998C45.3125 24.9298 46.8222 26.4373 49.25 26.4373H49.8125V38.8123H49.25C46.8222 38.8123 45.3125 40.3198 45.3125 42.7498V45.5623H44.75C43.8185 45.5623 43.0625 46.3183 43.0625 47.2498C43.0625 48.1813 43.8185 48.9373 44.75 48.9373H85.25C86.1815 48.9373 86.9375 48.1813 86.9375 47.2498C86.9375 46.3183 86.1815 45.5623 85.25 45.5623ZM76.8125 38.8123H71.1875V26.4373H76.8125V38.8123ZM62.1875 38.8123V26.4373H67.8125V38.8123H62.1875ZM48.7641 23.0013C48.7619 23.0013 48.7619 23.0013 48.7641 23.0013C48.7529 22.9833 48.6875 22.8508 48.6875 22.4998V16.7418C48.6875 16.5281 48.8066 16.3349 48.9979 16.2381L64.2439 8.61526C64.7231 8.37676 65.2769 8.37676 65.7561 8.61526L81.0021 16.2381C81.1934 16.3326 81.3125 16.5258 81.3125 16.7418V22.4998C81.3125 22.8508 81.2473 22.9814 81.2518 22.9881C81.2338 22.9971 81.101 23.0623 80.75 23.0623H49.25C48.9103 23.0623 48.7754 23.0013 48.7641 23.0013ZM53.1875 26.4373H58.8125V38.8123H53.1875V26.4373ZM48.6875 42.7498C48.6875 42.3988 48.7527 42.2682 48.7482 42.2614C48.7662 42.2524 48.899 42.1873 49.25 42.1873H80.75C81.1595 42.1873 81.2406 42.2483 81.2383 42.2483C81.2473 42.2685 81.3125 42.3988 81.3125 42.7498V45.5623H48.6875V42.7498ZM62.1875 15.7498C62.1875 14.1973 63.4475 12.9373 65 12.9373C66.5525 12.9373 67.8125 14.1973 67.8125 15.7498C67.8125 17.3023 66.5525 18.5623 65 18.5623C63.4475 18.5623 62.1875 17.3023 62.1875 15.7498Z" />
@@ -233,7 +227,6 @@ const SimpleToUseIcon: React.FC = () => (
 );
 
 interface WelcomeScreenProps {
-  onShowThankYou: () => void;
   onShowFounders: () => void;
 }
 
@@ -243,10 +236,8 @@ interface FeatureItemProps {
   description: string;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFounders }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const { login } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -264,46 +255,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
   const [videoPaused, setVideoPaused] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    // 💡 NEW CODE: Map FormData to key/value pairs for URLSearchParams
-    const body = new URLSearchParams(
-      Array.from(formData.entries()).map(([key, value]) => [
-        key,
-        // Ensure values are strings for URL encoding
-        typeof value === 'string' ? value : String(value)
-      ])
-    ).toString();
-
-    fetch(window.location.href, {
-      method: 'POST',
-      // ⚠️ CRITICAL: The Content-Type header must be correct for URL encoding
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body, // Use the correctly encoded body
-    })
-      .then((response) => {
-        console.log('Netlify response:', response);
-        if (response.ok) {
-          // Success logic
-          setName('');
-          setEmail('');
-        } else {
-          console.error('Submission failed:', response.status, response.statusText);
-          // Optionally, check response.text() for more Netlify error details
-        }
-      })
-      .catch((error) => {
-        console.error('Network or form submission failed:', error);
-      });
-
-    // Always show thank you page on submit for local testing
-    onShowThankYou();
-  };
 
   const openLoginModal = () => {
     setLoginModalOpen(true);
@@ -549,69 +500,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
                   <h2 className="text-base font-semibold text-blue-600 mb-3 tracking-wide uppercase">What Is CashGrow?</h2>
                   <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-5 leading-tight">Money made clear, growth made practical</h3>
                   <p className="text-base text-slate-600 leading-relaxed">
-                    We are working hard to launch CashGrow in the next few weeks. Our mission is to help
-                    people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. want to be among the first few?, sign up for our wait list below.
+                    Our mission is to help people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Wishlist Section */}
-          <main className="min-h-[50vh] bg-white/40 flex items-center justify-center p-2 font-sans w-full md:w-1/3 mx-auto">
-            <div className="w-full text-center">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
-                <p>CashGrow<br /> Beat the cost of Living</p>
-              </h1>
-              <p className="mt-4 text-lg text-gray-600">
-                Make progress, know your status, and be in control
-              </p>
-              <form name="cashgrow-waitlist" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
-                <input type="hidden" name="form-name" value="cashgrow-waitlist" />
-                <div style={{ display: 'none' }}>
-                  <label>Don't fill this out: <input name="bot-field" /></label>
-                </div>
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your Name"
-                    required
-                    className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                  />
-                </div>
-                <div className="relative">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <EmailIcon />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    required
-                    className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Join Waitlist
-                </button>
-              </form>
-              <p className="mt-4 text-sm text-gray-500">
-                We only send one message when the door open
-              </p>
-            </div>
-          </main>
         </div>
       </div>
 
@@ -648,52 +543,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
               <p className="mt-4 text-lg text-gray-600">
                 Make progress, know your status, and be in control
               </p>
-              <div className="max-w-xs mx-auto">
-                <form name="cashgrow-waitlist" data-netlify="true" data-netlify-honeypot="bot-field" onSubmit={handleSubmit} className="mt-8 space-y-4">
-                  <input type="hidden" name="form-name" value="cashgrow-waitlist" />
-                  <div style={{ display: 'none' }}>
-                    <label>Don't fill this out: <input name="bot-field" /></label>
-                  </div>
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input
-                      type="text"
-                      id="mobile-name"
-                      name="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your Name"
-                      required
-                      className="w-full text-base py-4 px-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                    />
-                  </div>
-                  <div className="relative">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <EmailIcon />
-                    </div>
-                    <input
-                      type="email"
-                      id="mobile-email"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      required
-                      className="w-full text-base py-4 pl-12 pr-4 text-gray-900 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white font-semibold text-lg py-3.5 rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-                  >
-                    Join Waitlist
-                  </button>
-                </form>
-                <p className="mt-4 text-sm text-gray-500">
-                  We only send one message when the door open
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -705,8 +554,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
           <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
           <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            We are working hard to launch CashGrow in the next few weeks. Our mission is to help
-            people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private. Want to be among the first few?, sign up for our wait list below.
+            Our mission is to help people with knowing their Day-to-Day budget. Live, Clear, one number, practical insights, highly secured and private.
           </p>
         </div>
       </div>
@@ -805,14 +653,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowThankYou, onShowFou
               <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-6 h-6 hover:text-blue-300" /></a>
               <a href="#" aria-label="YouTube"><YouTubeIcon className="w-6 h-6 hover:text-blue-300" /></a>
             </div>
-            <p className="text-xs md:text-sm opacity-70">@2025 Cashgrow</p>
+            <p className="text-xs md:text-sm opacity-70">@2026 Cashgrow</p>
           </div>
         </div>
       </footer>
-      <form name="cashgrow-waitlist" data-netlify="true" hidden>
-        <input name="name" type="text" />
-        <input name="email" type="email" />
-      </form>
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">

@@ -3,7 +3,6 @@ import { Screen } from './types';
 
 // Components
 import WelcomeScreen from './components/WelcomeScreen';
-import ThankYouScreen from './components/ThankYouScreen';
 import BankConnectionScreen from './components/BankConnectionScreen';
 import AccountsScreen from './components/AccountsScreen';
 import SettingsScreen from './components/SettingsScreen';
@@ -45,7 +44,6 @@ const AppContent: React.FC = () => {
   const [isVerifyingBankStatus, setIsVerifyingBankStatus] = useState(false);
 
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.Grow);
-  const [showThankYou, setShowThankYou] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [deleteAccountRequested, setDeleteAccountRequested] = useState(false);
@@ -109,10 +107,6 @@ const AppContent: React.FC = () => {
 
     verifyBankConnectionStatus();
   }, [isLoggedIn, token, isAuthLoading]);
-
-  const handleShowThankYou = useCallback(() => {
-    setShowThankYou(true);
-  }, []);
 
   // User actually connected a bank
   const handleBankConnectionComplete = useCallback(() => {
@@ -193,10 +187,6 @@ const AppContent: React.FC = () => {
     }
   };
 
-  if (showThankYou) {
-    return <ThankYouScreen />;
-  }
-
   if (showFounders) {
     return <FoundersPage onBack={handleBackFromFounders} />;
   }
@@ -214,7 +204,7 @@ const AppContent: React.FC = () => {
   }
 
   if (!isLoggedIn) {
-    return <WelcomeScreen onShowThankYou={handleShowThankYou} onShowFounders={handleShowFounders} />;
+    return <WelcomeScreen onShowFounders={handleShowFounders} />;
   }
 
   if (!hasPassedBankScreen) {
