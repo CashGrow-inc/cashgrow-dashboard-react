@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { Screen } from '../types';
 import { useAuth } from '../AuthContext';
-import { Logo } from './WelcomeScreen';
 import { API_BASE_URL } from '../config/api';
 import {
   GrowIcon,
@@ -280,56 +279,61 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
   return (
     <>
       <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
-        <div className="flex items-center space-x-4">
-          <Logo />
+        {/* Left: Profile icon + user name */}
+        <div className="flex items-center space-x-3">
+          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+            <ProfileIcon className="w-5 h-5 text-blue-600" />
+          </div>
           {user && (
             <span className="text-lg font-semibold text-slate-800">
-              {user.full_name || user.email}!
+              {user.full_name || user.email}
             </span>
           )}
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={onShowAccounts}
-            className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            Accounts
-          </button>
-          <button
-            onClick={onSignOut}
-            className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            Sign Out
-          </button>
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-              className="p-1 rounded-full hover:bg-blue-100 transition-colors"
-              aria-label="Profile menu"
-            >
-              <ProfileIcon className="w-7 h-7 text-blue-600" />
-            </button>
 
-            {isProfileMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-30">
-                <button
-                  onClick={handleConnectBankClick}
-                  disabled={isConnectingBank}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
-                >
-                  <BankIcon className="w-4 h-4" />
-                  <span>{isConnectingBank ? 'Connecting...' : 'Connect Bank'}</span>
-                </button>
-                <div className="border-t border-slate-200 my-1"></div>
-                <button
-                  onClick={handleDeleteAccountClick}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Delete Account
-                </button>
-              </div>
-            )}
-          </div>
+        {/* Right: Hamburger menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Menu"
+          >
+            <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+
+          {isProfileMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-30">
+              <button
+                onClick={() => { setIsProfileMenuOpen(false); onShowAccounts(); }}
+                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Accounts
+              </button>
+              <button
+                onClick={handleConnectBankClick}
+                disabled={isConnectingBank}
+                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
+              >
+                <BankIcon className="w-4 h-4" />
+                <span>{isConnectingBank ? 'Connecting...' : 'Connect Bank'}</span>
+              </button>
+              <button
+                onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
+                className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Sign Out
+              </button>
+              <div className="border-t border-slate-200 my-1"></div>
+              <button
+                onClick={handleDeleteAccountClick}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Delete Account
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
