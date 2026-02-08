@@ -441,7 +441,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/finances/off-budget`, {
+            const response = await axios.get(`${API_BASE_URL}/off-budget`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -464,7 +464,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
             }
-            const response = await axios.get(`${API_BASE_URL}/finances/off-budget/transactions`, {
+            const response = await axios.get(`${API_BASE_URL}/off-budget/transactions`, {
                 params,
                 headers: {
                     Authorization: `Bearer ${token}`,
