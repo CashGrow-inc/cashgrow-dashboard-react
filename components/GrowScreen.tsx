@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
-import { WeeklyIcon, AutosaveIcon, GoalIcon } from './Icons';
+import { WeeklyIcon, GoalIcon } from './Icons';
 import { formatCurrency } from './shared';
 
 interface GrowScreenProps {
@@ -212,15 +212,9 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
       ) : null}
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <div className="flex justify-between items-center mb-1">
-          <div className="flex items-center space-x-2">
-            <GoalIcon className="w-8 h-8 text-slate-400" />
-            <h2 className="text-slate-600 font-medium text-lg">Monthly Saving Goal</h2>
-          </div>
-          <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-            <AutosaveIcon className="w-4 h-4 mr-1" />
-            AutoSave
-          </span>
+        <div className="flex items-center space-x-2 mb-1">
+          <GoalIcon className="w-8 h-8 text-slate-400" />
+          <h2 className="text-slate-600 font-medium text-lg">Monthly Saving Goal</h2>
         </div>
         <div className="flex justify-between items-end mt-2">
           {isEditingGoal ? (
