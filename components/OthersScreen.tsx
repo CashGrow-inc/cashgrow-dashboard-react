@@ -100,8 +100,8 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
       setNet(data.net);
 
       if (data.period_start && data.period_end) {
-        const start = new Date(data.period_start);
-        const end = new Date(data.period_end);
+        const start = new Date(data.period_start + 'T00:00:00');
+        const end = new Date(data.period_end + 'T00:00:00');
         setPeriodLabel(`${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
       }
 
