@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { Screen } from '../types';
 import { useAuth } from '../AuthContext';
+import { Logo } from './WelcomeScreen';
 import { API_BASE_URL } from '../config/api';
 import {
   GrowIcon,
@@ -279,29 +280,27 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
   return (
     <>
       <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
-        {/* Left: Profile icon + user name */}
+        {/* Left: Logo */}
+        <Logo />
+
+        {/* Right: Profile icon + name + hamburger menu */}
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
-            <ProfileIcon className="w-5 h-5 text-blue-600" />
-          </div>
+          <ProfileIcon className="w-5 h-5 text-slate-800" />
           {user && (
-            <span className="text-lg font-semibold text-slate-800">
+            <span className="text-sm font-semibold text-slate-800">
               {user.full_name || user.email}
             </span>
           )}
-        </div>
-
-        {/* Right: Hamburger menu */}
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-            aria-label="Menu"
-          >
-            <svg className="w-6 h-6 text-slate-700" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+              className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="Menu"
+            >
+              <svg className="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
 
           {isProfileMenuOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-30">
@@ -334,6 +333,7 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts }) => 
               </button>
             </div>
           )}
+          </div>
         </div>
       </header>
 
