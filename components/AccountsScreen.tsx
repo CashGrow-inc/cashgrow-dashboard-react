@@ -185,7 +185,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
         </div>
       )}
       {/* Header */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}

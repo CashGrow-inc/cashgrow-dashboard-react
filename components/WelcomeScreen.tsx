@@ -424,10 +424,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   }, []);
 
   return (
-    <div className="bg-slate-50 font-sans text-slate-800">
+    <div className="bg-slate-50 font-sans text-slate-800 max-w-md mx-auto">
       {/* Sticky Header */}
       <header className="sticky top-0 left-0 right-0 z-50 bg-white shadow-sm">
-        <div className="hidden md:flex p-4 md:p-6 justify-between items-center max-w-full">
+        <div className="hidden">
           <Logo />
           <div className="flex gap-3">
             <button
@@ -444,7 +444,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
             </button>
           </div>
         </div>
-        <div className="md:hidden h-[50px] flex justify-between items-center px-4">
+        <div className="h-[50px] flex justify-between items-center px-4">
           <Logo />
           <div className="flex gap-2">
             <button
@@ -463,7 +463,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
         </div>
       </header>
 
-      <div className="relative overflow-hidden z-10 hidden md:block">
+      <div className="hidden">
         <video
           ref={desktopVideoRef}
           src={BgVideo}
@@ -511,7 +511,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Mobile Container */}
-      <div className="block md:hidden w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
+      <div className="block w-full max-w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
         <div className="h-full relative">
           <video
             ref={mobileVideoRef}
@@ -549,8 +549,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Mobile What Is CashGrow Section */}
-      <div className="w-[405px] bg-white mx-auto p-0">
-        <div className="block md:hidden w-[290px] h-[235px] mx-auto bg-white p-4 rounded-2xl shadow-xl border border-white/50">
+      <div className="w-full max-w-[405px] bg-white mx-auto p-0">
+        <div className="block w-[290px] h-[235px] mx-auto bg-white p-4 rounded-2xl shadow-xl border border-white/50">
           <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
           <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
@@ -560,7 +560,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Features Container */}
-      <div className="block md:hidden w-[405px] h-[388px] mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50">
+      <div className="block w-full max-w-[405px] h-[388px] mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50">
         <div className="grid grid-cols-2 gap-6">
           {[
             { icon: <BankIcon className="h-20 w-20" />, title: "Connect\nyour bank", description: "All your accounts\nin one place." },
@@ -578,7 +578,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Card Diagram Container */}
-      <div className="relative block md:hidden w-[405px] h-[650px] mx-auto bg-gray-50 overflow-hidden">
+      <div className="relative block w-full max-w-[405px] h-[650px] mx-auto bg-gray-50 overflow-hidden">
         <div className="absolute bottom-8 left-0 right-0 z-10 h-[32px] bg-gradient-to-t from-gray-50 to-transparent"></div>
         <div className="relative z-20 p-4 text-center">
           <h1 className="text-xl font-bold text-gray-800 mb-4">In control of your expenses</h1>
@@ -611,12 +611,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Footer */}
-      <footer className="relative bg-[#304ffe] text-white px-[30px] py-[40px] md:py-8 md:px-6 z-20" style={{ marginTop: '0px' }}>
+      <footer className="relative bg-[#304ffe] text-white px-[30px] py-[40px] z-20" style={{ marginTop: '0px' }}>
         <div className="max-w-6xl mx-auto flex flex-col gap-[30px]">
           {/* Nav + Logo section */}
-          <div className="flex flex-col gap-10 md:grid md:grid-cols-4 md:gap-8">
+          <div className="flex flex-col gap-10">
             {/* Nav items: vertical on mobile, horizontal on desktop */}
-            <div className="md:col-span-3 flex flex-col gap-5 md:grid md:grid-cols-3 md:gap-8">
+            <div className="flex flex-col gap-5">
               <div>
                 <h3
                   className="font-bold text-base md:text-lg flex justify-between items-center cursor-pointer hover:text-blue-200 transition-colors"
@@ -633,11 +633,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
               </div>
             </div>
             {/* Logo + social icons */}
-            <div className="flex flex-col gap-3 md:text-right">
-              <div className="flex justify-start md:justify-end">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-start">
                 <Logo flowerColor="#FFFFFF" textColor="#FFFFFF" />
               </div>
-              <div className="flex space-x-3 md:space-x-4 md:hidden">
+              <div className="flex space-x-3">
                 <a href="#" aria-label="Facebook"><FacebookIcon className="w-5 h-5 hover:text-blue-300" /></a>
                 <a href="#" aria-label="Instagram"><InstagramIcon className="w-5 h-5 hover:text-blue-300" /></a>
                 <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-5 h-5 hover:text-blue-300" /></a>
@@ -646,8 +646,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
             </div>
           </div>
           {/* Divider + bottom section */}
-          <div className="border-t border-white/30 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center">
-            <div className="hidden md:flex space-x-4 mb-4 md:mb-0">
+          <div className="border-t border-white/30 pt-6 flex flex-col justify-between items-center">
+            <div className="hidden">
               <a href="#" aria-label="Facebook"><FacebookIcon className="w-6 h-6 hover:text-blue-300" /></a>
               <a href="#" aria-label="Instagram"><InstagramIcon className="w-6 h-6 hover:text-blue-300" /></a>
               <a href="#" aria-label="LinkedIn"><LinkedInIcon className="w-6 h-6 hover:text-blue-300" /></a>

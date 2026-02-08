@@ -42,7 +42,7 @@ const FoundersPage: React.FC<FoundersPageProps> = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-md mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="cursor-pointer" onClick={onBack}>
             <Logo flowerColor="#3B82F6" textColor="#1E293B" />
           </div>
@@ -56,7 +56,7 @@ const FoundersPage: React.FC<FoundersPageProps> = ({ onBack }) => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
+      <main className="max-w-md mx-auto px-4 md:px-6 py-12 md:py-16">
         {/* Page Title */}
         <div className="text-center mb-12 md:mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
@@ -68,7 +68,7 @@ const FoundersPage: React.FC<FoundersPageProps> = ({ onBack }) => {
         </div>
 
         {/* Founders Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 gap-8 max-w-md mx-auto">
           {founders.map((founder, index) => (
             <div
               key={index}
@@ -121,7 +121,7 @@ const FoundersPage: React.FC<FoundersPageProps> = ({ onBack }) => {
 
       {/* Footer */}
       <footer className="bg-blue-700 text-white py-8 px-4 md:px-6 mt-20">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-md mx-auto text-center">
           <p className="text-sm text-blue-200">@2025 Cashgrow</p>
         </div>
       </footer>
