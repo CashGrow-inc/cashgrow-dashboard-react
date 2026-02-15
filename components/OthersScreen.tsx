@@ -217,10 +217,10 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
           className="w-full"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
-              <div className="text-left">
-                <div className="font-semibold text-slate-800 capitalize">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${category.color}`}></div>
+              <div className="text-left min-w-0">
+                <div className="font-semibold text-slate-800 capitalize truncate">
                   {category.category.replace(/_/g, ' ')}
                 </div>
                 <div className="text-xs text-slate-500">
@@ -228,7 +228,7 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 flex-shrink-0">
               <div className="text-right">
                 <div className={`font-bold ${amountColor}`}>
                   ${formatCurrency(category.total)}
@@ -368,7 +368,7 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
       {/* Net Balance Panel */}
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="text-slate-600 font-medium mb-2">Net Balance</h3>
-        <div className={`text-4xl font-bold ${net >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+        <div className={`text-3xl min-[390px]:text-4xl font-bold ${net >= 0 ? 'text-green-600' : 'text-red-500'}`}>
           {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
         </div>
         {periodLabel && <p className="text-sm text-slate-500 mt-1">{periodLabel}</p>}

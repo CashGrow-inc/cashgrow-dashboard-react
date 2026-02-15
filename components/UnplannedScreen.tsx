@@ -196,7 +196,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="text-slate-600 font-medium mb-2">Total Unplanned</h3>
-        <div className="text-4xl font-bold text-orange-600">${formatCurrency(totalUnplanned)}</div>
+        <div className="text-3xl min-[390px]:text-4xl font-bold text-orange-600">${formatCurrency(totalUnplanned)}</div>
         <p className="text-sm text-slate-500 mt-1">{periodLabel}</p>
       </div>
 
@@ -211,11 +211,11 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
                 className="w-full"
               >
                 <div className="flex items-center justify-between">
-                  <div className="text-left">
+                  <div className="text-left min-w-0">
                     <div className="font-semibold text-slate-800">{week.week_label}</div>
                     <div className="text-xs text-slate-500">{week.week_range}</div>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 flex-shrink-0">
                     <div className="text-right">
                       <div className="font-bold text-orange-600 text-xl">
                         ${formatCurrency(week.total)}

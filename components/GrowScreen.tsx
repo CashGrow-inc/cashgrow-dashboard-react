@@ -174,7 +174,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
             This Week
           </span>
         </div>
-        <div className={`text-5xl font-bold mb-3 ${growValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <div className={`text-3xl min-[390px]:text-5xl font-bold mb-3 ${growValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {isLoading ? '...' : growValue >= 0 ? `$${formatCurrency(growValue)}` : `-$${formatCurrency(Math.abs(growValue))}`}
         </div>
         <p className="text-slate-600">
@@ -225,13 +225,13 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
                 value={goalInputValue}
                 onChange={handleGoalInputChange}
                 onKeyDown={handleGoalKeyPress}
-                className="text-4xl font-bold text-slate-800 border-b-2 border-blue-500 focus:outline-none w-40"
+                className="text-2xl min-[390px]:text-4xl font-bold text-slate-800 border-b-2 border-blue-500 focus:outline-none w-32 min-[390px]:w-40"
                 autoFocus
                 placeholder="700"
               />
             </div>
           ) : (
-            <span className="text-4xl font-bold text-slate-800">${formatCurrency(monthlyGoal)}</span>
+            <span className="text-2xl min-[390px]:text-4xl font-bold text-slate-800">${formatCurrency(monthlyGoal)}</span>
           )}
           <div className="flex items-center space-x-2">
             {isEditingGoal ? (

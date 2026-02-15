@@ -301,7 +301,7 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts, onSho
         <div className="flex items-center space-x-3">
           <ProfileIcon className="w-5 h-5 text-slate-800" />
           {user && (
-            <span className="text-sm font-semibold text-slate-800">
+            <span className="text-sm font-semibold text-slate-800 truncate max-w-[80px]">
               {user.full_name || user.email}
             </span>
           )}
@@ -525,16 +525,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScr
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-2 z-20">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-1.5 px-1 min-[390px]:p-2 z-20">
       {navItems.map(({ screen, Icon, label }) => {
         const isActive = activeScreen === screen;
         return (
           <button
             key={screen}
             onClick={() => setActiveScreen(screen)}
-            className="flex flex-col items-center justify-center w-1/6 text-xs font-medium"
+            className="flex flex-col items-center justify-center w-1/6 text-[10px] min-[390px]:text-xs font-medium"
           >
-            <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
+            <Icon className={`w-5 h-5 mb-0.5 min-[390px]:w-6 min-[390px]:h-6 min-[390px]:mb-1 ${isActive ? 'text-blue-600' : 'text-slate-500'}`} />
             <span className={isActive ? 'text-blue-600' : 'text-slate-500'}>{label}</span>
             {isActive && <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-1"></div>}
           </button>

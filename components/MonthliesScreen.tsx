@@ -292,7 +292,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
-        <div className="text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
+        <div className="text-3xl min-[390px]:text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
         <p className="text-sm text-slate-500 mt-1">{currentPeriodLabel}</p>
         {threeMonthAverage > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-200">
@@ -319,17 +319,17 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
               onClick={() => handleToggleCategory(category.category, category.transaction_count)}
             >
               <div className="w-full">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-3 min-w-0">
                     <ChevronDownIcon
-                      className={`w-4 h-4 text-slate-400 transition-transform ${
+                      className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${
                         expandedCategory === category.category ? 'rotate-180' : ''
                       }`}
                     />
-                    <span className={`w-3 h-3 rounded-full ${category.color}`}></span>
-                    <span className="font-semibold text-slate-800">{category.category}</span>
+                    <span className={`w-3 h-3 rounded-full flex-shrink-0 ${category.color}`}></span>
+                    <span className="font-semibold text-slate-800 truncate">{category.category}</span>
                   </div>
-                  <span className="font-bold text-slate-800">
+                  <span className="font-bold text-slate-800 flex-shrink-0 whitespace-nowrap text-sm min-[390px]:text-base">
                     ${formatCurrency(category.spent)} / <span className="text-slate-500">${formatCurrency(category.budget)}</span>
                   </span>
                 </div>
@@ -372,14 +372,16 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                               : 'bg-white hover:bg-slate-100'
                           }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <span className={`text-sm ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>{txn.description}</span>
-                            {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
-                            {txn.status === 'pending' && (
-                              <span className="text-xs px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded font-medium">Pending</span>
-                            )}
+                          <div className="min-w-0 flex-1">
+                            <span className={`block truncate text-sm ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-700'}`}>{txn.description}</span>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {formattedDate && <span className="text-xs text-slate-500">{formattedDate}</span>}
+                              {txn.status === 'pending' && (
+                                <span className="text-xs px-1.5 py-0.5 bg-amber-200 text-amber-800 rounded font-medium">Pending</span>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             <span className={`text-sm font-semibold ${txn.status === 'pending' ? 'text-amber-700' : 'text-slate-800'}`}>${formatCurrency(txn.amount)}</span>
                             <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
