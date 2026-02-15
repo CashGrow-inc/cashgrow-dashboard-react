@@ -511,7 +511,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Mobile Container */}
-      <div className="block w-full max-w-[405px] h-[755px] relative overflow-hidden mx-auto bg-slate-50">
+      <div className="block w-full h-[755px] relative overflow-hidden mx-auto bg-slate-50">
         <div className="h-full relative">
           <video
             ref={mobileVideoRef}
@@ -549,7 +549,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Mobile What Is CashGrow Section */}
-      <div className="w-full max-w-[405px] bg-white mx-auto p-0">
+      <div className="w-full bg-white mx-auto p-0">
         <div className="block w-[290px] h-[235px] mx-auto bg-white p-4 rounded-2xl shadow-xl border border-white/50">
           <h2 className="text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
           <h3 className="text-lg font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
@@ -560,8 +560,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       </div>
 
       {/* Features Container */}
-      <div className="block w-full max-w-[405px] h-[388px] mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50">
-        <div className="grid grid-cols-2 gap-6">
+      <div className="block w-full mx-auto bg-white/90 backdrop-blur-sm px-3 py-5 min-[390px]:p-6 rounded-2xl shadow-xl border border-white/50">
+        <div className="grid grid-cols-2 gap-4 min-[390px]:gap-6">
           {[
             { icon: <BankIcon className="h-20 w-20" />, title: "Connect\nyour bank", description: "All your accounts\nin one place." },
             { icon: <SimpleToUseIcon />, title: "Simple\nto use", description: "No charts and\nstress, just growth" },
@@ -570,15 +570,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
           ].map((feature, index) => (
             <div key={index} className="text-center">
               <div className="flex justify-center mb-2 text-blue-600">{feature.icon}</div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1 whitespace-pre-line">{feature.title}</h3>
-              <p className="text-xs text-slate-600 leading-relaxed whitespace-pre-line">{feature.description}</p>
+              <h3 className="text-sm min-[390px]:text-base font-bold text-slate-900 mb-1 whitespace-pre-line">{feature.title}</h3>
+              <p className="text-xs min-[390px]:text-sm text-slate-600 leading-relaxed whitespace-pre-line">{feature.description}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Card Diagram Container */}
-      <div className="relative block w-full max-w-[405px] h-[650px] mx-auto bg-gray-50 overflow-hidden">
+      <div className="relative block w-full h-[650px] mx-auto bg-gray-50 overflow-hidden">
         <div className="absolute bottom-8 left-0 right-0 z-10 h-[32px] bg-gradient-to-t from-gray-50 to-transparent"></div>
         <div className="relative z-20 p-4 text-center">
           <h1 className="text-xl font-bold text-gray-800 mb-4">In control of your expenses</h1>
