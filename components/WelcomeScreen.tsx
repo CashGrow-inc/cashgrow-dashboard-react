@@ -550,7 +550,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
 
       {/* Mobile What Is CashGrow Section */}
       <div className="w-full bg-white mx-auto px-4 py-6 min-[390px]:px-6 min-[390px]:py-8">
-        <div className="max-w-sm mx-auto">
+        <div className="max-w-sm mx-auto text-center">
           <h2 className="text-xs min-[390px]:text-sm font-semibold text-blue-600 mb-2 tracking-wide uppercase">What Is CashGrow?</h2>
           <h3 className="text-lg min-[390px]:text-xl font-bold text-slate-900 mb-3 leading-tight">Money made clear, growth made practical</h3>
           <p className="text-xs min-[390px]:text-sm text-slate-600 leading-relaxed">
