@@ -237,12 +237,17 @@ interface FeatureItemProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
-  const { login } = useAuth();
+  const { login, completeLogin } = useAuth();
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loginStep, setLoginStep] = useState<'credentials' | 'otp'>('credentials');
+  const [pendingToken, setPendingToken] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerFullName, setRegisterFullName] = useState('');
@@ -268,6 +273,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
     setLoginEmail('');
     setLoginPassword('');
     setLoginError('');
+    setLoginStep('credentials');
+    setPendingToken('');
+    setOtpCode('');
+    setOtpError('');
   };
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -290,9 +299,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Login successful - use the login function to set state
-        await login(loginEmail, loginPassword);
-        closeLoginModal();
+        if (data.two_factor_required) {
+          setPendingToken(data.pending_token);
+          setLoginStep('otp');
+        } else {
+          await completeLogin(data.token);
+          closeLoginModal();
+        }
       } else {
         // Check if error is due to unverified email
         const errorMessage = data.detail || '';
@@ -309,6 +322,34 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       }
     } catch (error) {
       setLoginError('Network error. Please try again.');
+    }
+  };
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError('');
+    if (otpCode.length !== 6) {
+      setOtpError('Enter the 6-digit code from your email.');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-2fa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pending_token: pendingToken, otp_code: otpCode }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await completeLogin(data.token);
+        closeLoginModal();
+      } else {
+        setOtpError(data.detail || 'Invalid or expired code.');
+      }
+    } catch {
+      setOtpError('Network error. Please try again.');
+    } finally {
+      setOtpLoading(false);
     }
   };
 
@@ -660,77 +701,123 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">Sign In to CashGrow</h3>
-            <p className="text-sm text-slate-600 mb-6">
-              Enter your credentials to access your account.
-            </p>
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="login-email" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Email
-                </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={loginEmail}
-                  onChange={(event) => setLoginEmail(event.target.value)}
-                  placeholder="Enter your email"
-                  autoFocus
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="login-password" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="login-password"
-                    type={showLoginPassword ? "text" : "password"}
-                    className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={loginPassword}
-                    onChange={(event) => setLoginPassword(event.target.value)}
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowLoginPassword(!showLoginPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                  >
-                    {showLoginPassword ? (
-                      <EyeOffIcon className="w-5 h-5" />
-                    ) : (
-                      <EyeIcon className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-                {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
-                <div className="text-right mt-2">
-                  <a
-                    href="/forgot-password"
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={closeLoginModal}
-                  className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
-                >
-                  Sign In
-                </button>
-              </div>
-            </form>
+            {loginStep === 'credentials' ? (
+              <>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Sign In to CashGrow</h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  Enter your credentials to access your account.
+                </p>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="login-email" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Email
+                    </label>
+                    <input
+                      id="login-email"
+                      type="email"
+                      className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={loginEmail}
+                      onChange={(event) => setLoginEmail(event.target.value)}
+                      placeholder="Enter your email"
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="login-password" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="login-password"
+                        type={showLoginPassword ? "text" : "password"}
+                        className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={loginPassword}
+                        onChange={(event) => setLoginPassword(event.target.value)}
+                        placeholder="Enter your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPassword(!showLoginPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      >
+                        {showLoginPassword ? (
+                          <EyeOffIcon className="w-5 h-5" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    {loginError && <p className="text-sm text-red-500 mt-2">{loginError}</p>}
+                    <div className="text-right mt-2">
+                      <a
+                        href="/forgot-password"
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        Forgot Password?
+                      </a>
+                    </div>
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={closeLoginModal}
+                      className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : (
+              <>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  We sent a 6-digit code to <span className="font-medium text-slate-800">{loginEmail}</span>
+                </p>
+                <form onSubmit={handleOtpSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="otp-code" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Verification Code
+                    </label>
+                    <input
+                      id="otp-code"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      autoFocus
+                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                    />
+                    {otpError && <p className="text-sm text-red-500 mt-2 text-center">{otpError}</p>}
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => { setLoginStep('credentials'); setOtpCode(''); setOtpError(''); }}
+                      className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={otpLoading}
+                      className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow disabled:opacity-60"
+                    >
+                      {otpLoading ? 'Verifying...' : 'Verify'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}

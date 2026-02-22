@@ -176,6 +176,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
     fetchUserProfile: () => Promise<void>;
+    completeLogin: (newToken: string) => Promise<void>;
     fetchBudgetSummary: (periodDays?: number, accountIds?: string[]) => Promise<BudgetSummary>;
     fetchMonthlies: (periodDays?: number, accountIds?: string[]) => Promise<MonthliesData>;
     fetchFixed: (periodDays?: number, accountIds?: string[]) => Promise<MonthliesData>;
@@ -228,25 +229,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchUserProfile = async () => {
-        if (!token) {
-            setIsAuthLoading(false);
-            return;
-        }
-
+    const fetchUserProfileWithToken = async (t: string) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${t}`,
                 },
             });
             console.log('User profile response:', response.data);
             setUser(response.data);
-            // Persist user data to localStorage
             localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error: any) {
             console.error('Failed to fetch user profile:', error);
-            // If token is invalid/expired (401), log the user out
             if (error?.response?.status === 401) {
                 console.log('Token expired or invalid, logging out');
                 logout();
@@ -254,6 +248,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } finally {
             setIsAuthLoading(false);
         }
+    };
+
+    const fetchUserProfile = async () => {
+        if (!token) {
+            setIsAuthLoading(false);
+            return;
+        }
+        await fetchUserProfileWithToken(token);
+    };
+
+    const completeLogin = async (newToken: string) => {
+        localStorage.setItem('authToken', newToken);
+        setToken(newToken);
+        setIsLoggedIn(true);
+        await fetchUserProfileWithToken(newToken);
     };
 
     const fetchBudgetSummary = async (periodDays: number = 7, accountIds?: string[]): Promise<BudgetSummary> => {
@@ -700,7 +709,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { Logo } from './WelcomeScreen';
+import { API_BASE_URL } from '../config/api';
 
 interface SettingsScreenProps {
   onBack: () => void;
@@ -128,7 +129,7 @@ function detectDefaultLanguage(): { code: string; name: string } {
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onDeleteAccount, onSignOut }) => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   // Settings state with localStorage persistence
   const [notifications, setNotifications] = useState<boolean>(() => {
@@ -156,6 +157,23 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onDeleteAccount
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+
+  // 2FA state
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState<boolean | null>(null);
+  const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
+  const [twoFactorError, setTwoFactorError] = useState('');
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_BASE_URL}/api/auth/2fa/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(d => setTwoFactorEnabled(d.is_two_factor_enabled))
+      .catch(() => {});
+  }, [token]);
 
   const handleNotificationToggle = (value: boolean) => {
     setNotifications(value);
@@ -273,6 +291,29 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onDeleteAccount
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500">{language.name}</span>
+                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </div>
+            </button>
+
+            {/* Two-Factor Authentication */}
+            <button
+              onClick={() => { setTwoFactorError(''); setDisablePassword(''); setShowTwoFactorModal(true); }}
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors border-b border-slate-100"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                </div>
+                <span className="text-[15px] font-medium text-slate-800">Two-Factor Auth</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-500">
+                  {twoFactorEnabled === null ? '—' : twoFactorEnabled ? 'On' : 'Off'}
+                </span>
                 <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
@@ -406,6 +447,108 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onBack, onDeleteAccount
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Two-Factor Auth Modal */}
+      {showTwoFactorModal && (
+        <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-[16px] shadow-2xl p-6 w-full max-w-sm">
+            {twoFactorEnabled ? (
+              <>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2 text-center">Disable Two-Factor Auth</h3>
+                <p className="text-sm text-slate-500 mb-4 text-center">Enter your password to confirm.</p>
+                <input
+                  type="password"
+                  className="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
+                  placeholder="Your password"
+                  value={disablePassword}
+                  onChange={e => setDisablePassword(e.target.value)}
+                  autoFocus
+                />
+                {twoFactorError && <p className="text-sm text-red-500 mb-3 text-center">{twoFactorError}</p>}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowTwoFactorModal(false)}
+                    disabled={twoFactorLoading}
+                    className="flex-1 py-3 rounded-[12px] font-medium text-[15px] bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={twoFactorLoading}
+                    onClick={async () => {
+                      setTwoFactorError('');
+                      setTwoFactorLoading(true);
+                      try {
+                        const r = await fetch(`${API_BASE_URL}/api/auth/2fa/disable`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                          body: JSON.stringify({ password: disablePassword }),
+                        });
+                        const d = await r.json();
+                        if (r.ok) {
+                          setTwoFactorEnabled(false);
+                          setShowTwoFactorModal(false);
+                        } else {
+                          setTwoFactorError(d.detail || 'Incorrect password.');
+                        }
+                      } catch {
+                        setTwoFactorError('Network error. Please try again.');
+                      } finally {
+                        setTwoFactorLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-3 rounded-[12px] font-medium text-[15px] bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-60"
+                  >
+                    {twoFactorLoading ? 'Disabling...' : 'Disable'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2 text-center">Enable Two-Factor Auth</h3>
+                <p className="text-sm text-slate-500 mb-6 text-center">A 6-digit code will be emailed to you each time you log in.</p>
+                {twoFactorError && <p className="text-sm text-red-500 mb-3 text-center">{twoFactorError}</p>}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowTwoFactorModal(false)}
+                    disabled={twoFactorLoading}
+                    className="flex-1 py-3 rounded-[12px] font-medium text-[15px] bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={twoFactorLoading}
+                    onClick={async () => {
+                      setTwoFactorError('');
+                      setTwoFactorLoading(true);
+                      try {
+                        const r = await fetch(`${API_BASE_URL}/api/auth/2fa/enable`, {
+                          method: 'POST',
+                          headers: { Authorization: `Bearer ${token}` },
+                        });
+                        const d = await r.json();
+                        if (r.ok) {
+                          setTwoFactorEnabled(true);
+                          setShowTwoFactorModal(false);
+                        } else {
+                          setTwoFactorError(d.detail || 'Failed to enable 2FA.');
+                        }
+                      } catch {
+                        setTwoFactorError('Network error. Please try again.');
+                      } finally {
+                        setTwoFactorLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-3 rounded-[12px] font-medium text-[15px] bg-[#304FFE] text-white hover:bg-[#283dd6] transition-colors disabled:opacity-60"
+                  >
+                    {twoFactorLoading ? 'Enabling...' : 'Enable'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
