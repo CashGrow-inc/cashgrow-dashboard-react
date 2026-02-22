@@ -44,19 +44,26 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Load checked IDs from localStorage
   // Returns null if no key exists (never initialized)
-  // Returns Set (possibly empty) if key exists
-  const loadFromStorage = useCallback((): Set<string> | null => {
+  // Returns { checked, known } if key exists
+  const loadFromStorage = useCallback((): { checked: Set<string>; known: Set<string> } | null => {
     const storageKey = getStorageKey();
     if (!storageKey) return null;
 
     try {
       const stored = localStorage.getItem(storageKey);
-      if (stored === null) {
-        return null; // Key doesn't exist - never initialized
+      if (stored === null) return null;
+      const parsed = JSON.parse(stored);
+      // New format: { checked: [...], known: [...] }
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return {
+          checked: new Set(parsed.checked ?? []),
+          known: new Set(parsed.known ?? []),
+        };
       }
-      const ids = JSON.parse(stored);
-      if (Array.isArray(ids)) {
-        return new Set(ids); // Could be empty Set if user unchecked all
+      // Old format (backwards compat): plain array of checked IDs
+      if (Array.isArray(parsed)) {
+        const ids = new Set<string>(parsed);
+        return { checked: ids, known: ids };
       }
     } catch (e) {
       console.error('Failed to load account filter from storage:', e);
@@ -64,13 +71,16 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
     return null;
   }, [getStorageKey]);
 
-  // Save checked IDs to localStorage
-  const saveToStorage = useCallback((ids: Set<string>) => {
+  // Save checked IDs and all known account IDs to localStorage
+  const saveToStorage = useCallback((checkedIds: Set<string>, knownIds: Set<string>) => {
     const storageKey = getStorageKey();
     if (!storageKey) return;
 
     try {
-      localStorage.setItem(storageKey, JSON.stringify(Array.from(ids)));
+      localStorage.setItem(storageKey, JSON.stringify({
+        checked: Array.from(checkedIds),
+        known: Array.from(knownIds),
+      }));
     } catch (e) {
       console.error('Failed to save account filter to storage:', e);
     }
@@ -103,32 +113,30 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       setAccounts(fetchedAccounts);
 
       // Initialize checked state
-      const storedIds = loadFromStorage();
+      const storedData = loadFromStorage();
       const currentAccountIds = new Set(fetchedAccounts.map(acc => acc.id));
 
-      if (storedIds === null) {
+      if (storedData === null) {
         // First time for this user - no localStorage key exists
         // Initialize with all accounts checked
         setCheckedAccountIds(currentAccountIds);
-        saveToStorage(currentAccountIds);
+        saveToStorage(currentAccountIds, currentAccountIds);
       } else {
-        // User has previously set preferences (even if empty)
-        // Restore from storage, keeping only IDs that still exist
-        const validStoredIds = new Set(
-          Array.from(storedIds).filter(id => currentAccountIds.has(id))
+        const { checked: storedChecked, known: storedKnown } = storedData;
+
+        // Restore only IDs that still exist on the backend
+        const validCheckedIds = new Set(
+          Array.from(storedChecked).filter(id => currentAccountIds.has(id))
         );
 
-        // Find new accounts that weren't in storage (newly connected accounts)
-        // These should be checked by default
-        const newAccountIds = Array.from(currentAccountIds).filter(id => !storedIds.has(id));
+        // Truly new accounts: in current but never seen before
+        const newAccountIds = Array.from(currentAccountIds).filter(id => !storedKnown.has(id));
 
-        // Combine previously checked accounts with new accounts
-        const finalCheckedIds = new Set([...validStoredIds, ...newAccountIds]);
+        const finalCheckedIds = new Set([...validCheckedIds, ...newAccountIds]);
 
         setCheckedAccountIds(finalCheckedIds);
-        // Save if IDs changed (accounts added or removed)
-        if (finalCheckedIds.size !== storedIds.size || newAccountIds.length > 0) {
-          saveToStorage(finalCheckedIds);
+        if (finalCheckedIds.size !== storedChecked.size || newAccountIds.length > 0) {
+          saveToStorage(finalCheckedIds, currentAccountIds);
         }
       }
     } catch (error) {
@@ -158,20 +166,21 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
       } else {
         newSet.add(id);
       }
-      saveToStorage(newSet);
+      const knownIds = new Set(accounts.map(acc => acc.id));
+      saveToStorage(newSet, knownIds);
       return newSet;
     });
-  }, [saveToStorage]);
+  }, [accounts, saveToStorage]);
 
   // Check/uncheck all accounts
   const setAllChecked = useCallback((checked: boolean) => {
+    const knownIds = new Set(accounts.map(acc => acc.id));
     if (checked) {
-      const allIds = new Set(accounts.map(acc => acc.id));
-      setCheckedAccountIds(allIds);
-      saveToStorage(allIds);
+      setCheckedAccountIds(knownIds);
+      saveToStorage(knownIds, knownIds);
     } else {
       setCheckedAccountIds(new Set());
-      saveToStorage(new Set());
+      saveToStorage(new Set(), knownIds);
     }
   }, [accounts, saveToStorage]);
 

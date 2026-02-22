@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter, BankAccount } from '../contexts/AccountFilterContext';
 import { API_BASE_URL } from '../config/api';
@@ -13,6 +13,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
   const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
   const [accountToDelete, setAccountToDelete] = useState<{ id: string; name: string } | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { token } = useAuth();
   const { accounts, checkedAccountIds, toggleAccount, setAllChecked, refreshAccounts, isLoading: filterLoading } = useAccountFilter();
 
@@ -64,8 +65,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
       await refreshAccounts();
 
       // Show success message
-      setSuccessMessage(data.message || 'Account deleted successfully!');
-      setTimeout(() => setSuccessMessage(null), 4000);
+      showToast(data.message || 'Account deleted successfully!');
     } catch (err) {
       console.error('Error deleting account:', err);
       setError('Failed to delete account. Please try again.');
@@ -76,6 +76,27 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
 
   const handleCancelDelete = () => {
     setAccountToDelete(null);
+  };
+
+  const showToast = (message: string) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setSuccessMessage(message);
+    toastTimerRef.current = setTimeout(() => setSuccessMessage(null), 4000);
+  };
+
+  const handleToggleAccount = (accountId: string, accountName: string) => {
+    const willBeChecked = !checkedAccountIds.has(accountId);
+    toggleAccount(accountId);
+    showToast(
+      willBeChecked
+        ? `"${accountName}" included in dashboard`
+        : `"${accountName}" excluded from dashboard`
+    );
+  };
+
+  const handleSetAllChecked = (checked: boolean) => {
+    setAllChecked(checked);
+    showToast(checked ? 'All accounts included in dashboard' : 'All accounts excluded from dashboard');
   };
 
   const formatCurrency = (amount: number, currencyCode: string) => {
@@ -252,7 +273,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
                 <input
                   type="checkbox"
                   checked={isAllChecked}
-                  onChange={() => setAllChecked(!isAllChecked)}
+                  onChange={() => handleSetAllChecked(!isAllChecked)}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
                 <label className="ml-3 text-slate-700 font-medium">
@@ -275,7 +296,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
                     <input
                       type="checkbox"
                       checked={checkedAccountIds.has(account.id)}
-                      onChange={() => toggleAccount(account.id)}
+                      onChange={() => handleToggleAccount(account.id, account.name)}
                       className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                     />
 
