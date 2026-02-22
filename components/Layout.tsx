@@ -525,7 +525,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScr
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around py-1.5 px-1 min-[390px]:p-2 z-20">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-20">
+    <nav className="max-w-md mx-auto flex justify-around py-1.5 px-1 min-[390px]:p-2">
       {navItems.map(({ screen, Icon, label }) => {
         const isActive = activeScreen === screen;
         return (
@@ -541,5 +542,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeScreen, setActiveScr
         );
       })}
     </nav>
+    </div>
   );
 };

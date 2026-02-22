@@ -115,6 +115,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 p-4 pb-20">
+    <div className="max-w-md mx-auto">
       {/* Animation keyframes */}
       <style>{`
         @keyframes fadeInDown {
@@ -340,6 +341,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
           </>
         )}
       </div>
+    </div>
     </div>
   );
 };
