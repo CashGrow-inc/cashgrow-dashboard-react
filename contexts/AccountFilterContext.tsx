@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '../config/api';
 import { useAuth } from '../AuthContext';
+import { ReconnectionItem } from '../types';
 
 export interface BankAccount {
   id: string;
@@ -21,6 +22,7 @@ interface AccountFilterContextType {
   accounts: BankAccount[];
   checkedAccountIds: Set<string>;
   isLoading: boolean;
+  needsReconnection: ReconnectionItem[];
   toggleAccount: (id: string) => void;
   setAllChecked: (checked: boolean) => void;
   refreshAccounts: () => Promise<void>;
@@ -35,6 +37,7 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [checkedAccountIds, setCheckedAccountIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [needsReconnection, setNeedsReconnection] = useState<ReconnectionItem[]>([]);
 
   // Get user-specific storage key
   const getStorageKey = useCallback(() => {
@@ -96,21 +99,29 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
 
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_BASE_URL}/api/plaid/accounts`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      };
+      const [accountsRes, statusRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/plaid/accounts`, { method: 'GET', headers }),
+        fetch(`${API_BASE_URL}/api/plaid/connection-status`, { method: 'GET', headers }),
+      ]);
 
-      if (!response.ok) {
+      if (!accountsRes.ok) {
         throw new Error('Failed to fetch accounts');
       }
 
-      const data = await response.json();
-      const fetchedAccounts: BankAccount[] = data.accounts || [];
+      const accountsData = await accountsRes.json();
+      const fetchedAccounts: BankAccount[] = accountsData.accounts || [];
       setAccounts(fetchedAccounts);
+
+      if (statusRes.ok) {
+        const statusData = await statusRes.json();
+        setNeedsReconnection(statusData.needs_reconnection ?? []);
+      } else {
+        console.warn('[AccountFilter] Failed to fetch connection status');
+      }
 
       // Initialize checked state
       const storedData = loadFromStorage();
@@ -190,6 +201,7 @@ export const AccountFilterProvider: React.FC<{ children: React.ReactNode }> = ({
         accounts,
         checkedAccountIds,
         isLoading,
+        needsReconnection,
         toggleAccount,
         setAllChecked,
         refreshAccounts,

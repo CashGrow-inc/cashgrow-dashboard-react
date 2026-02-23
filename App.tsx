@@ -23,13 +23,15 @@ import OthersScreen from './components/OthersScreen';
 
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
-import { AccountFilterProvider } from './contexts/AccountFilterContext';
+import { AccountFilterProvider, useAccountFilter } from './contexts/AccountFilterContext';
 
 // Config
 import { API_BASE_URL } from './config/api';
 
 const AppContent: React.FC = () => {
   const { isLoggedIn, isAuthLoading, logout, token } = useAuth();
+  const { needsReconnection } = useAccountFilter();
+  const [reconnectionBannerDismissed, setReconnectionBannerDismissed] = useState(false);
 
   // Track if user has passed the bank connection screen (skipped OR connected)
   const [hasPassedBankScreen, setHasPassedBankScreen] = useState(() => {
@@ -231,6 +233,38 @@ const AppContent: React.FC = () => {
     <div className="bg-slate-50 min-h-screen min-h-dvh w-full overflow-x-hidden font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-slate-50">
         <Header onSignOut={handleSignOut} onShowAccounts={handleShowAccounts} onShowSettings={handleShowSettings} deleteAccountRequested={deleteAccountRequested} onDeleteAccountHandled={handleDeleteAccountHandled} />
+        {needsReconnection.length > 0 && !reconnectionBannerDismissed && (
+          <div className="bg-amber-50 border-b border-amber-200 px-4 py-3">
+            <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span className="text-amber-800 text-sm font-medium truncate">
+                  {needsReconnection.length === 1
+                    ? `${needsReconnection[0].institution_name} needs reconnection`
+                    : `${needsReconnection.length} banks need reconnection`}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <button
+                  onClick={handleShowAccounts}
+                  className="text-amber-700 hover:text-amber-900 text-sm font-semibold"
+                >
+                  Fix now
+                </button>
+                <button
+                  onClick={() => setReconnectionBannerDismissed(true)}
+                  className="text-amber-500 hover:text-amber-700"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <main className="p-4 pb-24">
           {renderScreen()}
         </main>

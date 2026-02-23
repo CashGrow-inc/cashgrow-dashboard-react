@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter, BankAccount } from '../contexts/AccountFilterContext';
+import { PlaidLinkLoader } from './Layout';
+import { ReconnectionItem } from '../types';
 import { API_BASE_URL } from '../config/api';
 
 interface AccountsScreenProps {
@@ -15,7 +17,9 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { token } = useAuth();
-  const { accounts, checkedAccountIds, toggleAccount, setAllChecked, refreshAccounts, isLoading: filterLoading } = useAccountFilter();
+  const { accounts, checkedAccountIds, toggleAccount, setAllChecked, refreshAccounts, isLoading: filterLoading, needsReconnection } = useAccountFilter();
+  const [reconnectLinkToken, setReconnectLinkToken] = useState<string | null>(null);
+  const [reconnectingItemId, setReconnectingItemId] = useState<number | null>(null);
 
   // Fetch accounts on component mount
   useEffect(() => {
@@ -99,6 +103,80 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
     showToast(checked ? 'All accounts included in dashboard' : 'All accounts excluded from dashboard');
   };
 
+  const handleReconnectClick = async (item: ReconnectionItem) => {
+    setReconnectingItemId(item.plaid_item_id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/plaid/create_link_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ plaid_item_id: item.plaid_item_id }),
+      });
+      if (!response.ok) throw new Error('Failed to create link token');
+      const data = await response.json();
+      setReconnectLinkToken(data.link_token);
+    } catch (err) {
+      showToast('Failed to start reconnection. Please try again.');
+      setReconnectingItemId(null);
+    }
+  };
+
+  const onReconnectSuccess = async (public_token: string, metadata: any) => {
+    try {
+      const institutionName = metadata.institution?.name || 'Your bank';
+
+      const exchangeRes = await fetch(`${API_BASE_URL}/api/plaid/exchange_public_token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ public_token, institution_name: institutionName }),
+      });
+      if (!exchangeRes.ok) throw new Error('Failed to exchange token');
+
+      const today = new Date();
+      let startMonth = today.getMonth() - 3;
+      let startYear = today.getFullYear();
+      if (startMonth < 0) { startMonth += 12; startYear -= 1; }
+      const startDate = new Date(startYear, startMonth, 1).toISOString().split('T')[0];
+      const endDate = today.toISOString().split('T')[0];
+
+      await fetch(`${API_BASE_URL}/api/plaid/sync_transactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ start_date: startDate, end_date: endDate }),
+      });
+
+      await refreshAccounts();
+      showToast(`${institutionName} reconnected successfully!`);
+    } catch (err) {
+      showToast('Reconnection failed. Please try again.');
+    } finally {
+      setReconnectLinkToken(null);
+      setReconnectingItemId(null);
+    }
+  };
+
+  const onReconnectExit = (err: any) => {
+    if (err) showToast('Reconnection was interrupted. Please try again.');
+    setReconnectLinkToken(null);
+    setReconnectingItemId(null);
+  };
+
+  const getReconnectDescription = (error_code: string): { message: string; canReconnect: boolean } => {
+    switch (error_code) {
+      case 'ITEM_LOGIN_REQUIRED':
+      case 'INVALID_CREDENTIALS':
+        return { message: 'Login credentials have changed or expired.', canReconnect: true };
+      case 'ITEM_LOCKED':
+        return { message: 'Your account is locked. Contact your bank then reconnect.', canReconnect: true };
+      case 'INVALID_MFA':
+      case 'MFA_NOT_SUPPORTED':
+        return { message: 'Multi-factor authentication failed.', canReconnect: true };
+      case 'ITEM_NOT_SUPPORTED':
+        return { message: 'This institution is no longer supported by our banking provider.', canReconnect: false };
+      default:
+        return { message: 'A connection error occurred.', canReconnect: true };
+    }
+  };
+
   const formatCurrency = (amount: number, currencyCode: string) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -136,6 +214,13 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 p-4 pb-20">
+    {reconnectLinkToken && (
+      <PlaidLinkLoader
+        linkToken={reconnectLinkToken}
+        onSuccess={onReconnectSuccess}
+        onExit={onReconnectExit}
+      />
+    )}
     <div className="max-w-md mx-auto">
       {/* Animation keyframes */}
       <style>{`
@@ -267,6 +352,38 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
           </div>
         ) : (
           <>
+            {/* Reconnection Warning Cards */}
+            {needsReconnection.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {needsReconnection.map(item => {
+                  const { message, canReconnect } = getReconnectDescription(item.error_code);
+                  const isReconnecting = reconnectingItemId === item.plaid_item_id;
+                  return (
+                    <div key={item.plaid_item_id} className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div className="flex-1">
+                          <p className="font-semibold text-amber-900">{item.institution_name}</p>
+                          <p className="text-sm text-amber-700 mt-0.5">{message}</p>
+                        </div>
+                        {canReconnect && (
+                          <button
+                            onClick={() => handleReconnectClick(item)}
+                            disabled={reconnectingItemId !== null}
+                            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                          >
+                            {isReconnecting ? 'Loading...' : 'Reconnect'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Select All Checkbox */}
             {accounts.length > 1 && (
               <div className="bg-white rounded-xl p-4 mb-4 flex items-center">

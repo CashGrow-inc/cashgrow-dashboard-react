@@ -95,3 +95,11 @@ export interface TransactionWithId {
     status?: 'pending' | 'posted';
     is_recurring?: boolean;
 }
+
+export interface ReconnectionItem {
+  plaid_item_id: number;
+  institution_name: string;
+  error_code: string;
+  error_message: string | null;
+  error_occurred_at: string | null;
+}

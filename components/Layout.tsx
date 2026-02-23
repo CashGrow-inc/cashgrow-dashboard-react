@@ -18,7 +18,7 @@ import {
 } from './Icons';
 
 // Lazy Plaid Link component - only mounts (and loads Plaid script) when user initiates bank connection
-const PlaidLinkLoader: React.FC<{
+export const PlaidLinkLoader: React.FC<{
   linkToken: string;
   onSuccess: (public_token: string, metadata: any) => void;
   onExit: (err: any) => void;
