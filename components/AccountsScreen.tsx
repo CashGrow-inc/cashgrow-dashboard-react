@@ -237,7 +237,7 @@ const AccountsScreen: React.FC<AccountsScreenProps> = ({ onBack }) => {
       {/* Success Toast */}
       {successMessage && (
         <div
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/90 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg backdrop-blur-sm whitespace-nowrap"
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-slate-900/90 text-white text-sm font-medium px-4 py-2.5 rounded-2xl shadow-lg backdrop-blur-sm max-w-[80vw]"
           style={{ animation: 'fadeInDown 0.25s ease-out' }}
         >
           <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
