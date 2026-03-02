@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development Commands
 
 ```bash
-npm run dev      # Start development server (port 3000)
+npm run dev      # Start development server (port 5173, Vite default)
 npm run build    # Production build (outputs to dist/)
 npm run preview  # Preview production build locally
 ```
@@ -17,6 +17,7 @@ npm run preview  # Preview production build locally
 - **Axios** for HTTP requests
 - **Plaid** (react-plaid-link) for bank account integration
 - **Tailwind CSS** (loaded via CDN in index.html)
+- **@react-oauth/google** for Google Sign-In
 
 ## Architecture Overview
 
@@ -61,13 +62,24 @@ Two React Context providers:
 - Standalone auth pages don't require AuthProvider (verify-email, reset-password)
 - Password requirements: 8+ chars, uppercase letter, digit
 
+### Google OAuth Flow
+- App wrapped with `GoogleOAuthProvider` in `App.tsx` (reads `VITE_GOOGLE_CLIENT_ID`)
+- Google Sign-In button in both login and register modals (`WelcomeScreen.tsx`)
+- New Google users: `POST /api/auth/google` → `needs_password: true` → set-password step → full JWT
+- Returning Google users: `POST /api/auth/google` → full JWT (or 2FA flow if enabled)
+- Google Cloud Console OAuth Client ID: `481768223121-o9oukefhruf75cb86ltnbj8sr4vodk2o.apps.googleusercontent.com`
+- Authorized JavaScript origins: `https://www.cashgrow.net`, `http://localhost:5173`
+
 ## Environment Variables
 
 ```bash
-VITE_API_URL=http://localhost:8000/api  # Backend API URL
+VITE_API_URL=http://localhost:8000/api        # Backend API URL
+VITE_GOOGLE_CLIENT_ID=<from Google Console>   # Google OAuth Client ID
 ```
 
-Production uses: `https://cashgrow-backend-api-481768223121.northamerica-northeast2.run.app`
+Production uses:
+- `VITE_API_URL=https://cashgrow-backend-api-481768223121.northamerica-northeast2.run.app`
+- `VITE_GOOGLE_CLIENT_ID=481768223121-o9oukefhruf75cb86ltnbj8sr4vodk2o.apps.googleusercontent.com`
 
 ## Deployment
 
