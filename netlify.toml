@@ -5,6 +5,11 @@
 [build.environment]
   VITE_API_URL = "https://cashgrow-backend-api-481768223121.northamerica-northeast2.run.app"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
