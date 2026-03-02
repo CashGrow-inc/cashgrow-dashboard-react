@@ -268,6 +268,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
 
+  // Modal outer padding: px-4 (32px) + card padding: p-6 (48px) = 80px total
+  // Modal max width is max-w-md (448px), so inner content is at most 400px
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(() => Math.min(window.innerWidth - 80, 400));
+
+  useEffect(() => {
+    const handleResize = () => setGoogleButtonWidth(Math.min(window.innerWidth - 80, 400));
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const openLoginModal = () => {
     setLoginModalOpen(true);
     setLoginEmail('');
@@ -853,11 +863,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                 <p className="text-sm text-slate-600 mb-6">
                   Enter your credentials to access your account.
                 </p>
-                <div className="mb-4">
+                <div className="mb-4 overflow-hidden w-full">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
-                    width="368"
+                    width={googleButtonWidth}
                     text="signin_with"
                     shape="rectangular"
                   />
@@ -1094,11 +1104,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
               <span className="text-xs text-slate-400">or sign up with</span>
               <div className="flex-1 border-t border-slate-200" />
             </div>
-            <div className="mt-3">
+            <div className="mt-3 overflow-hidden w-full">
               <GoogleLogin
                 onSuccess={handleGoogleFromRegister}
                 onError={handleGoogleError}
-                width="368"
+                width={googleButtonWidth}
                 text="signup_with"
                 shape="rectangular"
               />
