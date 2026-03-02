@@ -265,11 +265,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [videoPaused, setVideoPaused] = useState(false);
-  const [googleButtonWidth, setGoogleButtonWidth] = useState<number | null>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
-  const loginGoogleContainerRef = useRef<HTMLDivElement>(null);
-  const registerGoogleContainerRef = useRef<HTMLDivElement>(null);
 
   const openLoginModal = () => {
     setLoginModalOpen(true);
@@ -555,22 +552,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       document.removeEventListener('scroll', handleUserInteraction);
     };
   }, []);
-
-  useEffect(() => {
-    if (isLoginModalOpen && loginGoogleContainerRef.current) {
-      setGoogleButtonWidth(loginGoogleContainerRef.current.offsetWidth);
-    } else if (!isLoginModalOpen) {
-      setGoogleButtonWidth(null);
-    }
-  }, [isLoginModalOpen]);
-
-  useEffect(() => {
-    if (isRegisterModalOpen && registerGoogleContainerRef.current) {
-      setGoogleButtonWidth(registerGoogleContainerRef.current.offsetWidth);
-    } else if (!isRegisterModalOpen) {
-      setGoogleButtonWidth(null);
-    }
-  }, [isRegisterModalOpen]);
 
   return (
     <div className="bg-slate-50 font-sans text-slate-800 max-w-md mx-auto">
@@ -872,16 +853,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                 <p className="text-sm text-slate-600 mb-6">
                   Enter your credentials to access your account.
                 </p>
-                <div ref={loginGoogleContainerRef} className="mb-4 w-full" style={{ minHeight: 44 }}>
-                  <div style={{ visibility: googleButtonWidth ? 'visible' : 'hidden' }}>
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      text="signin_with"
-                      shape="rectangular"
-                      width={googleButtonWidth ?? 400}
-                    />
-                  </div>
+                <div className="mb-4 flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    text="signin_with"
+                    shape="rectangular"
+                    width={Math.min(window.innerWidth - 80, 400)}
+                  />
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="flex-1 border-t border-slate-200" />
@@ -1115,16 +1094,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
               <span className="text-xs text-slate-400">or sign up with</span>
               <div className="flex-1 border-t border-slate-200" />
             </div>
-            <div ref={registerGoogleContainerRef} className="mt-3 w-full" style={{ minHeight: 44 }}>
-              <div style={{ visibility: googleButtonWidth ? 'visible' : 'hidden' }}>
-                <GoogleLogin
-                  onSuccess={handleGoogleFromRegister}
-                  onError={handleGoogleError}
-                  text="signup_with"
-                  shape="rectangular"
-                  width={googleButtonWidth ?? 400}
-                />
-              </div>
+            <div className="mt-3 flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleFromRegister}
+                onError={handleGoogleError}
+                text="signup_with"
+                shape="rectangular"
+                width={Math.min(window.innerWidth - 80, 400)}
+              />
             </div>
           </div>
         </div>
