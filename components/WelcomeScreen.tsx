@@ -366,7 +366,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
 
   const handleGoogleAuthFlow = async (credentialResponse: CredentialResponse) => {
     console.log('[Google Auth] credential present:', !!credentialResponse.credential);
-    console.log('[Google Auth] credential prefix:', credentialResponse.credential?.substring(0, 10));
+    try {
+      const parts = credentialResponse.credential?.split('.') ?? [];
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      console.log('[Google Auth] token aud:', payload.aud);
+      console.log('[Google Auth] token iss:', payload.iss);
+      console.log('[Google Auth] token exp:', new Date(payload.exp * 1000));
+    } catch { console.warn('[Google Auth] could not decode token'); }
     setLoginError('');
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
