@@ -12,6 +12,8 @@ import {
 import BgVideo from '../assets/background-video_H264.mp4';
 import { useAuth } from '../AuthContext';
 import { API_BASE_URL } from '../config/api';
+import { GoogleLogin } from '@react-oauth/google';
+import type { CredentialResponse } from '@react-oauth/google';
 
 const Logo: React.FC<{ flowerColor?: string; textColor?: string }> = ({ flowerColor = "#304FFE", textColor = "#2A2A2A" }) => (
   <svg width="165" height="24" viewBox="0 0 165 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="max-w-full h-auto">
@@ -243,11 +245,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [loginStep, setLoginStep] = useState<'credentials' | 'otp'>('credentials');
+  const [loginStep, setLoginStep] = useState<'credentials' | 'otp' | 'set-password'>('credentials');
   const [pendingToken, setPendingToken] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState('');
   const [otpLoading, setOtpLoading] = useState(false);
+  const [setupToken, setSetupToken] = useState('');
+  const [googlePassword, setGooglePassword] = useState('');
+  const [showGooglePassword, setShowGooglePassword] = useState(false);
+  const [googlePasswordError, setGooglePasswordError] = useState('');
+  const [googlePasswordLoading, setGooglePasswordLoading] = useState(false);
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerFullName, setRegisterFullName] = useState('');
@@ -277,6 +284,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
     setPendingToken('');
     setOtpCode('');
     setOtpError('');
+    setSetupToken('');
+    setGooglePassword('');
+    setShowGooglePassword(false);
+    setGooglePasswordError('');
   };
 
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -350,6 +361,84 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       setOtpError('Network error. Please try again.');
     } finally {
       setOtpLoading(false);
+    }
+  };
+
+  const handleGoogleAuthFlow = async (credentialResponse: CredentialResponse) => {
+    setLoginError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token: credentialResponse.credential }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        if (data.needs_password) {
+          setSetupToken(data.setup_token);
+          setLoginModalOpen(true);
+          setLoginStep('set-password');
+        } else if (data.two_factor_required) {
+          setPendingToken(data.pending_token);
+          setLoginModalOpen(true);
+          setLoginStep('otp');
+        } else {
+          await completeLogin(data.token);
+          closeLoginModal();
+        }
+      } else {
+        setLoginModalOpen(true);
+        setLoginError(data.detail || 'Google sign-in failed. Please try again.');
+      }
+    } catch {
+      setLoginModalOpen(true);
+      setLoginError('Network error. Please try again.');
+    }
+  };
+
+  const handleGoogleSuccess = (credentialResponse: CredentialResponse) => {
+    handleGoogleAuthFlow(credentialResponse);
+  };
+
+  const handleGoogleFromRegister = (credentialResponse: CredentialResponse) => {
+    closeRegisterModal();
+    handleGoogleAuthFlow(credentialResponse);
+  };
+
+  const handleGoogleError = () => {
+    setLoginModalOpen(true);
+    setLoginError('Google sign-in was cancelled or failed. Please try again.');
+  };
+
+  const handleSetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGooglePasswordError('');
+    setGooglePasswordLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/set-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setup_token: setupToken, password: googlePassword }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        await completeLogin(data.token);
+        closeLoginModal();
+      } else {
+        let errorMessage = 'Failed to set password. Please try again.';
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            errorMessage = data.detail.map((err: any) => err.msg).join('. ');
+          } else {
+            errorMessage = data.detail;
+          }
+        }
+        setGooglePasswordError(errorMessage);
+      }
+    } catch {
+      setGooglePasswordError('Network error. Please try again.');
+    } finally {
+      setGooglePasswordLoading(false);
     }
   };
 
@@ -701,12 +790,83 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            {loginStep === 'credentials' ? (
+            {loginStep === 'set-password' ? (
+              <>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Set your password</h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  Your Google account is verified. Create a password so you can also sign in with email.
+                </p>
+                <form onSubmit={handleSetPasswordSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="google-password" className="block text-sm font-semibold text-slate-700 mb-2">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="google-password"
+                        type={showGooglePassword ? 'text' : 'password'}
+                        className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        value={googlePassword}
+                        onChange={(e) => setGooglePassword(e.target.value)}
+                        placeholder="Create a password"
+                        autoFocus
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowGooglePassword(!showGooglePassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                      >
+                        {showGooglePassword ? (
+                          <EyeOffIcon className="w-5 h-5" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Must be at least 8 characters with uppercase letter and digit
+                    </p>
+                    {googlePasswordError && <p className="text-sm text-red-500 mt-2">{googlePasswordError}</p>}
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={closeLoginModal}
+                      className="px-4 py-2 rounded-full font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={googlePasswordLoading}
+                      className="px-6 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition shadow disabled:opacity-60"
+                    >
+                      {googlePasswordLoading ? 'Saving...' : 'Save & Continue'}
+                    </button>
+                  </div>
+                </form>
+              </>
+            ) : loginStep === 'credentials' ? (
               <>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Sign In to CashGrow</h3>
                 <p className="text-sm text-slate-600 mb-6">
                   Enter your credentials to access your account.
                 </p>
+                <div className="mb-4">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    width="368"
+                    text="signin_with"
+                    shape="rectangular"
+                  />
+                </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex-1 border-t border-slate-200" />
+                  <span className="text-xs text-slate-400">or sign in with email</span>
+                  <div className="flex-1 border-t border-slate-200" />
+                </div>
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div>
                     <label htmlFor="login-email" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -775,7 +935,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                   </div>
                 </form>
               </>
-            ) : (
+            ) : loginStep === 'otp' ? (
               <>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h3>
                 <p className="text-sm text-slate-600 mb-6">
@@ -817,7 +977,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                   </div>
                 </form>
               </>
-            )}
+            ) : null}
           </div>
         </div>
       )}
@@ -929,6 +1089,20 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                 </button>
               </div>
             </form>
+            <div className="flex items-center gap-3 mt-4">
+              <div className="flex-1 border-t border-slate-200" />
+              <span className="text-xs text-slate-400">or sign up with</span>
+              <div className="flex-1 border-t border-slate-200" />
+            </div>
+            <div className="mt-3">
+              <GoogleLogin
+                onSuccess={handleGoogleFromRegister}
+                onError={handleGoogleError}
+                width="368"
+                text="signup_with"
+                shape="rectangular"
+              />
+            </div>
           </div>
         </div>
       )}

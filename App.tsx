@@ -24,6 +24,7 @@ import OthersScreen from './components/OthersScreen';
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
 import { AccountFilterProvider, useAccountFilter } from './contexts/AccountFilterContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Config
 import { API_BASE_URL } from './config/api';
@@ -295,10 +296,12 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <AccountFilterProvider>
-        <AppContent />
-      </AccountFilterProvider>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <AuthProvider>
+        <AccountFilterProvider>
+          <AppContent />
+        </AccountFilterProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
