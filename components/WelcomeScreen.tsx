@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import {
   ChevronDownIcon,
   CashGrowLogo,
@@ -267,16 +267,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const [videoPaused, setVideoPaused] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
+  const googleContainerRef = useRef<HTMLDivElement>(null);
+  const [googleButtonWidth, setGoogleButtonWidth] = useState(300);
 
-  // Modal outer padding: px-4 (32px) + card padding: p-6 (48px) = 80px total
-  // Modal max width is max-w-md (448px), so inner content is at most 400px
-  const [googleButtonWidth, setGoogleButtonWidth] = useState(() => Math.min(window.innerWidth - 80, 400));
-
-  useEffect(() => {
-    const handleResize = () => setGoogleButtonWidth(Math.min(window.innerWidth - 80, 400));
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  useLayoutEffect(() => {
+    if (googleContainerRef.current) {
+      setGoogleButtonWidth(googleContainerRef.current.offsetWidth);
+    }
+  }, [isLoginModalOpen, isRegisterModalOpen]);
 
   const openLoginModal = () => {
     setLoginModalOpen(true);
@@ -863,7 +861,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                 <p className="text-sm text-slate-600 mb-6">
                   Enter your credentials to access your account.
                 </p>
-                <div className="mb-4 overflow-hidden w-full">
+                <div ref={googleContainerRef} className="mb-4 overflow-hidden w-full">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
@@ -1104,7 +1102,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
               <span className="text-xs text-slate-400">or sign up with</span>
               <div className="flex-1 border-t border-slate-200" />
             </div>
-            <div className="mt-3 overflow-hidden w-full">
+            <div ref={googleContainerRef} className="mt-3 overflow-hidden w-full">
               <GoogleLogin
                 onSuccess={handleGoogleFromRegister}
                 onError={handleGoogleError}
