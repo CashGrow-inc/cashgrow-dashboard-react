@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ChevronDownIcon,
   CashGrowLogo,
@@ -267,14 +267,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   const [videoPaused, setVideoPaused] = useState(false);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
-  const googleContainerRef = useRef<HTMLDivElement>(null);
-  const [googleButtonWidth, setGoogleButtonWidth] = useState(300);
-
-  useLayoutEffect(() => {
-    if (googleContainerRef.current) {
-      setGoogleButtonWidth(googleContainerRef.current.offsetWidth);
-    }
-  }, [isLoginModalOpen, isRegisterModalOpen]);
 
   const openLoginModal = () => {
     setLoginModalOpen(true);
@@ -373,6 +365,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
   };
 
   const handleGoogleAuthFlow = async (credentialResponse: CredentialResponse) => {
+    console.log('[Google Auth] credential present:', !!credentialResponse.credential);
+    console.log('[Google Auth] credential prefix:', credentialResponse.credential?.substring(0, 10));
     setLoginError('');
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
@@ -861,11 +855,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
                 <p className="text-sm text-slate-600 mb-6">
                   Enter your credentials to access your account.
                 </p>
-                <div ref={googleContainerRef} className="mb-4 overflow-hidden w-full">
+                <div className="mb-4 flex justify-center overflow-hidden">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
                     onError={handleGoogleError}
-                    width={googleButtonWidth}
                     text="signin_with"
                     shape="rectangular"
                   />
@@ -1102,11 +1095,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
               <span className="text-xs text-slate-400">or sign up with</span>
               <div className="flex-1 border-t border-slate-200" />
             </div>
-            <div ref={googleContainerRef} className="mt-3 overflow-hidden w-full">
+            <div className="mt-3 flex justify-center overflow-hidden">
               <GoogleLogin
                 onSuccess={handleGoogleFromRegister}
                 onError={handleGoogleError}
-                width={googleButtonWidth}
                 text="signup_with"
                 shape="rectangular"
               />
