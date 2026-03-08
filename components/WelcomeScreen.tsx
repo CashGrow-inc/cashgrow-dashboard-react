@@ -576,16 +576,16 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onShowFounders }) => {
         </div>
         <div className="h-[50px] flex justify-between items-center px-4">
           <Logo />
-          <div className="flex gap-2">
+          <div className="flex gap-2 whitespace-nowrap flex-shrink-0">
             <button
               onClick={openLoginModal}
-              className="bg-white hover:bg-gray-100 text-blue-600 font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300 border border-blue-600"
+              className="bg-white hover:bg-gray-100 text-blue-600 font-bold h-[35px] px-3 rounded-[200px] text-sm transition duration-300 border border-blue-600"
             >
               Sign In
             </button>
             <button
               onClick={openRegisterModal}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-4 rounded-[200px] text-sm transition duration-300"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-[35px] px-3 rounded-[200px] text-sm transition duration-300"
             >
               Sign Up
             </button>
