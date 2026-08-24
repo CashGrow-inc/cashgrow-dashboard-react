@@ -12,7 +12,7 @@ interface MonthliesScreenProps {
 }
 
 const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchMonthlies, fetchMonthliesTransactions, fetchThreeMonthAverage, fetchCategoryAverage } = useAuth();
+  const { fetchMonthlies, fetchMonthliesTransactions, fetchThreeMonthAverage, fetchCategoryAverages } = useAuth();
   const { checkedAccountIds } = useAccountFilter();
   const [categories, setCategories] = useState<any[]>([]);
   const [totalSpent, setTotalSpent] = useState<number>(0);
@@ -73,17 +73,11 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
       console.log('Monthlies data received:', data);
       console.log('3-month average received:', averageData);
 
-      // Fetch 3-month average for each category in parallel
-      const categoryAverages = await Promise.all(
-        data.categories.map(cat =>
-          fetchCategoryAverage(cat.category, accountIds)
-            .then(avg => ({ category: cat.category, average: avg.average }))
-            .catch(() => ({ category: cat.category, average: 0 }))
-        )
+      // One batch call for all category averages, instead of one per category.
+      const averagesData = await fetchCategoryAverages('monthlies', accountIds).catch(() => null);
+      const averageMap = new Map<string, number>(
+        (averagesData?.categories ?? []).map((c): [string, number] => [c.category_name, c.average])
       );
-
-      // Create a map for quick lookup
-      const averageMap = new Map(categoryAverages.map(ca => [ca.category, ca.average]));
 
       const categoriesWithColors = data.categories.map((cat, index) => {
         const categoryAverage = averageMap.get(cat.category) || 0;
@@ -113,7 +107,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     } finally {
       setIsLoading(false);
     }
-  }, [accountIdsKey, fetchMonthlies, fetchThreeMonthAverage, fetchCategoryAverage]);
+  }, [accountIdsKey, fetchMonthlies, fetchThreeMonthAverage, fetchCategoryAverages]);
 
   React.useEffect(() => {
     // Don't fetch if user hasn't connected a bank
