@@ -1,8 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../AuthContext';
-import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { WeeklyIcon, GoalIcon } from './Icons';
 import { formatCurrency } from './shared';
+import {
+  FINANCE_KEY,
+  useGrowQuery,
+  useInvalidateFinance,
+  useMonthlyGoalQuery,
+} from '../hooks/financeQueries';
 
 interface GrowScreenProps {
   hasBankAccount: boolean;
@@ -10,102 +16,31 @@ interface GrowScreenProps {
 }
 
 const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchGrow, fetchMonthlyGoal, updateMonthlyGoal } = useAuth();
-  const { checkedAccountIds } = useAccountFilter();
-  const [growValue, setGrowValue] = useState<number>(0);
-  const [currentWeekLabel, setCurrentWeekLabel] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [monthlyGoal, setMonthlyGoal] = useState<number>(0);
+  const { updateMonthlyGoal } = useAuth();
   const [isEditingGoal, setIsEditingGoal] = useState<boolean>(false);
   const [goalInputValue, setGoalInputValue] = useState<string>('0');
   const [isSavingGoal, setIsSavingGoal] = useState<boolean>(false);
 
-  // Convert Set to stable string for dependency comparison
-  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const queryClient = useQueryClient();
+  const invalidateFinance = useInvalidateFinance();
 
-  // Fetch monthly goal from database on mount
-  React.useEffect(() => {
-    const loadMonthlyGoal = async () => {
-      try {
-        const data = await fetchMonthlyGoal();
-        setMonthlyGoal(data.monthly_goal);
-        setGoalInputValue(data.monthly_goal.toString());
-      } catch (error) {
-        console.error('Failed to load monthly goal:', error);
-      }
-    };
+  const { data: growData, isLoading } = useGrowQuery(hasBankAccount);
+  const { data: goalData } = useMonthlyGoalQuery();
 
-    loadMonthlyGoal();
-  }, [fetchMonthlyGoal]);
+  const monthlyGoal =
+    goalData?.monthly_goal ?? growData?.budget_breakdown?.monthly_goal ?? 0;
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  // The week containing today, falling back to the last week in the range.
+  const currentWeek = useMemo(() => {
+    const weeks = growData?.weeks;
+    if (!weeks || weeks.length === 0) return null;
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return weeks.find(week => today >= week.week_start && today <= week.week_end)
+      ?? weeks[weeks.length - 1];
+  }, [growData]);
 
-    // Derive accountIds from accountIdsKey to ensure it's fresh
-    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-
-    // If no accounts are checked, show zero state without calling API
-    if (accountIds.length === 0) {
-      setGrowValue(0);
-      setCurrentWeekLabel('');
-      setIsLoading(false);
-      return;
-    }
-
-    const loadGrowData = async (showLoading = true) => {
-      try {
-        if (showLoading) setIsLoading(true);
-        console.log('Fetching grow data with accounts:', accountIds);
-        const data = await fetchGrow(accountIds);
-        console.log('Grow data received:', data);
-
-        // Update monthly goal from budget breakdown
-        if (data.budget_breakdown) {
-          setMonthlyGoal(data.budget_breakdown.monthly_goal);
-          setGoalInputValue(data.budget_breakdown.monthly_goal.toString());
-        }
-
-        // Find the current week (the week that contains today's date)
-        if (data.weeks && data.weeks.length > 0) {
-          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-          const currentWeek = data.weeks.find(week => {
-            return today >= week.week_start && today <= week.week_end;
-          });
-
-          if (currentWeek) {
-            setGrowValue(currentWeek.grow);
-            setCurrentWeekLabel(currentWeek.week_range);
-            console.log('Current week grow value:', currentWeek.grow);
-          } else {
-            // Fall back to the last week if today isn't in any week
-            const lastWeek = data.weeks[data.weeks.length - 1];
-            setGrowValue(lastWeek.grow);
-            setCurrentWeekLabel(lastWeek.week_range);
-          }
-        } else {
-          setGrowValue(0);
-          setCurrentWeekLabel('');
-        }
-      } catch (error) {
-        console.error('Failed to load grow data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadGrowData();
-
-    // Poll for new data every 30 seconds
-    const interval = setInterval(() => {
-      loadGrowData(false); // Don't show loading spinner on background refresh
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchGrow]);
+  const growValue = currentWeek?.grow ?? 0;
+  const currentWeekLabel = currentWeek?.week_range ?? '';
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
@@ -118,24 +53,12 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
       try {
         setIsSavingGoal(true);
         await updateMonthlyGoal(newGoal);
-        setMonthlyGoal(newGoal);
         setIsEditingGoal(false);
 
-        // Refresh grow data with new goal
-        const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-        if (accountIds.length > 0) {
-          const data = await fetchGrow(accountIds);
-          if (data.weeks && data.weeks.length > 0) {
-            const today = new Date().toISOString().split('T')[0];
-            const currentWeek = data.weeks.find(week => today >= week.week_start && today <= week.week_end);
-            if (currentWeek) {
-              setGrowValue(currentWeek.grow);
-            } else {
-              const lastWeek = data.weeks[data.weeks.length - 1];
-              setGrowValue(lastWeek.grow);
-            }
-          }
-        }
+        // Show the new goal immediately, then let the invalidation refetch it
+        // along with the grow numbers it feeds into.
+        queryClient.setQueryData([FINANCE_KEY, 'monthlyGoal'], { monthly_goal: newGoal });
+        await invalidateFinance();
       } catch (error) {
         console.error('Failed to save monthly goal:', error);
       } finally {

@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '../AuthContext';
-import { useAccountFilter } from '../contexts/AccountFilterContext';
+import React, { useState } from 'react';
 import { formatCurrency } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
+import { useAccountIds, useInvalidateFinance, useUnplannedQuery } from '../hooks/financeQueries';
 
 interface UnplannedScreenProps {
   hasBankAccount: boolean;
@@ -11,12 +10,6 @@ interface UnplannedScreenProps {
 }
 
 const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchUnplanned } = useAuth();
-  const { checkedAccountIds } = useAccountFilter();
-  const [weeks, setWeeks] = useState<any[]>([]);
-  const [totalUnplanned, setTotalUnplanned] = useState<number>(0);
-  const [periodLabel, setPeriodLabel] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedWeek, setExpandedWeek] = useState<string | null>(null);
   const [editModalState, setEditModalState] = useState<TransactionEditState>({
     isOpen: false,
@@ -25,54 +18,16 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Convert Set to stable string for dependency comparison
-  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const { accountIds } = useAccountIds();
+  const invalidateFinance = useInvalidateFinance();
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  const { data, isLoading } = useUnplannedQuery(hasBankAccount);
 
-    // Derive accountIds from accountIdsKey to ensure it's fresh
-    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-
-    // If no accounts are checked, show empty state without calling API
-    if (accountIds.length === 0) {
-      setWeeks([]);
-      setTotalUnplanned(0);
-      setPeriodLabel('No accounts selected');
-      setIsLoading(false);
-      return;
-    }
-
-    const loadUnplanned = async (showLoading = true) => {
-      try {
-        if (showLoading) setIsLoading(true);
-        console.log('Fetching unplanned expenses with accounts:', accountIds);
-        const data = await fetchUnplanned(accountIds);
-        console.log('Unplanned data received:', data);
-
-        setWeeks(data.weeks);
-        setTotalUnplanned(data.total_unplanned);
-        setPeriodLabel(data.period.label);
-      } catch (error) {
-        console.error('Failed to load unplanned expenses:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUnplanned();
-
-    // Poll for new data every 30 seconds
-    const interval = setInterval(() => {
-      loadUnplanned(false); // Don't show loading spinner on background refresh
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [hasBankAccount, accountIdsKey, fetchUnplanned]);
+  const weeks = data?.weeks ?? [];
+  const totalUnplanned = data?.total_unplanned ?? 0;
+  const periodLabel = accountIds.length === 0
+    ? 'No accounts selected'
+    : data?.period?.label ?? '';
 
   const handleToggleWeek = (weekStart: string) => {
     setExpandedWeek(expandedWeek === weekStart ? null : weekStart);
@@ -104,19 +59,13 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
     });
   };
 
-  const handleEditSuccess = () => {
-    // Show success message
+  const handleEditSuccess = async () => {
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
-    // Re-fetch data
-    const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-    fetchUnplanned(accountIds)
-      .then(data => {
-        setWeeks(data.weeks);
-        setTotalUnplanned(data.total_unplanned);
-        setPeriodLabel(data.period.label);
-      })
-      .catch(err => console.error('Failed to refresh unplanned:', err));
+
+    // Recategorizing moves money between groups, so drop every cached figure,
+    // not just this screen's. Mounted queries refetch and swap in place.
+    await invalidateFinance();
   };
 
   if (isLoading) {

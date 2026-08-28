@@ -1,26 +1,33 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '../AuthContext';
-import { useAccountFilter } from '../contexts/AccountFilterContext';
+import React, { useMemo, useState } from 'react';
 import { formatCurrency } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
+import {
+  useAccountIds,
+  useIncomeQuery,
+  useIncomeTransactionsQuery,
+  useInvalidateFinance,
+  useThreeMonthAverageQuery,
+} from '../hooks/financeQueries';
 
 interface IncomeScreenProps {
   hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
+const categoryColors = [
+  'bg-green-500',
+  'bg-blue-500',
+  'bg-purple-500',
+  'bg-orange-500',
+  'bg-pink-500',
+  'bg-yellow-500',
+  'bg-indigo-500',
+  'bg-red-500',
+];
+
 const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchIncome, fetchIncomeTransactions, fetchThreeMonthAverage } = useAuth();
-  const { checkedAccountIds } = useAccountFilter();
-  const [categories, setCategories] = useState<any[]>([]);
-  const [totalEarned, setTotalEarned] = useState<number>(0);
-  const [threeMonthAverage, setThreeMonthAverage] = useState<number>(0);
-  const [currentMonthLabel, setCurrentMonthLabel] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
-  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
   const [editModalState, setEditModalState] = useState<TransactionEditState>({
     isOpen: false,
     transaction: null,
@@ -28,111 +35,37 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const categoryColors = [
-    'bg-green-500',
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-orange-500',
-    'bg-pink-500',
-    'bg-yellow-500',
-    'bg-indigo-500',
-    'bg-red-500',
-  ];
+  const { accountIds } = useAccountIds();
+  const invalidateFinance = useInvalidateFinance();
 
-  // Convert Set to stable string for dependency comparison
-  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const { data, isLoading } = useIncomeQuery(hasBankAccount);
+  const { data: averageData } = useThreeMonthAverageQuery('income', hasBankAccount);
 
-  // Helper to get current accountIds from the key
-  const getAccountIds = () => accountIdsKey ? accountIdsKey.split(',') : [];
-
-  // Refactored load function that can be called from useEffect and handleEditSuccess
-  const loadIncome = React.useCallback(async (showLoading = true, clearCache = true) => {
-    const accountIds = getAccountIds();
-
-    // If no accounts are checked, show empty state without calling API
-    if (accountIds.length === 0) {
-      setCategories([]);
-      setTotalEarned(0);
-      setThreeMonthAverage(0);
-      setCurrentMonthLabel('No accounts selected');
-      setCategoryTransactions({});
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      if (showLoading) setIsLoading(true);
-      console.log('Fetching income with accounts:', accountIds);
-
-      // Fetch both income data and 3-month average in parallel
-      const [data, averageData] = await Promise.all([
-        fetchIncome(accountIds),
-        fetchThreeMonthAverage('income', accountIds).catch(() => null)
-      ]);
-
-      console.log('Income data received:', data);
-      console.log('3-month average received:', averageData);
-
-      const categoriesWithColors = data.categories.map((cat, index) => ({
+  const categories = useMemo(
+    () =>
+      (data?.categories ?? []).map((cat, index) => ({
         ...cat,
         color: categoryColors[index % categoryColors.length],
-      }));
+      })),
+    [data]
+  );
 
-      setCategories(categoriesWithColors);
-      setTotalEarned(data.current_month_total);
-      setThreeMonthAverage(averageData?.average || 0);
-      setCurrentMonthLabel(data.current_month_period.label);
-      // Only clear cached transactions on initial load, not background refresh
-      if (clearCache) {
-        setCategoryTransactions({});
-      }
-    } catch (error) {
-      console.error('Failed to load income:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [accountIdsKey, fetchIncome, fetchThreeMonthAverage]);
+  const totalEarned = data?.current_month_total ?? 0;
+  const threeMonthAverage = averageData?.average ?? 0;
+  const currentMonthLabel = accountIds.length === 0
+    ? 'No accounts selected'
+    : data?.current_month_period?.label ?? '';
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  // Unlike the expense screens, income rows always fetch on expand — there is
+  // no transaction_count short-circuit here, and there wasn't one before.
+  const { data: expandedData, isLoading: isLoadingTransactions } = useIncomeTransactionsQuery(
+    expandedCategory,
+    hasBankAccount
+  );
+  const expandedTransactions = expandedData?.transactions ?? [];
 
-    loadIncome();
-
-    // Poll for new data every 30 seconds
-    const interval = setInterval(() => {
-      loadIncome(false, false); // Don't show loading spinner or clear cache on background refresh
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [hasBankAccount, loadIncome]);
-
-  const handleToggleCategory = async (categoryName: string) => {
-    if (expandedCategory === categoryName) {
-      setExpandedCategory(null);
-    } else {
-      setExpandedCategory(categoryName);
-
-      if (!categoryTransactions[categoryName]) {
-        try {
-          setLoadingTransactions(categoryName);
-          // Derive accountIds from accountIdsKey to ensure it's fresh
-          const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-          const data = await fetchIncomeTransactions(categoryName, accountIds);
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [categoryName]: data.transactions
-          }));
-        } catch (error) {
-          console.error(`Failed to load transactions for ${categoryName}:`, error);
-        } finally {
-          setLoadingTransactions(null);
-        }
-      }
-    }
+  const handleToggleCategory = (categoryName: string) => {
+    setExpandedCategory(prev => (prev === categoryName ? null : categoryName));
   };
 
   const handleTransactionClick = (txn: any, e: React.MouseEvent) => {
@@ -162,26 +95,13 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
   };
 
   const handleEditSuccess = async () => {
-    // Show success message
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
 
-    // Re-fetch all category data (this also clears transaction cache)
-    // This ensures counts, totals, and category list are updated after reassignment
-    await loadIncome(false, true);
-
-    // Re-fetch the expanded category transactions if any
-    if (expandedCategory) {
-      const accountIds = getAccountIds();
-      fetchIncomeTransactions(expandedCategory, accountIds)
-        .then(data => {
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [expandedCategory]: data.transactions
-          }));
-        })
-        .catch(err => console.error('Failed to refresh transactions:', err));
-    }
+    // Recategorizing moves money between groups, so drop every cached figure,
+    // not just this screen's. Mounted queries refetch and swap in place — the
+    // expanded row's transactions included — with no loading flash.
+    await invalidateFinance();
   };
 
   if (isLoading) {
@@ -283,8 +203,8 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       {categories.length > 0 ? (
         categories.map((category) => {
           const isExpanded = expandedCategory === category.category;
-          const transactions = categoryTransactions[category.category] || [];
-          const isLoadingTxn = loadingTransactions === category.category;
+          const transactions = isExpanded ? expandedTransactions : [];
+          const isLoadingTxn = isExpanded && isLoadingTransactions;
 
           return (
             <div key={category.category} className="bg-white rounded-2xl shadow-sm p-4">
@@ -328,7 +248,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
                     <div className="text-center py-4 text-slate-500 text-sm">Loading transactions...</div>
                   ) : transactions.length > 0 ? (
                     <div className="space-y-2">
-                      {transactions.map((txn, txnIndex) => (
+                      {transactions.map((txn: any, txnIndex: number) => (
                         <div
                           key={txnIndex}
                           onClick={(e) => handleTransactionClick(txn, e)}

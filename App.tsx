@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { Screen } from './types';
 
 // Components
@@ -28,10 +29,12 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Config
 import { API_BASE_URL } from './config/api';
+import { queryClient } from './queryClient';
 
 const AppContent: React.FC = () => {
   const { isLoggedIn, isAuthLoading, logout, token } = useAuth();
   const { needsReconnection } = useAccountFilter();
+  const reactQueryClient = useQueryClient();
   const [reconnectionBannerDismissed, setReconnectionBannerDismissed] = useState(false);
 
   // Track if user has passed the bank connection screen (skipped OR connected)
@@ -135,11 +138,14 @@ const AppContent: React.FC = () => {
 
   const handleSignOut = useCallback(() => {
     logout();
+    // Cached figures outlive the component tree, so they'd otherwise still be
+    // in memory when the next user signs in.
+    reactQueryClient.clear();
     setHasPassedBankScreen(false);
     setHasBankAccount(false);
     localStorage.removeItem('hasPassedBankScreen');
     localStorage.removeItem('hasBankAccount');
-  }, [logout]);
+  }, [logout, reactQueryClient]);
 
   const handleShowAccounts = useCallback(() => {
     setShowAccounts(true);
@@ -297,11 +303,13 @@ export default function App() {
 
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
-      <AuthProvider>
-        <AccountFilterProvider>
-          <AppContent />
-        </AccountFilterProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AccountFilterProvider>
+            <AppContent />
+          </AccountFilterProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   );
 }

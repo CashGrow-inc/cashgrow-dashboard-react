@@ -1,9 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { useAuth } from '../AuthContext';
-import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { formatCurrency } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
+import {
+  useAccountIds,
+  useInvalidateFinance,
+  useOffBudgetQuery,
+  useOffBudgetTransactionsQuery,
+} from '../hooks/financeQueries';
 
 interface OthersScreenProps {
   hasBankAccount: boolean;
@@ -15,19 +19,30 @@ interface ExpandedCategory {
   type: 'INCOME' | 'EXPENSE';
 }
 
+const incomeColors = [
+  'bg-emerald-500',
+  'bg-green-500',
+  'bg-teal-500',
+  'bg-lime-500',
+  'bg-emerald-400',
+  'bg-green-400',
+  'bg-teal-400',
+  'bg-lime-400',
+];
+
+const expenseColors = [
+  'bg-red-500',
+  'bg-orange-500',
+  'bg-rose-500',
+  'bg-amber-500',
+  'bg-red-400',
+  'bg-orange-400',
+  'bg-rose-400',
+  'bg-amber-400',
+];
+
 const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchOffBudget, fetchOffBudgetTransactions } = useAuth();
-  const { checkedAccountIds } = useAccountFilter();
-  const [incomeCategories, setIncomeCategories] = useState<any[]>([]);
-  const [expenseCategories, setExpenseCategories] = useState<any[]>([]);
-  const [totalIn, setTotalIn] = useState<number>(0);
-  const [totalOut, setTotalOut] = useState<number>(0);
-  const [net, setNet] = useState<number>(0);
-  const [periodLabel, setPeriodLabel] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategory, setExpandedCategory] = useState<ExpandedCategory | null>(null);
-  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
-  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
   const [editModalState, setEditModalState] = useState<TransactionEditState>({
     isOpen: false,
     transaction: null,
@@ -35,126 +50,57 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const incomeColors = [
-    'bg-emerald-500',
-    'bg-green-500',
-    'bg-teal-500',
-    'bg-lime-500',
-    'bg-emerald-400',
-    'bg-green-400',
-    'bg-teal-400',
-    'bg-lime-400',
-  ];
-
-  const expenseColors = [
-    'bg-red-500',
-    'bg-orange-500',
-    'bg-rose-500',
-    'bg-amber-500',
-    'bg-red-400',
-    'bg-orange-400',
-    'bg-rose-400',
-    'bg-amber-400',
-  ];
-
-  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
-
-  const getAccountIds = () => accountIdsKey ? accountIdsKey.split(',') : [];
+  const { accountIds } = useAccountIds();
+  const invalidateFinance = useInvalidateFinance();
 
   const makeCacheKey = (type: 'INCOME' | 'EXPENSE', name: string) => `${type}:${name}`;
 
-  const loadOffBudget = React.useCallback(async (showLoading = true, clearCache = true) => {
-    const accountIds = getAccountIds();
+  const { data, isLoading } = useOffBudgetQuery(hasBankAccount);
 
-    if (accountIds.length === 0) {
-      setIncomeCategories([]);
-      setExpenseCategories([]);
-      setTotalIn(0);
-      setTotalOut(0);
-      setNet(0);
-      setPeriodLabel('No accounts selected');
-      setCategoryTransactions({});
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      if (showLoading) setIsLoading(true);
-
-      const data = await fetchOffBudget(accountIds);
-
-      const incomeCats = (data.income_categories || []).map((cat: any, index: number) => ({
+  const incomeCategories = useMemo(
+    () =>
+      (data?.income_categories ?? []).map((cat: any, index: number) => ({
         ...cat,
         color: incomeColors[index % incomeColors.length],
-      }));
+      })),
+    [data]
+  );
 
-      const expenseCats = (data.expense_categories || []).map((cat: any, index: number) => ({
+  const expenseCategories = useMemo(
+    () =>
+      (data?.expense_categories ?? []).map((cat: any, index: number) => ({
         ...cat,
         color: expenseColors[index % expenseColors.length],
-      }));
+      })),
+    [data]
+  );
 
-      setIncomeCategories(incomeCats);
-      setExpenseCategories(expenseCats);
-      setTotalIn(data.total_in);
-      setTotalOut(data.total_out);
-      setNet(data.net);
+  const totalIn = data?.total_in ?? 0;
+  const totalOut = data?.total_out ?? 0;
+  const net = data?.net ?? 0;
 
-      if (data.period_start && data.period_end) {
-        const start = new Date(data.period_start + 'T00:00:00');
-        const end = new Date(data.period_end + 'T00:00:00');
-        setPeriodLabel(`${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`);
-      }
+  const periodLabel = useMemo(() => {
+    if (accountIds.length === 0) return 'No accounts selected';
+    if (!data?.period_start || !data?.period_end) return '';
+    const start = new Date(data.period_start + 'T00:00:00');
+    const end = new Date(data.period_end + 'T00:00:00');
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    return `${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`;
+  }, [data, accountIds.length]);
 
-      if (clearCache) {
-        setCategoryTransactions({});
-      }
-    } catch (error) {
-      console.error('Failed to load off-budget data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [accountIdsKey, fetchOffBudget]);
+  const { data: expandedData, isLoading: isLoadingTransactions } = useOffBudgetTransactionsQuery(
+    expandedCategory?.name ?? null,
+    expandedCategory?.type ?? 'EXPENSE',
+    hasBankAccount
+  );
+  const expandedTransactions = expandedData?.transactions ?? [];
 
-  React.useEffect(() => {
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
-
-    loadOffBudget();
-
-    const interval = setInterval(() => {
-      loadOffBudget(false, false);
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [hasBankAccount, loadOffBudget]);
-
-  const handleToggleCategory = async (categoryName: string, transactionType: 'INCOME' | 'EXPENSE') => {
-    const isCurrentlyExpanded = expandedCategory?.name === categoryName && expandedCategory?.type === transactionType;
-
-    if (isCurrentlyExpanded) {
-      setExpandedCategory(null);
-    } else {
-      setExpandedCategory({ name: categoryName, type: transactionType });
-
-      const cacheKey = makeCacheKey(transactionType, categoryName);
-      if (!categoryTransactions[cacheKey]) {
-        try {
-          setLoadingTransactions(cacheKey);
-          const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-          const data = await fetchOffBudgetTransactions(categoryName, transactionType, accountIds);
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [cacheKey]: data.transactions
-          }));
-        } catch (error) {
-          console.error(`Failed to load transactions for ${categoryName}:`, error);
-        } finally {
-          setLoadingTransactions(null);
-        }
-      }
-    }
+  const handleToggleCategory = (categoryName: string, transactionType: 'INCOME' | 'EXPENSE') => {
+    setExpandedCategory(prev =>
+      prev?.name === categoryName && prev?.type === transactionType
+        ? null
+        : { name: categoryName, type: transactionType }
+    );
   };
 
   const handleTransactionClick = (txn: any, transactionType: 'INCOME' | 'EXPENSE', e: React.MouseEvent) => {
@@ -187,27 +133,17 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
 
-    await loadOffBudget(false, true);
-
-    if (expandedCategory) {
-      const accountIds = getAccountIds();
-      const cacheKey = makeCacheKey(expandedCategory.type, expandedCategory.name);
-      fetchOffBudgetTransactions(expandedCategory.name, expandedCategory.type, accountIds)
-        .then(data => {
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [cacheKey]: data.transactions
-          }));
-        })
-        .catch(err => console.error('Failed to refresh transactions:', err));
-    }
+    // Recategorizing moves money between groups, so drop every cached figure,
+    // not just this screen's. Mounted queries refetch and swap in place — the
+    // expanded row's transactions included — with no loading flash.
+    await invalidateFinance();
   };
 
   const renderCategoryCard = (category: any, transactionType: 'INCOME' | 'EXPENSE') => {
     const cacheKey = makeCacheKey(transactionType, category.category);
     const isExpanded = expandedCategory?.name === category.category && expandedCategory?.type === transactionType;
-    const transactions = categoryTransactions[cacheKey] || [];
-    const isLoadingTxn = loadingTransactions === cacheKey;
+    const transactions = isExpanded ? expandedTransactions : [];
+    const isLoadingTxn = isExpanded && isLoadingTransactions;
     const amountColor = transactionType === 'INCOME' ? 'text-green-600' : 'text-red-500';
 
     return (

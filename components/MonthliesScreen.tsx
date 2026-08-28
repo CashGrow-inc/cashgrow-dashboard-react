@@ -1,163 +1,83 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '../AuthContext';
-import { useAccountFilter } from '../contexts/AccountFilterContext';
+import React, { useMemo, useState } from 'react';
 import { ChevronDownIcon } from './Icons';
 import { formatCurrency, ProgressBar } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
+import {
+  useCategoryAverageMap,
+  useInvalidateFinance,
+  useMonthliesQuery,
+  useMonthliesTransactionsQuery,
+  useThreeMonthAverageQuery,
+} from '../hooks/financeQueries';
 
 interface MonthliesScreenProps {
   hasBankAccount: boolean;
   onConnectBank: () => void;
 }
 
+const categoryColors = [
+  'bg-green-500',
+  'bg-blue-500',
+  'bg-purple-500',
+  'bg-orange-500',
+  'bg-pink-500',
+  'bg-yellow-500',
+  'bg-indigo-500',
+  'bg-red-500',
+];
+
 const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onConnectBank }) => {
-  const { fetchMonthlies, fetchMonthliesTransactions, fetchThreeMonthAverage, fetchCategoryAverages } = useAuth();
-  const { checkedAccountIds } = useAccountFilter();
-  const [categories, setCategories] = useState<any[]>([]);
-  const [totalSpent, setTotalSpent] = useState<number>(0);
-  const [threeMonthAverage, setThreeMonthAverage] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
-  const [categoryTransactions, setCategoryTransactions] = useState<{ [key: string]: any[] }>({});
-  const [loadingTransactions, setLoadingTransactions] = useState<string | null>(null);
   const [editModalState, setEditModalState] = useState<TransactionEditState>({
     isOpen: false,
     transaction: null,
     transactionType: 'EXPENSE',
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [currentPeriodLabel, setCurrentPeriodLabel] = useState<string>('');
 
-  const categoryColors = [
-    'bg-green-500',
-    'bg-blue-500',
-    'bg-purple-500',
-    'bg-orange-500',
-    'bg-pink-500',
-    'bg-yellow-500',
-    'bg-indigo-500',
-    'bg-red-500',
-  ];
+  const invalidateFinance = useInvalidateFinance();
 
-  // Convert Set to stable string for dependency comparison
-  const accountIdsKey = useMemo(() => Array.from(checkedAccountIds).sort().join(','), [checkedAccountIds]);
+  const { data, isLoading } = useMonthliesQuery(hasBankAccount);
+  const { data: averageData } = useThreeMonthAverageQuery('monthlies', hasBankAccount);
+  const averageMap = useCategoryAverageMap('monthlies', hasBankAccount);
 
-  // Helper to get current accountIds from the key
-  const getAccountIds = () => accountIdsKey ? accountIdsKey.split(',') : [];
-
-  // Refactored load function that can be called from useEffect and handleEditSuccess
-  const loadMonthlies = React.useCallback(async (showLoading = true, clearCache = true) => {
-    const accountIds = getAccountIds();
-
-    // If no accounts are checked, show empty state without calling API
-    if (accountIds.length === 0) {
-      setCategories([]);
-      setTotalSpent(0);
-      setThreeMonthAverage(0);
-      setCategoryTransactions({});
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      if (showLoading) setIsLoading(true);
-      console.log('Fetching monthlies with accounts:', accountIds);
-
-      // Fetch both monthlies data and 3-month average in parallel
-      const [data, averageData] = await Promise.all([
-        fetchMonthlies(undefined, accountIds),
-        fetchThreeMonthAverage('monthlies', accountIds).catch(() => null)
-      ]);
-
-      console.log('Monthlies data received:', data);
-      console.log('3-month average received:', averageData);
-
-      // One batch call for all category averages, instead of one per category.
-      const averagesData = await fetchCategoryAverages('monthlies', accountIds).catch(() => null);
-      const averageMap = new Map<string, number>(
-        (averagesData?.categories ?? []).map((c): [string, number] => [c.category_name, c.average])
-      );
-
-      const categoriesWithColors = data.categories.map((cat, index) => {
+  const categories = useMemo(
+    () =>
+      (data?.categories ?? []).map((cat, index) => {
         const categoryAverage = averageMap.get(cat.category) || 0;
         return {
           ...cat,
           color: categoryColors[index % categoryColors.length],
-          budget: categoryAverage > 0 ? categoryAverage : cat.spent
+          budget: categoryAverage > 0 ? categoryAverage : cat.spent,
         };
-      });
+      }),
+    [data, averageMap]
+  );
 
-      setCategories(categoriesWithColors);
-      setTotalSpent(data.total_spent);
-      setThreeMonthAverage(averageData?.average || 0);
-      // Format period label from start/end dates
-      if (data.period_start && data.period_end) {
-        const start = new Date(data.period_start + 'T00:00:00');
-        const end = new Date(data.period_end + 'T00:00:00');
-        const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-        setCurrentPeriodLabel(`${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`);
-      }
-      // Only clear cached transactions on initial load, not background refresh
-      if (clearCache) {
-        setCategoryTransactions({});
-      }
-    } catch (error) {
-      console.error('Failed to load monthlies:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [accountIdsKey, fetchMonthlies, fetchThreeMonthAverage, fetchCategoryAverages]);
+  const totalSpent = data?.total_spent ?? 0;
+  const threeMonthAverage = averageData?.average ?? 0;
 
-  React.useEffect(() => {
-    // Don't fetch if user hasn't connected a bank
-    if (!hasBankAccount) {
-      setIsLoading(false);
-      return;
-    }
+  const currentPeriodLabel = useMemo(() => {
+    if (!data?.period_start || !data?.period_end) return '';
+    const start = new Date(data.period_start + 'T00:00:00');
+    const end = new Date(data.period_end + 'T00:00:00');
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    return `${start.toLocaleDateString('en-US', opts)} - ${end.toLocaleDateString('en-US', opts)}`;
+  }, [data]);
 
-    loadMonthlies();
+  // A category with no transactions still must not hit the API — the old code
+  // short-circuited in the click handler, this expresses it as a disabled query.
+  const expandedHasTransactions =
+    (categories.find(cat => cat.category === expandedCategory)?.transaction_count ?? 0) > 0;
+  const { data: expandedData, isLoading: isLoadingTransactions } = useMonthliesTransactionsQuery(
+    expandedCategory,
+    hasBankAccount && expandedHasTransactions
+  );
+  const expandedTransactions = expandedData?.transactions ?? [];
 
-    // Poll for new data every 30 seconds
-    const interval = setInterval(() => {
-      loadMonthlies(false, false); // Don't show loading spinner or clear cache on background refresh
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [hasBankAccount, loadMonthlies]);
-
-  const handleToggleCategory = async (categoryName: string, transactionCount: number) => {
-    if (expandedCategory === categoryName) {
-      setExpandedCategory(null);
-    } else {
-      setExpandedCategory(categoryName);
-
-      // Skip API call if category has no transactions
-      if (transactionCount === 0) {
-        setCategoryTransactions(prev => ({
-          ...prev,
-          [categoryName]: []
-        }));
-        return;
-      }
-
-      if (!categoryTransactions[categoryName]) {
-        try {
-          setLoadingTransactions(categoryName);
-          // Derive accountIds from accountIdsKey to ensure it's fresh
-          const accountIds = accountIdsKey ? accountIdsKey.split(',') : [];
-          const data = await fetchMonthliesTransactions(categoryName, undefined, accountIds);
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [categoryName]: data.transactions
-          }));
-        } catch (error) {
-          console.error(`Failed to load transactions for ${categoryName}:`, error);
-        } finally {
-          setLoadingTransactions(null);
-        }
-      }
-    }
+  const handleToggleCategory = (categoryName: string) => {
+    setExpandedCategory(prev => (prev === categoryName ? null : categoryName));
   };
 
   const handleTransactionClick = (txn: any, e: React.MouseEvent) => {
@@ -187,26 +107,13 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
   };
 
   const handleEditSuccess = async () => {
-    // Show success message
     setSuccessMessage('Transaction updated successfully!');
     setTimeout(() => setSuccessMessage(null), 4000);
 
-    // Re-fetch all category data (this also clears transaction cache)
-    // This ensures counts, totals, and category list are updated after reassignment
-    await loadMonthlies(false, true);
-
-    // Re-fetch the expanded category transactions if any
-    if (expandedCategory) {
-      const accountIds = getAccountIds();
-      fetchMonthliesTransactions(expandedCategory, undefined, accountIds)
-        .then(data => {
-          setCategoryTransactions(prev => ({
-            ...prev,
-            [expandedCategory]: data.transactions
-          }));
-        })
-        .catch(err => console.error('Failed to refresh transactions:', err));
-    }
+    // Recategorizing moves money between groups, so drop every cached figure,
+    // not just this screen's. Mounted queries refetch and swap in place — the
+    // expanded row's transactions included — with no loading flash.
+    await invalidateFinance();
   };
 
   if (isLoading) {
@@ -310,7 +217,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
           <div key={index} className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div
               className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
-              onClick={() => handleToggleCategory(category.category, category.transaction_count)}
+              onClick={() => handleToggleCategory(category.category)}
             >
               <div className="w-full">
                 <div className="flex items-center justify-between gap-2">
@@ -336,11 +243,11 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
             {expandedCategory === category.category && (
               <div className="border-t border-slate-100 bg-slate-50">
-                {loadingTransactions === category.category ? (
+                {isLoadingTransactions ? (
                   <div className="p-4 text-center text-slate-500 text-sm">Loading transactions...</div>
-                ) : categoryTransactions[category.category]?.length > 0 ? (
+                ) : expandedTransactions.length > 0 ? (
                   <div className="p-4 space-y-2">
-                    {categoryTransactions[category.category].map((txn, txnIndex) => {
+                    {expandedTransactions.map((txn: any, txnIndex: number) => {
                       let formattedDate = '';
                       try {
                         if (txn.date) {
