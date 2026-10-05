@@ -169,6 +169,29 @@ interface AvailableCategoriesData {
     categories: AvailableCategory[];
 }
 
+export type CategoryScope = 'this' | 'merchant_amount' | 'merchant';
+
+interface TransactionDetailsData {
+    id: string;
+    description: string;
+    amount: number;
+    type: 'INCOME' | 'EXPENSE';
+    effective_cashgrow_category: string | null;
+    assigned_source: 'PLAID' | 'RULE' | 'MANUAL' | 'DEFAULT';
+    assigned_rule_id: number | null;
+    // null = no merchant from Plaid, so only "this transaction" is possible
+    merchant_name: string | null;
+}
+
+interface CategoryUpdateResult {
+    rule_id: number | null;
+    past_updated: number;
+}
+
+interface RulePreviewData {
+    matching_count: number;
+}
+
 interface MonthlyGoalData {
     monthly_goal: number;
 }
@@ -199,7 +222,10 @@ interface AuthContextType {
     fetchCategoryAverage: (categoryName: string, accountIds?: string[]) => Promise<SpecificCategoryAverageData>;
     fetchCategoryAverages: (categoryGroup: string, accountIds?: string[]) => Promise<CategoryAveragesData>;
     fetchAvailableCategories: (transactionId: string) => Promise<AvailableCategoriesData>;
-    updateTransactionCategory: (transactionId: string, categoryId: number) => Promise<void>;
+    fetchTransactionDetails: (transactionId: string) => Promise<TransactionDetailsData>;
+    fetchRulePreview: (transactionId: string, scope: CategoryScope) => Promise<RulePreviewData>;
+    updateTransactionCategory: (transactionId: string, categoryId: number, scope?: CategoryScope, applyToPast?: boolean) => Promise<CategoryUpdateResult>;
+    deleteCategoryRule: (ruleId: number) => Promise<void>;
     updateTransactionRecurring: (transactionId: string, isRecurring: boolean) => Promise<void>;
     resetTransactionCategory: (transactionId: string) => Promise<void>;
 }
@@ -667,22 +693,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const updateTransactionCategory = async (transactionId: string, categoryId: number): Promise<void> => {
+    const fetchTransactionDetails = async (transactionId: string): Promise<TransactionDetailsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
 
         try {
-            await axios.patch(`${API_BASE_URL}/transactions/${transactionId}/category`,
-                { category_id: categoryId },
+            const response = await axios.get(`${API_BASE_URL}/transactions/${transactionId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to fetch details for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const fetchRulePreview = async (transactionId: string, scope: CategoryScope): Promise<RulePreviewData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const response = await axios.get(`${API_BASE_URL}/transactions/${transactionId}/rule-preview`, {
+                params: { scope },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(`Failed to preview rule for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const updateTransactionCategory = async (
+        transactionId: string,
+        categoryId: number,
+        scope: CategoryScope = 'this',
+        applyToPast: boolean = false,
+    ): Promise<CategoryUpdateResult> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const response = await axios.patch(`${API_BASE_URL}/transactions/${transactionId}/category`,
+                { category_id: categoryId, scope, apply_to_past: applyToPast },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 }
             );
+            return response.data;
         } catch (error) {
             console.error(`Failed to update category for transaction ${transactionId}:`, error);
+            throw error;
+        }
+    };
+
+    const deleteCategoryRule = async (ruleId: number): Promise<void> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            await axios.delete(`${API_BASE_URL}/category-rules/${ruleId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        } catch (error) {
+            console.error(`Failed to delete category rule ${ruleId}:`, error);
             throw error;
         }
     };
@@ -741,7 +827,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchAvailableCategories, fetchTransactionDetails, fetchRulePreview, updateTransactionCategory, deleteCategoryRule, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

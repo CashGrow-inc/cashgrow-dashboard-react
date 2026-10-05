@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../AuthContext';
+import { useAuth, CategoryScope } from '../AuthContext';
 import { TransactionWithId, AvailableCategory } from '../types';
 import { formatCurrency } from './shared';
 
@@ -18,7 +18,15 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const { fetchAvailableCategories, updateTransactionCategory, updateTransactionRecurring, resetTransactionCategory } = useAuth();
+  const {
+    fetchAvailableCategories,
+    fetchTransactionDetails,
+    fetchRulePreview,
+    updateTransactionCategory,
+    deleteCategoryRule,
+    updateTransactionRecurring,
+    resetTransactionCategory,
+  } = useAuth();
 
   const [categories, setCategories] = useState<AvailableCategory[]>([]);
   const [currentCategoryId, setCurrentCategoryId] = useState<number | null>(null);
@@ -28,6 +36,13 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // Merchant + how the current category was set; null if the details call failed
+  const [merchantName, setMerchantName] = useState<string | null>(null);
+  const [ruleId, setRuleId] = useState<number | null>(null);
+  // How far a category change reaches: this transaction, or future ones from the merchant
+  const [scope, setScope] = useState<CategoryScope>('this');
+  const [applyToPast, setApplyToPast] = useState<boolean>(false);
+  const [pastCount, setPastCount] = useState<number | null>(null);
 
   // Load available categories when modal opens
   useEffect(() => {
@@ -35,8 +50,30 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
       loadCategories();
       setIsRecurring(transaction.is_recurring || false);
       setOriginalIsRecurring(transaction.is_recurring || false);
+      // Clear the previous transaction's merchant/rule so a failed load can't
+      // leave a "Delete rule" button pointing at another transaction's rule
+      setMerchantName(null);
+      setRuleId(null);
+      setScope('this');
+      setApplyToPast(false);
+      setPastCount(null);
     }
-  }, [isOpen, transaction]);
+  }, [isOpen, transaction?.id]);
+
+  // How many past transactions a merchant rule would also recategorize
+  useEffect(() => {
+    if (!isOpen || !transaction || scope === 'this') {
+      setPastCount(null);
+      return;
+    }
+    let cancelled = false;
+    setPastCount(null);
+    setApplyToPast(false);
+    fetchRulePreview(transaction.id, scope)
+      .then((data) => { if (!cancelled) setPastCount(data.matching_count); })
+      .catch(() => { if (!cancelled) setPastCount(0); });
+    return () => { cancelled = true; };
+  }, [isOpen, transaction?.id, scope]);
 
   const loadCategories = async () => {
     if (!transaction) return;
@@ -45,10 +82,16 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
     setError(null);
 
     try {
-      const data = await fetchAvailableCategories(transaction.id);
+      const [data, details] = await Promise.all([
+        fetchAvailableCategories(transaction.id),
+        // Only needed for the merchant options; the modal still works without it
+        fetchTransactionDetails(transaction.id).catch(() => null),
+      ]);
       setCategories(data.categories);
       setCurrentCategoryId(data.current_category_id);
       setSelectedCategoryId(data.current_category_id);
+      setMerchantName(details?.merchant_name ?? null);
+      setRuleId(details?.assigned_source === 'RULE' ? details.assigned_rule_id : null);
     } catch (err) {
       console.error('Failed to load categories:', err);
       setError('Failed to load categories. Please try again.');
@@ -81,6 +124,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
     };
   }, [isOpen]);
 
+  const categoryChanged = selectedCategoryId !== currentCategoryId && selectedCategoryId !== null;
+
   const handleSave = async () => {
     if (!transaction) return;
 
@@ -89,8 +134,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
 
     try {
       // Update category if changed
-      if (selectedCategoryId !== currentCategoryId && selectedCategoryId !== null) {
-        await updateTransactionCategory(transaction.id, selectedCategoryId);
+      if (categoryChanged) {
+        await updateTransactionCategory(transaction.id, selectedCategoryId, scope, scope !== 'this' && applyToPast);
       }
 
       // Update recurring status if changed (income only)
@@ -121,6 +166,27 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
     } catch (err) {
       console.error('Failed to reset category:', err);
       setError('Failed to reset category. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteRule = async () => {
+    if (ruleId === null) return;
+    if (!window.confirm(
+      `Delete your ${merchantName ?? 'merchant'} rule? Transactions it categorized will go back to their original category, or to another matching rule.`
+    )) return;
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      await deleteCategoryRule(ruleId);
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error('Failed to delete rule:', err);
+      setError('Failed to delete rule. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -223,6 +289,21 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
             </div>
           )}
 
+          {ruleId !== null && !isLoading && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between gap-3">
+              <p className="text-blue-800 text-sm">
+                Categorized automatically by your {merchantName ?? 'merchant'} rule
+              </p>
+              <button
+                onClick={handleDeleteRule}
+                disabled={isSaving}
+                className="shrink-0 text-sm font-medium text-blue-700 hover:text-blue-900 disabled:opacity-50"
+              >
+                Delete rule
+              </button>
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -262,6 +343,48 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                   ))}
                 </div>
               </div>
+
+              {/* Scope: only shown once a different category is picked and Plaid gave us a merchant */}
+              {categoryChanged && merchantName && (
+                <div className="mb-4 pt-4 border-t border-slate-200">
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Apply to</h3>
+                  <div className="space-y-1">
+                    {([
+                      ['this', 'Only this transaction'],
+                      ['merchant_amount', `Future ${merchantName} charges of $${formatCurrency(transaction.amount)}`],
+                      ['merchant', `All future ${merchantName} charges`],
+                    ] as [CategoryScope, string][]).map(([value, label]) => (
+                      <button
+                        key={value}
+                        onClick={() => setScope(value)}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
+                          scope === value
+                            ? 'bg-blue-100 border-2 border-blue-500'
+                            : 'bg-slate-50 hover:bg-slate-100 border-2 border-transparent'
+                        }`}
+                      >
+                        <span className="text-sm text-slate-800">{label}</span>
+                        {scope === value && (
+                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {scope !== 'this' && pastCount !== null && pastCount > 0 && (
+                    <label className="flex items-center gap-2 mt-3 text-sm text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={applyToPast}
+                        onChange={(e) => setApplyToPast(e.target.checked)}
+                        className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                      />
+                      Also update {pastCount} past {merchantName} {pastCount === 1 ? 'transaction' : 'transactions'}
+                    </label>
+                  )}
+                </div>
+              )}
 
               {/* Recurring toggle (income only) */}
               {transactionType === 'INCOME' && (
