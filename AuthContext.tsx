@@ -179,8 +179,12 @@ interface TransactionDetailsData {
     effective_cashgrow_category: string | null;
     assigned_source: 'PLAID' | 'RULE' | 'MANUAL' | 'DEFAULT';
     assigned_rule_id: number | null;
-    // null = no merchant from Plaid, so only "this transaction" is possible
     merchant_name: string | null;
+    // What a rule can match: a merchant, or (for a merchant-less outgoing
+    // transfer) the source account + amount. null = only this transaction.
+    rule_kind: 'merchant' | 'transfer' | null;
+    // The merchant or account name to show in the options
+    rule_label: string | null;
 }
 
 interface CategoryUpdateResult {

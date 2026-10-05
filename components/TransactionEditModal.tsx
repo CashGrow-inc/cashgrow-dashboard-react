@@ -36,10 +36,12 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  // Merchant + how the current category was set; null if the details call failed
-  const [merchantName, setMerchantName] = useState<string | null>(null);
+  // What a rule can target (merchant or transfer account) and the rule that set the
+  // current category; null if the details call failed
+  const [ruleKind, setRuleKind] = useState<'merchant' | 'transfer' | null>(null);
+  const [ruleLabel, setRuleLabel] = useState<string | null>(null);
   const [ruleId, setRuleId] = useState<number | null>(null);
-  // How far a category change reaches: this transaction, or future ones from the merchant
+  // How far a category change reaches: this transaction, or future matching ones
   const [scope, setScope] = useState<CategoryScope>('this');
   const [applyToPast, setApplyToPast] = useState<boolean>(false);
   const [pastCount, setPastCount] = useState<number | null>(null);
@@ -52,7 +54,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
       setOriginalIsRecurring(transaction.is_recurring || false);
       // Clear the previous transaction's merchant/rule so a failed load can't
       // leave a "Delete rule" button pointing at another transaction's rule
-      setMerchantName(null);
+      setRuleKind(null);
+      setRuleLabel(null);
       setRuleId(null);
       setScope('this');
       setApplyToPast(false);
@@ -90,7 +93,8 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
       setCategories(data.categories);
       setCurrentCategoryId(data.current_category_id);
       setSelectedCategoryId(data.current_category_id);
-      setMerchantName(details?.merchant_name ?? null);
+      setRuleKind(details?.rule_kind ?? null);
+      setRuleLabel(details?.rule_label ?? null);
       setRuleId(details?.assigned_source === 'RULE' ? details.assigned_rule_id : null);
     } catch (err) {
       console.error('Failed to load categories:', err);
@@ -174,7 +178,7 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   const handleDeleteRule = async () => {
     if (ruleId === null) return;
     if (!window.confirm(
-      `Delete your ${merchantName ?? 'merchant'} rule? Transactions it categorized will go back to their original category, or to another matching rule.`
+      `Delete your ${ruleLabel ?? 'merchant'} rule? Transactions it categorized will go back to their original category, or to another matching rule.`
     )) return;
 
     setIsSaving(true);
@@ -219,6 +223,22 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
     (transactionType === 'INCOME' && isRecurring !== originalIsRecurring);
 
   if (!isOpen || !transaction) return null;
+
+  const showScope = categoryChanged && ruleKind && ruleLabel;
+  const amountLabel = `$${formatCurrency(transaction.amount)}`;
+  const scopeOptions: [CategoryScope, string][] = ruleKind === 'transfer'
+    ? [
+        ['this', 'Only this transaction'],
+        ['merchant_amount', `Future ${amountLabel} transfers from ${ruleLabel}`],
+      ]
+    : [
+        ['this', 'Only this transaction'],
+        ['merchant_amount', `Future ${ruleLabel} charges of ${amountLabel}`],
+        ['merchant', `All future ${ruleLabel} charges`],
+      ];
+  const pastNoun = ruleKind === 'transfer'
+    ? `${amountLabel} ${pastCount === 1 ? 'transfer' : 'transfers'} from this account`
+    : `${ruleLabel} ${pastCount === 1 ? 'transaction' : 'transactions'}`;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
@@ -292,7 +312,7 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
           {ruleId !== null && !isLoading && (
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between gap-3">
               <p className="text-blue-800 text-sm">
-                Categorized automatically by your {merchantName ?? 'merchant'} rule
+                Categorized automatically by your {ruleLabel ?? 'merchant'} rule
               </p>
               <button
                 onClick={handleDeleteRule}
@@ -373,18 +393,12 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 space-y-3">
-          {/* Scope: in the footer so it's visible next to Save without scrolling the
-              category list. Only shown once a different category is picked and
-              Plaid gave us a merchant (every rule is tied to a merchant). */}
-          {categoryChanged && merchantName && !isLoading && (
+          {/* Next to Save so it's visible without scrolling; only when the backend says a rule is possible */}
+          {showScope && !isLoading && (
             <div>
               <h3 className="text-sm font-semibold text-slate-700 mb-1.5">Apply to</h3>
               <div className="space-y-1">
-                {([
-                  ['this', 'Only this transaction'],
-                  ['merchant_amount', `Future ${merchantName} charges of $${formatCurrency(transaction.amount)}`],
-                  ['merchant', `All future ${merchantName} charges`],
-                ] as [CategoryScope, string][]).map(([value, label]) => (
+                {scopeOptions.map(([value, label]) => (
                   <label key={value} className="flex items-center gap-2 text-sm text-slate-800 cursor-pointer">
                     <input
                       type="radio"
@@ -405,7 +419,7 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                     onChange={(e) => setApplyToPast(e.target.checked)}
                     className="w-4 h-4 shrink-0 rounded border-slate-300 text-blue-600"
                   />
-                  Also update {pastCount} past {merchantName} {pastCount === 1 ? 'transaction' : 'transactions'}
+                  Also update {pastCount} past {pastNoun}
                 </label>
               )}
             </div>
