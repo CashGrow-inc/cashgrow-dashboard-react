@@ -344,48 +344,6 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
                 </div>
               </div>
 
-              {/* Scope: only shown once a different category is picked and Plaid gave us a merchant */}
-              {categoryChanged && merchantName && (
-                <div className="mb-4 pt-4 border-t border-slate-200">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Apply to</h3>
-                  <div className="space-y-1">
-                    {([
-                      ['this', 'Only this transaction'],
-                      ['merchant_amount', `Future ${merchantName} charges of $${formatCurrency(transaction.amount)}`],
-                      ['merchant', `All future ${merchantName} charges`],
-                    ] as [CategoryScope, string][]).map(([value, label]) => (
-                      <button
-                        key={value}
-                        onClick={() => setScope(value)}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
-                          scope === value
-                            ? 'bg-blue-100 border-2 border-blue-500'
-                            : 'bg-slate-50 hover:bg-slate-100 border-2 border-transparent'
-                        }`}
-                      >
-                        <span className="text-sm text-slate-800">{label}</span>
-                        {scope === value && (
-                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  {scope !== 'this' && pastCount !== null && pastCount > 0 && (
-                    <label className="flex items-center gap-2 mt-3 text-sm text-slate-700 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={applyToPast}
-                        onChange={(e) => setApplyToPast(e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-blue-600"
-                      />
-                      Also update {pastCount} past {merchantName} {pastCount === 1 ? 'transaction' : 'transactions'}
-                    </label>
-                  )}
-                </div>
-              )}
-
               {/* Recurring toggle (income only) */}
               {transactionType === 'INCOME' && (
                 <div className="mb-4 pt-4 border-t border-slate-200">
@@ -415,6 +373,44 @@ const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 space-y-3">
+          {/* Scope: in the footer so it's visible next to Save without scrolling the
+              category list. Only shown once a different category is picked and
+              Plaid gave us a merchant (every rule is tied to a merchant). */}
+          {categoryChanged && merchantName && !isLoading && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-1.5">Apply to</h3>
+              <div className="space-y-1">
+                {([
+                  ['this', 'Only this transaction'],
+                  ['merchant_amount', `Future ${merchantName} charges of $${formatCurrency(transaction.amount)}`],
+                  ['merchant', `All future ${merchantName} charges`],
+                ] as [CategoryScope, string][]).map(([value, label]) => (
+                  <label key={value} className="flex items-center gap-2 text-sm text-slate-800 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="category-scope"
+                      checked={scope === value}
+                      onChange={() => setScope(value)}
+                      className="w-4 h-4 shrink-0 text-blue-600 border-slate-300"
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              {scope !== 'this' && pastCount !== null && pastCount > 0 && (
+                <label className="flex items-center gap-2 mt-2 pl-6 text-sm text-slate-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={applyToPast}
+                    onChange={(e) => setApplyToPast(e.target.checked)}
+                    className="w-4 h-4 shrink-0 rounded border-slate-300 text-blue-600"
+                  />
+                  Also update {pastCount} past {merchantName} {pastCount === 1 ? 'transaction' : 'transactions'}
+                </label>
+              )}
+            </div>
+          )}
+
           {/* Reset button */}
           <button
             onClick={handleReset}
