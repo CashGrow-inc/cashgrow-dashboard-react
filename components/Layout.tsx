@@ -4,6 +4,8 @@ import { Screen } from '../types';
 import { useAuth } from '../AuthContext';
 import { Logo } from './WelcomeScreen';
 import { API_BASE_URL } from '../config/api';
+import MonthBar from './MonthBar';
+import MonthPickerSheet from './MonthPickerSheet';
 import {
   GrowIcon,
   UnplannedIcon,
@@ -58,6 +60,9 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts, onSho
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeletePassword, setShowDeletePassword] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const [isMonthSheetOpen, setIsMonthSheetOpen] = useState(false);
+  const openMonthSheet = useCallback(() => setIsMonthSheetOpen(true), []);
+  const closeMonthSheet = useCallback(() => setIsMonthSheetOpen(false), []);
 
   // Auto-open delete modal when triggered from Settings page
   useEffect(() => {
@@ -293,72 +298,88 @@ export const Header: React.FC<HeaderProps> = ({ onSignOut, onShowAccounts, onSho
 
   return (
     <>
-      <header className="flex justify-between items-center p-4 bg-slate-50 sticky top-0 z-20">
-        {/* Left: Logo */}
-        <Logo />
+      <header className="bg-slate-50 sticky top-0 z-20">
+        <div className="flex justify-between items-center p-4">
+          {/* Left: Logo */}
+          <Logo />
 
-        {/* Right: Profile icon + name + hamburger menu */}
-        <div className="flex items-center space-x-3">
-          <ProfileIcon className="w-5 h-5 text-slate-800" />
-          {user && (
-            <span className="text-sm font-semibold text-slate-800 truncate max-w-[80px]">
-              {user.full_name || user.email}
-            </span>
-          )}
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-              className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-              aria-label="Menu"
-            >
-              <svg className="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
-            </button>
+          {/* Right: Profile icon + name + hamburger menu */}
+          <div className="flex items-center space-x-3">
+            <ProfileIcon className="w-5 h-5 text-slate-800" />
+            {user && (
+              <span className="text-sm font-semibold text-slate-800 truncate max-w-[80px]">
+                {user.full_name || user.email}
+              </span>
+            )}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                aria-label="Menu"
+              >
+                <svg className="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+              </button>
 
-          {isProfileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-[12px] shadow-lg overflow-hidden z-30">
-              <button
-                onClick={() => { setIsProfileMenuOpen(false); onShowAccounts(); }}
-                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px]"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-                </svg>
-                <span>Accounts</span>
-              </button>
-              <button
-                onClick={handleConnectBankClick}
-                disabled={isConnectingBank}
-                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px] disabled:opacity-50"
-              >
-                <BankIcon className="w-4 h-4" />
-                <span>{isConnectingBank ? 'Connecting...' : 'Connect to Bank'}</span>
-              </button>
-              <button
-                onClick={() => { setIsProfileMenuOpen(false); onShowSettings(); }}
-                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px]"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Settings</span>
-              </button>
-              <button
-                onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
-                className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors flex items-center gap-[8px]"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                </svg>
-                <span>Sign Out</span>
-              </button>
+            {isProfileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-[12px] shadow-lg overflow-hidden z-30">
+                <button
+                  onClick={() => { setIsProfileMenuOpen(false); onShowAccounts(); }}
+                  className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px]"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+                  </svg>
+                  <span>Accounts</span>
+                </button>
+                <button
+                  onClick={() => { setIsProfileMenuOpen(false); openMonthSheet(); }}
+                  className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px]"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                  </svg>
+                  <span>Change month</span>
+                </button>
+                <button
+                  onClick={handleConnectBankClick}
+                  disabled={isConnectingBank}
+                  className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px] disabled:opacity-50"
+                >
+                  <BankIcon className="w-4 h-4" />
+                  <span>{isConnectingBank ? 'Connecting...' : 'Connect to Bank'}</span>
+                </button>
+                <button
+                  onClick={() => { setIsProfileMenuOpen(false); onShowSettings(); }}
+                  className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors border-b border-[#f3f4f6] flex items-center gap-[8px]"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Settings</span>
+                </button>
+                <button
+                  onClick={() => { setIsProfileMenuOpen(false); onSignOut(); }}
+                  className="w-full px-[20px] py-[16px] bg-transparent border-0 cursor-pointer font-['Poppins:Regular',sans-serif] text-[#2a2a2a] text-[16px] text-left hover:bg-[#f9fafb] transition-colors flex items-center gap-[8px]"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
             </div>
-          )}
           </div>
         </div>
+
+        {/* Second row: the month every screen is showing */}
+        <MonthBar onOpenPicker={openMonthSheet} />
       </header>
+
+      <MonthPickerSheet isOpen={isMonthSheetOpen} onClose={closeMonthSheet} />
 
       {/* Bank Connection Error Notification */}
       {bankConnectionError && (

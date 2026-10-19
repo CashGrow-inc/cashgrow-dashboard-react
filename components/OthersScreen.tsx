@@ -55,7 +55,7 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
 
   const makeCacheKey = (type: 'INCOME' | 'EXPENSE', name: string) => `${type}:${name}`;
 
-  const { data, isLoading } = useOffBudgetQuery(hasBankAccount);
+  const { data, isLoading, isPlaceholderData } = useOffBudgetQuery(hasBankAccount);
 
   const incomeCategories = useMemo(
     () =>
@@ -261,7 +261,7 @@ const OthersScreen: React.FC<OthersScreenProps> = ({ hasBankAccount, onConnectBa
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       {/* Success Toast */}
       {successMessage && (
         <div

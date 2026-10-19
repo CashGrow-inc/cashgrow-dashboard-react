@@ -10,6 +10,7 @@ import {
   useInvalidateFinance,
   useThreeMonthAverageQuery,
 } from '../hooks/financeQueries';
+import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
 
 interface FixedScreenProps {
   hasBankAccount: boolean;
@@ -38,7 +39,8 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
 
   const invalidateFinance = useInvalidateFinance();
 
-  const { data, isLoading } = useFixedQuery(hasBankAccount);
+  const { data, isLoading, isPlaceholderData } = useFixedQuery(hasBankAccount);
+  const { isCurrentMonth, selectedLabel } = useViewMonth();
   const { data: averageData } = useThreeMonthAverageQuery('fixed_costs', hasBankAccount);
   const averageMap = useCategoryAverageMap('fixed_costs', hasBankAccount);
 
@@ -151,7 +153,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       {/* Success Toast */}
       {successMessage && (
         <div
@@ -291,7 +293,7 @@ const FixedScreen: React.FC<FixedScreenProps> = ({ hasBankAccount, onConnectBank
                     })}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-slate-500 text-sm">No transactions this month</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">{`No transactions ${monthPhrase(isCurrentMonth, selectedLabel)}`}</div>
                 )}
               </div>
             )}

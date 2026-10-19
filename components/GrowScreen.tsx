@@ -9,6 +9,7 @@ import {
   useInvalidateFinance,
   useMonthlyGoalQuery,
 } from '../hooks/financeQueries';
+import { useViewMonth } from '../contexts/MonthContext';
 
 interface GrowScreenProps {
   hasBankAccount: boolean;
@@ -24,17 +25,22 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
   const queryClient = useQueryClient();
   const invalidateFinance = useInvalidateFinance();
 
-  const { data: growData, isLoading } = useGrowQuery(hasBankAccount);
+  const { data: growData, isLoading, isPlaceholderData } = useGrowQuery(hasBankAccount);
   const { data: goalData } = useMonthlyGoalQuery();
+  const { isCurrentMonth, selectedLabel } = useViewMonth();
+  const monthName = selectedLabel.split(' ')[0];
 
   const monthlyGoal =
     goalData?.monthly_goal ?? growData?.budget_breakdown?.monthly_goal ?? 0;
 
-  // The week containing today, falling back to the last week in the range.
+  // The week containing today, falling back to the last week in the range —
+  // which, for a past month, is the month-end result with all carryover in.
   const currentWeek = useMemo(() => {
     const weeks = growData?.weeks;
     if (!weeks || weeks.length === 0) return null;
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const now = new Date();
+    // Local date, not toISOString(): UTC would flip to tomorrow in the evening west of UTC.
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     return weeks.find(week => today >= week.week_start && today <= week.week_end)
       ?? weeks[weeks.length - 1];
   }, [growData]);
@@ -88,22 +94,26 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
   };
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-center mb-1">
-          <h2 className="text-slate-600 font-medium">Weekly Budget</h2>
+          <h2 className="text-slate-600 font-medium">{isCurrentMonth ? 'Weekly Budget' : `${monthName} Result`}</h2>
           <span className="flex items-center bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
             <WeeklyIcon className="w-4 h-4 mr-1" />
-            This Week
+            {isCurrentMonth ? 'This Week' : 'Month End'}
           </span>
         </div>
         <div className={`text-3xl min-[390px]:text-5xl font-bold mb-3 ${growValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {isLoading ? '...' : growValue >= 0 ? `$${formatCurrency(growValue)}` : `-$${formatCurrency(Math.abs(growValue))}`}
         </div>
         <p className="text-slate-600">
-          {isLoading ? '' : growValue >= 0
-            ? `You have $${formatCurrency(growValue)} left to spend this week`
-            : `You're $${formatCurrency(Math.abs(growValue))} over budget this week`
+          {isLoading ? '' : !isCurrentMonth
+            ? growValue >= 0
+              ? `You finished ${monthName} $${formatCurrency(growValue)} under budget`
+              : `You finished ${monthName} $${formatCurrency(Math.abs(growValue))} over budget`
+            : growValue >= 0
+              ? `You have $${formatCurrency(growValue)} left to spend this week`
+              : `You're $${formatCurrency(Math.abs(growValue))} over budget this week`
           }
         </p>
         {currentWeekLabel && (
@@ -124,13 +134,21 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
         </div>
       ) : growValue > 0 ? (
         <div className="bg-green-50 rounded-2xl p-5 text-green-800">
-          <h3 className="font-bold text-lg">You're growing strong!</h3>
-          <p className="text-green-700">Keep up the good work! Your budget is on track this week.</p>
+          <h3 className="font-bold text-lg">{isCurrentMonth ? "You're growing strong!" : 'Nice month!'}</h3>
+          <p className="text-green-700">
+            {isCurrentMonth
+              ? 'Keep up the good work! Your budget is on track this week.'
+              : `You stayed within your budget in ${monthName}.`}
+          </p>
         </div>
       ) : growValue < 0 ? (
         <div className="bg-red-50 rounded-2xl p-5 text-red-800">
-          <h3 className="font-bold text-lg">Watch your spending</h3>
-          <p className="text-red-700">You've exceeded your weekly budget. Consider cutting back on unplanned expenses.</p>
+          <h3 className="font-bold text-lg">{isCurrentMonth ? 'Watch your spending' : 'Over budget'}</h3>
+          <p className="text-red-700">
+            {isCurrentMonth
+              ? "You've exceeded your weekly budget. Consider cutting back on unplanned expenses."
+              : `Unplanned spending went past your budget in ${monthName}.`}
+          </p>
         </div>
       ) : null}
 
@@ -174,16 +192,21 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
                   Cancel
                 </button>
               </>
-            ) : (
+            ) : isCurrentMonth ? (
               <button
                 onClick={handleEditGoal}
                 className="text-sm font-semibold text-blue-600 hover:text-blue-700"
               >
                 Edit
               </button>
-            )}
+            ) : null}
           </div>
         </div>
+        {!isCurrentMonth && (
+          // One goal per user, not per month — editing it from history would
+          // silently rewrite every month's figures.
+          <p className="text-xs text-slate-500 mt-2">You can change your goal from the current month.</p>
+        )}
       </div>
     </div>
   );

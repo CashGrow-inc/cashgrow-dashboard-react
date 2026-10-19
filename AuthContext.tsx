@@ -196,6 +196,16 @@ interface RulePreviewData {
     matching_count: number;
 }
 
+export interface AvailableMonth {
+    month: string;  // YYYY-MM
+    label: string;  // e.g. "October 2026"
+    is_current: boolean;
+}
+
+export interface AvailableMonthsResponse {
+    months: AvailableMonth[];  // newest first
+}
+
 interface MonthlyGoalData {
     monthly_goal: number;
 }
@@ -210,21 +220,22 @@ interface AuthContextType {
     fetchUserProfile: () => Promise<void>;
     completeLogin: (newToken: string) => Promise<void>;
     fetchBudgetSummary: (periodDays?: number, accountIds?: string[]) => Promise<BudgetSummary>;
-    fetchMonthlies: (periodDays?: number, accountIds?: string[]) => Promise<MonthliesData>;
-    fetchFixed: (periodDays?: number, accountIds?: string[]) => Promise<MonthliesData>;
-    fetchFixedTransactions: (category: string, periodDays?: number, accountIds?: string[]) => Promise<CategoryTransactionsData>;
-    fetchMonthliesTransactions: (category: string, periodDays?: number, accountIds?: string[]) => Promise<CategoryTransactionsData>;
-    fetchIncome: (accountIds?: string[]) => Promise<IncomeComparisonData>;
-    fetchIncomeTransactions: (category: string, accountIds?: string[]) => Promise<CategoryTransactionsData>;
-    fetchOffBudget: (accountIds?: string[]) => Promise<OffBudgetSummaryData>;
-    fetchOffBudgetTransactions: (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[]) => Promise<CategoryTransactionsData>;
-    fetchUnplanned: (accountIds?: string[]) => Promise<UnplannedData>;
-    fetchGrow: (accountIds?: string[]) => Promise<GrowData>;
+    fetchMonthlies: (periodDays?: number, accountIds?: string[], month?: string) => Promise<MonthliesData>;
+    fetchFixed: (periodDays?: number, accountIds?: string[], month?: string) => Promise<MonthliesData>;
+    fetchFixedTransactions: (category: string, periodDays?: number, accountIds?: string[], month?: string) => Promise<CategoryTransactionsData>;
+    fetchMonthliesTransactions: (category: string, periodDays?: number, accountIds?: string[], month?: string) => Promise<CategoryTransactionsData>;
+    fetchIncome: (accountIds?: string[], month?: string) => Promise<IncomeComparisonData>;
+    fetchIncomeTransactions: (category: string, accountIds?: string[], month?: string) => Promise<CategoryTransactionsData>;
+    fetchOffBudget: (accountIds?: string[], month?: string) => Promise<OffBudgetSummaryData>;
+    fetchOffBudgetTransactions: (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[], month?: string) => Promise<CategoryTransactionsData>;
+    fetchUnplanned: (accountIds?: string[], month?: string) => Promise<UnplannedData>;
+    fetchGrow: (accountIds?: string[], month?: string) => Promise<GrowData>;
     fetchMonthlyGoal: () => Promise<MonthlyGoalData>;
+    fetchAvailableMonths: () => Promise<AvailableMonthsResponse>;
     updateMonthlyGoal: (monthlyGoal: number) => Promise<MonthlyGoalData>;
-    fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[]) => Promise<ThreeMonthAverageData>;
-    fetchCategoryAverage: (categoryName: string, accountIds?: string[]) => Promise<SpecificCategoryAverageData>;
-    fetchCategoryAverages: (categoryGroup: string, accountIds?: string[]) => Promise<CategoryAveragesData>;
+    fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[], month?: string) => Promise<ThreeMonthAverageData>;
+    fetchCategoryAverage: (categoryName: string, accountIds?: string[], month?: string) => Promise<SpecificCategoryAverageData>;
+    fetchCategoryAverages: (categoryGroup: string, accountIds?: string[], month?: string) => Promise<CategoryAveragesData>;
     fetchAvailableCategories: (transactionId: string) => Promise<AvailableCategoriesData>;
     fetchTransactionDetails: (transactionId: string) => Promise<TransactionDetailsData>;
     fetchRulePreview: (transactionId: string, scope: CategoryScope) => Promise<RulePreviewData>;
@@ -326,7 +337,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchMonthlies = async (periodDays?: number, accountIds?: string[]): Promise<MonthliesData> => {
+    const fetchMonthlies = async (periodDays?: number, accountIds?: string[], month?: string): Promise<MonthliesData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -338,6 +349,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/monthlies`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -352,7 +366,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchFixed = async (periodDays?: number, accountIds?: string[]): Promise<MonthliesData> => {
+    const fetchFixed = async (periodDays?: number, accountIds?: string[], month?: string): Promise<MonthliesData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -364,6 +378,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/fixed`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -378,7 +395,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchFixedTransactions = async (category: string, periodDays?: number, accountIds?: string[]): Promise<CategoryTransactionsData> => {
+    const fetchFixedTransactions = async (category: string, periodDays?: number, accountIds?: string[], month?: string): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -390,6 +407,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/fixed/transactions`, {
                 params,
@@ -404,7 +424,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchMonthliesTransactions = async (category: string, periodDays?: number, accountIds?: string[]): Promise<CategoryTransactionsData> => {
+    const fetchMonthliesTransactions = async (category: string, periodDays?: number, accountIds?: string[], month?: string): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -416,6 +436,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/monthlies/transactions`, {
                 params,
@@ -430,7 +453,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchIncome = async (accountIds?: string[]): Promise<IncomeComparisonData> => {
+    const fetchIncome = async (accountIds?: string[], month?: string): Promise<IncomeComparisonData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -439,6 +462,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = {};
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/income`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -453,7 +479,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchIncomeTransactions = async (category: string, accountIds?: string[]): Promise<CategoryTransactionsData> => {
+    const fetchIncomeTransactions = async (category: string, accountIds?: string[], month?: string): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -462,6 +488,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = { category };
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/income/transactions`, {
                 params,
@@ -476,7 +505,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchOffBudget = async (accountIds?: string[]): Promise<OffBudgetSummaryData> => {
+    const fetchOffBudget = async (accountIds?: string[], month?: string): Promise<OffBudgetSummaryData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -485,6 +514,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = {};
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/off-budget`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -499,7 +531,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchOffBudgetTransactions = async (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[]): Promise<CategoryTransactionsData> => {
+    const fetchOffBudgetTransactions = async (category: string, transactionType: 'INCOME' | 'EXPENSE', accountIds?: string[], month?: string): Promise<CategoryTransactionsData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -508,6 +540,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = { category, transaction_type: transactionType };
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/off-budget/transactions`, {
                 params,
@@ -522,7 +557,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchUnplanned = async (accountIds?: string[]): Promise<UnplannedData> => {
+    const fetchUnplanned = async (accountIds?: string[], month?: string): Promise<UnplannedData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -531,6 +566,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = {};
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/unplanned`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -545,7 +583,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchGrow = async (accountIds?: string[]): Promise<GrowData> => {
+    const fetchGrow = async (accountIds?: string[], month?: string): Promise<GrowData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -554,6 +592,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = {};
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/budget/grow`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -586,6 +627,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    // Months with complete bank coverage, newest first. Any other `month` value
+    // is rejected by the backend with a 400.
+    const fetchAvailableMonths = async (): Promise<AvailableMonthsResponse> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/budget/months`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch available months:', error);
+            throw error;
+        }
+    };
+
     const updateMonthlyGoal = async (monthlyGoal: number): Promise<MonthlyGoalData> => {
         if (!token) {
             throw new Error('No authentication token available');
@@ -607,7 +668,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchThreeMonthAverage = async (categoryGroup: string, accountIds?: string[]): Promise<ThreeMonthAverageData> => {
+    const fetchThreeMonthAverage = async (categoryGroup: string, accountIds?: string[], month?: string): Promise<ThreeMonthAverageData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -616,6 +677,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = {};
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/average/${encodeURIComponent(categoryGroup)}`, {
                 params: Object.keys(params).length > 0 ? params : undefined,
@@ -630,7 +694,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const fetchCategoryAverage = async (categoryName: string, accountIds?: string[]): Promise<SpecificCategoryAverageData> => {
+    const fetchCategoryAverage = async (categoryName: string, accountIds?: string[], month?: string): Promise<SpecificCategoryAverageData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -639,6 +703,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = { category: categoryName };
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/average/category`, {
                 params,
@@ -656,7 +723,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Batch version: one request for every category in a group, replacing the
     // previous per-category fan-out (which fired N parallel calls and serialized
     // into a latency staircase on cold loads).
-    const fetchCategoryAverages = async (categoryGroup: string, accountIds?: string[]): Promise<CategoryAveragesData> => {
+    const fetchCategoryAverages = async (categoryGroup: string, accountIds?: string[], month?: string): Promise<CategoryAveragesData> => {
         if (!token) {
             throw new Error('No authentication token available');
         }
@@ -665,6 +732,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const params: Record<string, any> = { category_group: categoryGroup };
             if (accountIds && accountIds.length > 0) {
                 params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
             }
             const response = await axios.get(`${API_BASE_URL}/api/average/categories`, {
                 params,
@@ -831,7 +901,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchAvailableCategories, fetchTransactionDetails, fetchRulePreview, updateTransactionCategory, deleteCategoryRule, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, fetchAvailableMonths, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchAvailableCategories, fetchTransactionDetails, fetchRulePreview, updateTransactionCategory, deleteCategoryRule, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

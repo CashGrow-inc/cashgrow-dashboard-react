@@ -25,6 +25,7 @@ import OthersScreen from './components/OthersScreen';
 // Context
 import { AuthProvider, useAuth } from './AuthContext';
 import { AccountFilterProvider, useAccountFilter } from './contexts/AccountFilterContext';
+import { MonthProvider } from './contexts/MonthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Config
@@ -306,7 +307,9 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <AccountFilterProvider>
-            <AppContent />
+            <MonthProvider>
+              <AppContent />
+            </MonthProvider>
           </AccountFilterProvider>
         </AuthProvider>
       </QueryClientProvider>

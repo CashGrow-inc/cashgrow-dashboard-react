@@ -3,6 +3,7 @@ import { formatCurrency } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
 import { useAccountIds, useInvalidateFinance, useUnplannedQuery } from '../hooks/financeQueries';
+import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
 
 interface UnplannedScreenProps {
   hasBankAccount: boolean;
@@ -21,7 +22,8 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
   const { accountIds } = useAccountIds();
   const invalidateFinance = useInvalidateFinance();
 
-  const { data, isLoading } = useUnplannedQuery(hasBankAccount);
+  const { data, isLoading, isPlaceholderData } = useUnplannedQuery(hasBankAccount);
+  const { isCurrentMonth, selectedLabel } = useViewMonth();
 
   const weeks = data?.weeks ?? [];
   const totalUnplanned = data?.total_unplanned ?? 0;
@@ -103,7 +105,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       {/* Success Toast */}
       {successMessage && (
         <div
@@ -229,7 +231,7 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
         })
       ) : (
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
-          <p className="text-slate-500">No unplanned expenses this month</p>
+          <p className="text-slate-500">{`No unplanned expenses ${monthPhrase(isCurrentMonth, selectedLabel)}`}</p>
           <p className="text-sm text-slate-400 mt-2">
             Great job! You have no unplanned spending to track.
           </p>

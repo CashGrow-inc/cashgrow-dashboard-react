@@ -10,6 +10,7 @@ import {
   useMonthliesTransactionsQuery,
   useThreeMonthAverageQuery,
 } from '../hooks/financeQueries';
+import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
 
 interface MonthliesScreenProps {
   hasBankAccount: boolean;
@@ -38,7 +39,8 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
   const invalidateFinance = useInvalidateFinance();
 
-  const { data, isLoading } = useMonthliesQuery(hasBankAccount);
+  const { data, isLoading, isPlaceholderData } = useMonthliesQuery(hasBankAccount);
+  const { isCurrentMonth, selectedLabel } = useViewMonth();
   const { data: averageData } = useThreeMonthAverageQuery('monthlies', hasBankAccount);
   const averageMap = useCategoryAverageMap('monthlies', hasBankAccount);
 
@@ -151,7 +153,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       {/* Success Toast */}
       {successMessage && (
         <div
@@ -293,7 +295,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                     })}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-slate-500 text-sm">No transactions this month</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">{`No transactions ${monthPhrase(isCurrentMonth, selectedLabel)}`}</div>
                 )}
               </div>
             )}

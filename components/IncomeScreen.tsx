@@ -9,6 +9,7 @@ import {
   useInvalidateFinance,
   useThreeMonthAverageQuery,
 } from '../hooks/financeQueries';
+import { useViewMonth } from '../contexts/MonthContext';
 
 interface IncomeScreenProps {
   hasBankAccount: boolean;
@@ -38,7 +39,8 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
   const { accountIds } = useAccountIds();
   const invalidateFinance = useInvalidateFinance();
 
-  const { data, isLoading } = useIncomeQuery(hasBankAccount);
+  const { data, isLoading, isPlaceholderData } = useIncomeQuery(hasBankAccount);
+  const { isCurrentMonth, selectedLabel } = useViewMonth();
   const { data: averageData } = useThreeMonthAverageQuery('income', hasBankAccount);
 
   const categories = useMemo(
@@ -139,7 +141,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
   }
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 transition-opacity duration-200 ${isPlaceholderData ? 'opacity-60' : ''}`}>
       {/* Success Toast */}
       {successMessage && (
         <div
@@ -180,7 +182,7 @@ const IncomeScreen: React.FC<IncomeScreenProps> = ({ hasBankAccount, onConnectBa
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
-        <h3 className="text-slate-600 font-medium mb-2">Total Earned This Month</h3>
+        <h3 className="text-slate-600 font-medium mb-2">{isCurrentMonth ? 'Total Earned This Month' : `Total Earned in ${selectedLabel.split(' ')[0]}`}</h3>
         <div className="text-3xl min-[390px]:text-4xl font-bold text-green-600">${formatCurrency(totalEarned)}</div>
         <p className="text-sm text-slate-500 mt-1">{currentMonthLabel}</p>
         {threeMonthAverage > 0 && (

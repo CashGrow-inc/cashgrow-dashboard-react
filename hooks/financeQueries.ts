@@ -1,15 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
-import { POLL_MS } from '../queryClient';
+import { useViewMonth } from '../contexts/MonthContext';
+import { FINANCE_KEY, PAST_MONTH_STALE_MS, POLL_MS } from '../queryClient';
 
-/**
- * Every server-derived financial query hangs off this prefix, so a single
- * `invalidateFinance()` after a write busts all of them at once — the client
- * mirror of the backend's `invalidate_user()`.
- */
-export const FINANCE_KEY = 'finance';
+export { FINANCE_KEY };
 
 /**
  * The checked-account filter, in both the shapes callers need: a stable string
@@ -32,6 +28,21 @@ export function useAccountIds() {
   return { accountIds, accountIdsKey, isPending: isLoading };
 }
 
+/**
+ * The selected month, in the shapes callers need: `month` for the API layer
+ * (undefined = current month, so no param is sent) and `monthKey` for query
+ * keys. Keys use 'current' rather than the literal month so the current
+ * month's cache entries don't depend on the months list having loaded.
+ */
+export function useMonthScope() {
+  const { viewMonth } = useViewMonth();
+  return {
+    month: viewMonth ?? undefined,
+    monthKey: viewMonth ?? 'current',
+    isPastMonth: viewMonth !== null,
+  };
+}
+
 interface FinanceQueryOptions {
   /** Caller-side gate — usually `hasBankAccount`. */
   enabled: boolean;
@@ -39,6 +50,10 @@ interface FinanceQueryOptions {
   poll?: boolean;
   /** Report `isLoading` even though the query is still gated off. */
   pendingAccounts?: boolean;
+  /** A finished month: no polling, longer staleTime. */
+  pastMonth?: boolean;
+  /** Keep showing the previous key's data (flagged `isPlaceholderData`) while the new one loads. */
+  keepPrevious?: boolean;
 }
 
 /**
@@ -51,14 +66,18 @@ interface FinanceQueryOptions {
 function useFinanceQuery<T>(
   key: readonly unknown[],
   queryFn: () => Promise<T>,
-  { enabled, poll, pendingAccounts }: FinanceQueryOptions
+  { enabled, poll, pendingAccounts, pastMonth, keepPrevious }: FinanceQueryOptions
 ) {
   const { token } = useAuth();
   const query = useQuery({
     queryKey: [FINANCE_KEY, ...key],
     queryFn,
     enabled: !!token && enabled,
-    refetchInterval: poll ? POLL_MS : false,
+    refetchInterval: poll && !pastMonth ? POLL_MS : false,
+    staleTime: pastMonth ? PAST_MONTH_STALE_MS : undefined,
+    // Only while enabled: a gated-off query (e.g. zero accounts checked) must
+    // fall through to its empty state, not keep the last figures on screen.
+    placeholderData: keepPrevious && enabled ? keepPreviousData : undefined,
   });
   // A query waiting on the account list has nothing to show yet, but it isn't
   // "loaded and empty" either — keep the caller on its loading state. Cached
@@ -84,10 +103,12 @@ export function useInvalidateFinance() {
 export function useGrowQuery(enabled: boolean) {
   const { fetchGrow } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['grow', accountIdsKey],
-    () => fetchGrow(accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['grow', monthKey, accountIdsKey],
+    () => fetchGrow(accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
@@ -99,50 +120,60 @@ export function useMonthlyGoalQuery(enabled = true) {
 export function useUnplannedQuery(enabled: boolean) {
   const { fetchUnplanned } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['unplanned', accountIdsKey],
-    () => fetchUnplanned(accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['unplanned', monthKey, accountIdsKey],
+    () => fetchUnplanned(accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
 export function useMonthliesQuery(enabled: boolean) {
   const { fetchMonthlies } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['monthlies', accountIdsKey],
-    () => fetchMonthlies(undefined, accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['monthlies', monthKey, accountIdsKey],
+    () => fetchMonthlies(undefined, accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
 export function useFixedQuery(enabled: boolean) {
   const { fetchFixed } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['fixed', accountIdsKey],
-    () => fetchFixed(undefined, accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['fixed', monthKey, accountIdsKey],
+    () => fetchFixed(undefined, accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
 export function useIncomeQuery(enabled: boolean) {
   const { fetchIncome } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['income', accountIdsKey],
-    () => fetchIncome(accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['income', monthKey, accountIdsKey],
+    () => fetchIncome(accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
 export function useOffBudgetQuery(enabled: boolean) {
   const { fetchOffBudget } = useAuth();
   const { accountIds, accountIdsKey, isPending } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['offBudget', accountIdsKey],
-    () => fetchOffBudget(accountIds),
-    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending }
+    ['offBudget', monthKey, accountIdsKey],
+    () => fetchOffBudget(accountIds, month),
+    { enabled: enabled && accountIds.length > 0, poll: true, pendingAccounts: enabled && isPending,
+      pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
@@ -151,20 +182,22 @@ export function useOffBudgetQuery(enabled: boolean) {
 export function useThreeMonthAverageQuery(categoryGroup: string, enabled: boolean) {
   const { fetchThreeMonthAverage } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['average', categoryGroup, accountIdsKey],
-    () => fetchThreeMonthAverage(categoryGroup, accountIds),
-    { enabled: enabled && accountIds.length > 0 }
+    ['average', categoryGroup, monthKey, accountIdsKey],
+    () => fetchThreeMonthAverage(categoryGroup, accountIds, month),
+    { enabled: enabled && accountIds.length > 0, pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
 export function useCategoryAveragesQuery(categoryGroup: string, enabled: boolean) {
   const { fetchCategoryAverages } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['averageCategories', categoryGroup, accountIdsKey],
-    () => fetchCategoryAverages(categoryGroup, accountIds),
-    { enabled: enabled && accountIds.length > 0 }
+    ['averageCategories', categoryGroup, monthKey, accountIdsKey],
+    () => fetchCategoryAverages(categoryGroup, accountIds, month),
+    { enabled: enabled && accountIds.length > 0, pastMonth: isPastMonth, keepPrevious: true }
   );
 }
 
@@ -186,30 +219,33 @@ export function useCategoryAverageMap(categoryGroup: string, enabled: boolean) {
 export function useMonthliesTransactionsQuery(category: string | null, enabled: boolean) {
   const { fetchMonthliesTransactions } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['monthliesTransactions', category, accountIdsKey],
-    () => fetchMonthliesTransactions(category as string, undefined, accountIds),
-    { enabled: enabled && !!category && accountIds.length > 0 }
+    ['monthliesTransactions', category, monthKey, accountIdsKey],
+    () => fetchMonthliesTransactions(category as string, undefined, accountIds, month),
+    { enabled: enabled && !!category && accountIds.length > 0, pastMonth: isPastMonth }
   );
 }
 
 export function useFixedTransactionsQuery(category: string | null, enabled: boolean) {
   const { fetchFixedTransactions } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['fixedTransactions', category, accountIdsKey],
-    () => fetchFixedTransactions(category as string, undefined, accountIds),
-    { enabled: enabled && !!category && accountIds.length > 0 }
+    ['fixedTransactions', category, monthKey, accountIdsKey],
+    () => fetchFixedTransactions(category as string, undefined, accountIds, month),
+    { enabled: enabled && !!category && accountIds.length > 0, pastMonth: isPastMonth }
   );
 }
 
 export function useIncomeTransactionsQuery(category: string | null, enabled: boolean) {
   const { fetchIncomeTransactions } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['incomeTransactions', category, accountIdsKey],
-    () => fetchIncomeTransactions(category as string, accountIds),
-    { enabled: enabled && !!category && accountIds.length > 0 }
+    ['incomeTransactions', category, monthKey, accountIdsKey],
+    () => fetchIncomeTransactions(category as string, accountIds, month),
+    { enabled: enabled && !!category && accountIds.length > 0, pastMonth: isPastMonth }
   );
 }
 
@@ -220,9 +256,10 @@ export function useOffBudgetTransactionsQuery(
 ) {
   const { fetchOffBudgetTransactions } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
   return useFinanceQuery(
-    ['offBudgetTransactions', transactionType, category, accountIdsKey],
-    () => fetchOffBudgetTransactions(category as string, transactionType, accountIds),
-    { enabled: enabled && !!category && accountIds.length > 0 }
+    ['offBudgetTransactions', transactionType, category, monthKey, accountIdsKey],
+    () => fetchOffBudgetTransactions(category as string, transactionType, accountIds, month),
+    { enabled: enabled && !!category && accountIds.length > 0, pastMonth: isPastMonth }
   );
 }

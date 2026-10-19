@@ -26,3 +26,16 @@ export const queryClient = new QueryClient({
 
 /** Poll interval for the screen-level summary queries. */
 export const POLL_MS = 30_000;
+
+/**
+ * Every server-derived financial query hangs off this prefix, so a single
+ * `invalidateFinance()` after a write busts all of them at once — the client
+ * mirror of the backend's `invalidate_user()`.
+ */
+export const FINANCE_KEY = 'finance';
+
+/**
+ * A finished month's figures only change after a write (which invalidates
+ * everything anyway), so past months skip polling and stay fresh for longer.
+ */
+export const PAST_MONTH_STALE_MS = 10 * 60_000;
