@@ -47,6 +47,7 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
 
   const growValue = currentWeek?.grow ?? 0;
   const currentWeekLabel = currentWeek?.week_range ?? '';
+  const stateOfFunds = growData?.budget_breakdown?.current_state_of_funds ?? 0;
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
@@ -132,25 +133,15 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
             Connect Bank
           </button>
         </div>
-      ) : growValue > 0 ? (
-        <div className="bg-green-50 rounded-2xl p-5 text-green-800">
-          <h3 className="font-bold text-lg">{isCurrentMonth ? "You're growing strong!" : 'Nice month!'}</h3>
-          <p className="text-green-700">
-            {isCurrentMonth
-              ? 'Keep up the good work! Your budget is on track this week.'
-              : `You stayed within your budget in ${monthName}.`}
-          </p>
+      ) : (
+        // Expected income - expected fixed - expected monthlies - goal - actual unplanned
+        <div className={`rounded-2xl p-5 text-center ${stateOfFunds >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+          <h3 className="font-bold text-lg text-slate-800">Current state of funds</h3>
+          <div className={`text-3xl min-[390px]:text-4xl font-bold mt-1 ${stateOfFunds >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {isLoading ? '...' : stateOfFunds >= 0 ? `$${formatCurrency(stateOfFunds)}` : `-$${formatCurrency(Math.abs(stateOfFunds))}`}
+          </div>
         </div>
-      ) : growValue < 0 ? (
-        <div className="bg-red-50 rounded-2xl p-5 text-red-800">
-          <h3 className="font-bold text-lg">{isCurrentMonth ? 'Watch your spending' : 'Over budget'}</h3>
-          <p className="text-red-700">
-            {isCurrentMonth
-              ? "You've exceeded your weekly budget. Consider cutting back on unplanned expenses."
-              : `Unplanned spending went past your budget in ${monthName}.`}
-          </p>
-        </div>
-      ) : null}
+      )}
 
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex items-center space-x-2 mb-1">

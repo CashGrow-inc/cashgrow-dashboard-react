@@ -105,6 +105,9 @@ interface BudgetBreakdown {
     available_budget: number;
     weekly_budget: number;
     num_weeks: number;
+    expected_monthlies: number;
+    unplanned_spent: number;
+    current_state_of_funds: number;
 }
 
 interface GrowData {
