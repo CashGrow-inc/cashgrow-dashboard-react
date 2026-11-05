@@ -227,6 +227,28 @@ export function useMonthliesTransactionsQuery(category: string | null, enabled: 
   );
 }
 
+/**
+ * One expense category's transactions for an explicit past month (YYYY-MM),
+ * whatever month the picker shows — the drill-down behind an average's monthly
+ * totals. Same key shape as the per-screen queries, so it shares cache with
+ * viewing that month directly.
+ */
+export function useCategoryTransactionsForMonthQuery(
+  group: 'monthlies' | 'fixed',
+  category: string,
+  month: string | null,
+  enabled: boolean
+) {
+  const { fetchMonthliesTransactions, fetchFixedTransactions } = useAuth();
+  const { accountIds, accountIdsKey } = useAccountIds();
+  const fetcher = group === 'monthlies' ? fetchMonthliesTransactions : fetchFixedTransactions;
+  return useFinanceQuery(
+    [`${group}Transactions`, category, month, accountIdsKey],
+    () => fetcher(category, undefined, accountIds, month as string),
+    { enabled: enabled && !!month && accountIds.length > 0, pastMonth: true }
+  );
+}
+
 export function useFixedTransactionsQuery(category: string | null, enabled: boolean) {
   const { fetchFixedTransactions } = useAuth();
   const { accountIds, accountIdsKey } = useAccountIds();

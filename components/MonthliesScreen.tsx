@@ -5,12 +5,14 @@ import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
 import {
   useCategoryAverageMap,
+  useCategoryAveragesQuery,
   useInvalidateFinance,
   useMonthliesQuery,
   useMonthliesTransactionsQuery,
   useThreeMonthAverageQuery,
 } from '../hooks/financeQueries';
 import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
+import AverageBreakdown from './AverageBreakdown';
 
 interface MonthliesScreenProps {
   hasBankAccount: boolean;
@@ -43,6 +45,12 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
   const { isCurrentMonth, selectedLabel } = useViewMonth();
   const { data: averageData } = useThreeMonthAverageQuery('monthlies', hasBankAccount);
   const averageMap = useCategoryAverageMap('monthlies', hasBankAccount);
+  // Same cached query as averageMap — the per-month totals behind each average.
+  const { data: averagesData } = useCategoryAveragesQuery('monthlies', hasBankAccount);
+  const averageMonthsMap = useMemo(
+    () => new Map((averagesData?.categories ?? []).map(c => [c.category_name, c.months])),
+    [averagesData]
+  );
 
   const categories = useMemo(
     () =>
@@ -245,6 +253,13 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
 
             {expandedCategory === category.category && (
               <div className="border-t border-slate-100 bg-slate-50">
+                <AverageBreakdown
+                  group="monthlies"
+                  category={category.category}
+                  months={averageMonthsMap.get(category.category)}
+                  expected={category.budget}
+                  enabled={hasBankAccount}
+                />
                 {isLoadingTransactions ? (
                   <div className="p-4 text-center text-slate-500 text-sm">Loading transactions...</div>
                 ) : expandedTransactions.length > 0 ? (
