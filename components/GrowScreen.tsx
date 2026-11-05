@@ -47,7 +47,9 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
 
   const growValue = currentWeek?.grow ?? 0;
   const currentWeekLabel = currentWeek?.week_range ?? '';
-  const stateOfFunds = growData?.budget_breakdown?.current_state_of_funds ?? 0;
+  const breakdown = growData?.budget_breakdown;
+  const stateOfFunds = breakdown?.current_state_of_funds ?? 0;
+  const [showFundsBreakdown, setShowFundsBreakdown] = useState<boolean>(false);
 
   const handleEditGoal = () => {
     setIsEditingGoal(true);
@@ -140,6 +142,53 @@ const GrowScreen: React.FC<GrowScreenProps> = ({ hasBankAccount, onConnectBank }
           <div className={`text-3xl min-[390px]:text-4xl font-bold mt-1 ${stateOfFunds >= 0 ? 'text-green-600' : 'text-red-600'}`}>
             {isLoading ? '...' : stateOfFunds >= 0 ? `$${formatCurrency(stateOfFunds)}` : `-$${formatCurrency(Math.abs(stateOfFunds))}`}
           </div>
+          {!isLoading && (
+            <p className={`text-sm mt-1 ${stateOfFunds >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+              {isCurrentMonth
+                ? stateOfFunds >= 0
+                  ? `You can still spend $${formatCurrency(stateOfFunds)} on unplanned purchases this month and reach your savings goal.`
+                  : `You've spent $${formatCurrency(Math.abs(stateOfFunds))} more on unplanned purchases than this month allows, so you're $${formatCurrency(Math.abs(stateOfFunds))} short of your savings goal.`
+                : stateOfFunds >= 0
+                  ? `You finished ${monthName} with $${formatCurrency(stateOfFunds)} to spare after your savings goal.`
+                  : `You finished ${monthName} $${formatCurrency(Math.abs(stateOfFunds))} short of your savings goal.`}
+            </p>
+          )}
+          {breakdown && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowFundsBreakdown(prev => !prev)}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700 mt-3"
+              >
+                {showFundsBreakdown ? 'Hide calculation' : 'How is this calculated?'}
+              </button>
+              {showFundsBreakdown && (
+                <div className="mt-2 bg-white rounded-xl p-3 text-left text-sm text-slate-700 space-y-1">
+                  {[
+                    ['Expected income', breakdown.avg_income, '+'],
+                    ['Expected fixed costs', breakdown.avg_fixed, '−'],
+                    ['Expected monthlies', breakdown.expected_monthlies, '−'],
+                    ['Savings goal', breakdown.monthly_goal, '−'],
+                    [isCurrentMonth ? 'Unplanned spent so far' : 'Unplanned spent', breakdown.unplanned_spent, '−'],
+                  ].map(([label, amount, sign]) => (
+                    <div key={label as string} className="flex justify-between">
+                      <span>{label}</span>
+                      <span className="font-medium">{sign} ${formatCurrency(amount as number)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between border-t border-slate-200 pt-1 font-bold">
+                    <span>State of funds</span>
+                    <span>{stateOfFunds < 0 ? '-' : ''}${formatCurrency(Math.abs(stateOfFunds))}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 pt-1">
+                    Expected amounts are your averages over the last 3 months (recurring income only).
+                    Bills you pay don't change this number, since they're already counted as expected.
+                    Unplanned spending lowers it as it happens.
+                  </p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
 
