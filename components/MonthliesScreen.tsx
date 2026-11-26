@@ -6,6 +6,7 @@ import { TransactionWithId, TransactionEditState } from '../types';
 import {
   useCategoryAverageMap,
   useCategoryAveragesQuery,
+  useCategoryForecast,
   useInvalidateFinance,
   useMonthliesQuery,
   useMonthliesTransactionsQuery,
@@ -13,6 +14,7 @@ import {
 } from '../hooks/financeQueries';
 import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
 import AverageBreakdown from './AverageBreakdown';
+import { ForecastDetail, ForecastSummary } from './Forecast';
 
 interface MonthliesScreenProps {
   hasBankAccount: boolean;
@@ -51,6 +53,7 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
     () => new Map((averagesData?.categories ?? []).map(c => [c.category_name, c.months])),
     [averagesData]
   );
+  const forecast = useCategoryForecast('monthlies', hasBankAccount);
 
   const categories = useMemo(
     () =>
@@ -60,9 +63,10 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
           ...cat,
           color: categoryColors[index % categoryColors.length],
           budget: categoryAverage > 0 ? categoryAverage : cat.spent,
+          forecast: forecast?.byCategory.get(cat.category),
         };
       }),
-    [data, averageMap]
+    [data, averageMap, forecast]
   );
 
   const totalSpent = data?.total_spent ?? 0;
@@ -205,7 +209,9 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
         <h3 className="text-slate-600 font-medium mb-2">Total Spent</h3>
         <div className="text-3xl min-[390px]:text-4xl font-bold text-slate-800">${formatCurrency(totalSpent)}</div>
         <p className="text-sm text-slate-500 mt-1">{currentPeriodLabel}</p>
-        {threeMonthAverage > 0 && (
+        {forecast && forecast.categories.length > 0 ? (
+          <ForecastSummary forecast={forecast} isCurrentMonth={isCurrentMonth} />
+        ) : threeMonthAverage > 0 && (
           <div className="mt-3 pt-3 border-t border-slate-200">
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Expected:</span>
@@ -241,12 +247,17 @@ const MonthliesScreen: React.FC<MonthliesScreenProps> = ({ hasBankAccount, onCon
                     <span className="font-semibold text-slate-800 truncate">{category.category}</span>
                   </div>
                   <span className="font-bold text-slate-800 flex-shrink-0 whitespace-nowrap text-sm min-[390px]:text-base">
-                    ${formatCurrency(category.spent)} / <span className="text-slate-500">${formatCurrency(category.budget)}</span>
+                    ${formatCurrency(category.spent)}
+                    {!category.forecast && <> / <span className="text-slate-500">${formatCurrency(category.budget)}</span></>}
                   </span>
                 </div>
-                <div className="mt-3">
-                  <ProgressBar value={category.spent} max={category.budget} color={category.color} />
-                </div>
+                {category.forecast ? (
+                  <ForecastDetail forecast={category.forecast} isCurrentMonth={isCurrentMonth} color={category.color} />
+                ) : (
+                  <div className="mt-3">
+                    <ProgressBar value={category.spent} max={category.budget} color={category.color} />
+                  </div>
+                )}
                 <p className="text-xs text-slate-500 mt-2">{category.transaction_count} transactions</p>
               </div>
             </div>

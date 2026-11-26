@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { formatCurrency } from './shared';
 import TransactionEditModal from './TransactionEditModal';
 import { TransactionWithId, TransactionEditState } from '../types';
-import { useAccountIds, useInvalidateFinance, useUnplannedQuery } from '../hooks/financeQueries';
+import { useAccountIds, useCategoryForecast, useInvalidateFinance, useUnplannedQuery } from '../hooks/financeQueries';
+import { ForecastDetail, ForecastSummary } from './Forecast';
 import { monthPhrase, useViewMonth } from '../contexts/MonthContext';
 
 interface UnplannedScreenProps {
@@ -24,6 +25,9 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
 
   const { data, isLoading, isPlaceholderData } = useUnplannedQuery(hasBankAccount);
   const { isCurrentMonth, selectedLabel } = useViewMonth();
+  const forecast = useCategoryForecast('unplanned', hasBankAccount);
+  // Biggest expected spend first: that's where the month will be decided.
+  const forecastCategories = [...(forecast?.categories ?? [])].sort((a, b) => b.forecast - a.forecast);
 
   const weeks = data?.weeks ?? [];
   const totalUnplanned = data?.total_unplanned ?? 0;
@@ -149,7 +153,29 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
         <h3 className="text-slate-600 font-medium mb-2">Total Unplanned</h3>
         <div className="text-3xl min-[390px]:text-4xl font-bold text-orange-600">${formatCurrency(totalUnplanned)}</div>
         <p className="text-sm text-slate-500 mt-1">{periodLabel}</p>
+        {forecast && forecastCategories.length > 0 && (
+          <ForecastSummary forecast={forecast} isCurrentMonth={isCurrentMonth} />
+        )}
       </div>
+
+      {forecastCategories.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <h3 className="text-slate-600 font-medium">By category</h3>
+          <div className="divide-y divide-slate-100">
+            {forecastCategories.map((cat) => (
+              <div key={cat.category} className="py-3 last:pb-0">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-slate-800 truncate">{cat.category}</span>
+                  <span className="font-bold text-slate-800 flex-shrink-0 whitespace-nowrap text-sm">
+                    ${formatCurrency(cat.spent)}
+                  </span>
+                </div>
+                <ForecastDetail forecast={cat} isCurrentMonth={isCurrentMonth} color="bg-orange-500" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {weeks.length > 0 ? (
         weeks.map((week) => {

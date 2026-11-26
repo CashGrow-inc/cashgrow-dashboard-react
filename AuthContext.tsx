@@ -209,6 +209,29 @@ export interface AvailableMonthsResponse {
     months: AvailableMonth[];  // newest first
 }
 
+export type ForecastGroup = 'unplanned' | 'monthlies' | 'fixed_costs';
+
+export interface CategoryForecast {
+    category: string;
+    category_group: ForecastGroup;
+    spent: number;
+    history_average: number;
+    forecast: number;  // expected total by month end; equals `spent` for a past month
+    remaining: number;
+    difference_from_average: number;  // history_average - forecast; positive = spending less than usual
+}
+
+interface CategoryForecastData {
+    categories: CategoryForecast[];
+    total_spent: number;
+    total_forecast: number;
+    total_history_average: number;
+    days_elapsed: number;
+    days_in_month: number;
+    period_start: string;
+    period_end: string;
+}
+
 interface MonthlyGoalData {
     monthly_goal: number;
 }
@@ -239,6 +262,7 @@ interface AuthContextType {
     fetchThreeMonthAverage: (categoryGroup: string, accountIds?: string[], month?: string) => Promise<ThreeMonthAverageData>;
     fetchCategoryAverage: (categoryName: string, accountIds?: string[], month?: string) => Promise<SpecificCategoryAverageData>;
     fetchCategoryAverages: (categoryGroup: string, accountIds?: string[], month?: string) => Promise<CategoryAveragesData>;
+    fetchCategoryForecast: (categoryGroup?: ForecastGroup, accountIds?: string[], month?: string) => Promise<CategoryForecastData>;
     fetchAvailableCategories: (transactionId: string) => Promise<AvailableCategoriesData>;
     fetchTransactionDetails: (transactionId: string) => Promise<TransactionDetailsData>;
     fetchRulePreview: (transactionId: string, scope: CategoryScope) => Promise<RulePreviewData>;
@@ -752,6 +776,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    // Month-end spend forecast per category. Omitting categoryGroup returns all
+    // three groups in one response, which is how the screens use it.
+    const fetchCategoryForecast = async (categoryGroup?: ForecastGroup, accountIds?: string[], month?: string): Promise<CategoryForecastData> => {
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        try {
+            const params: Record<string, any> = {};
+            if (categoryGroup) {
+                params.category_group = categoryGroup;
+            }
+            if (accountIds && accountIds.length > 0) {
+                params.account_ids = accountIds.join(',');
+            }
+            if (month) {
+                params.month = month;
+            }
+            const response = await axios.get(`${API_BASE_URL}/api/forecast/categories`, {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch category forecast:', error);
+            throw error;
+        }
+    };
+
     const fetchAvailableCategories = async (transactionId: string): Promise<AvailableCategoriesData> => {
         if (!token) {
             throw new Error('No authentication token available');
@@ -904,7 +959,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, [token]);
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, fetchAvailableMonths, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchAvailableCategories, fetchTransactionDetails, fetchRulePreview, updateTransactionCategory, deleteCategoryRule, updateTransactionRecurring, resetTransactionCategory }}>
+        <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, token, user, login, logout, fetchUserProfile, completeLogin, fetchBudgetSummary, fetchMonthlies, fetchFixed, fetchFixedTransactions, fetchMonthliesTransactions, fetchIncome, fetchIncomeTransactions, fetchOffBudget, fetchOffBudgetTransactions, fetchUnplanned, fetchGrow, fetchMonthlyGoal, fetchAvailableMonths, updateMonthlyGoal, fetchThreeMonthAverage, fetchCategoryAverage, fetchCategoryAverages, fetchCategoryForecast, fetchAvailableCategories, fetchTransactionDetails, fetchRulePreview, updateTransactionCategory, deleteCategoryRule, updateTransactionRecurring, resetTransactionCategory }}>
             {children}
         </AuthContext.Provider>
     );

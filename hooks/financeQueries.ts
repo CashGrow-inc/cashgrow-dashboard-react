@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../AuthContext';
+import { CategoryForecast, ForecastGroup, useAuth } from '../AuthContext';
 import { useAccountFilter } from '../contexts/AccountFilterContext';
 import { useViewMonth } from '../contexts/MonthContext';
 import { FINANCE_KEY, PAST_MONTH_STALE_MS, POLL_MS } from '../queryClient';
@@ -208,6 +208,59 @@ export function useCategoryAverageMap(categoryGroup: string, enabled: boolean) {
     () => new Map<string, number>((data?.categories ?? []).map((c) => [c.category_name, c.average])),
     [data]
   );
+}
+
+// --- Month-end forecast ------------------------------------------------------
+
+/**
+ * One request for all three groups. Each screen takes its own slice through
+ * `useCategoryForecast`, so switching between Monthlies, Fixed and Unplanned
+ * reuses the same cache entry. No polling: the backend caches the result and
+ * drops it when transactions change, and `useInvalidateFinance` covers writes.
+ */
+export function useCategoryForecastQuery(enabled: boolean) {
+  const { fetchCategoryForecast } = useAuth();
+  const { accountIds, accountIdsKey } = useAccountIds();
+  const { month, monthKey, isPastMonth } = useMonthScope();
+  return useFinanceQuery(
+    ['forecast', monthKey, accountIdsKey],
+    () => fetchCategoryForecast(undefined, accountIds, month),
+    { enabled: enabled && accountIds.length > 0, pastMonth: isPastMonth, keepPrevious: true }
+  );
+}
+
+export interface GroupForecast {
+  /** category name -> forecast row */
+  byCategory: Map<string, CategoryForecast>;
+  categories: CategoryForecast[];
+  totalSpent: number;
+  totalForecast: number;
+  totalHistoryAverage: number;
+  daysElapsed: number;
+  daysInMonth: number;
+}
+
+/**
+ * One group's forecast rows and totals. The response's totals cover every
+ * group, so the per-screen totals are summed here. `undefined` until loaded,
+ * or if the request failed — screens then fall back to their old layout.
+ */
+export function useCategoryForecast(group: ForecastGroup, enabled: boolean): GroupForecast | undefined {
+  const { data } = useCategoryForecastQuery(enabled);
+  return useMemo(() => {
+    if (!data) return undefined;
+    const categories = data.categories.filter((c) => c.category_group === group);
+    const sum = (pick: (c: CategoryForecast) => number) => categories.reduce((acc, c) => acc + pick(c), 0);
+    return {
+      byCategory: new Map(categories.map((c) => [c.category, c])),
+      categories,
+      totalSpent: sum((c) => c.spent),
+      totalForecast: sum((c) => c.forecast),
+      totalHistoryAverage: sum((c) => c.history_average),
+      daysElapsed: data.days_elapsed,
+      daysInMonth: data.days_in_month,
+    };
+  }, [data, group]);
 }
 
 // --- Per-category drill-downs -----------------------------------------------
