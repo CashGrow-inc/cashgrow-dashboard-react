@@ -158,7 +158,8 @@ const UnplannedScreen: React.FC<UnplannedScreenProps> = ({ hasBankAccount, onCon
         )}
       </div>
 
-      {forecastCategories.length > 0 && (
+      {/* A single category would just repeat the summary above. */}
+      {forecastCategories.length > 1 && (
         <div className="bg-white rounded-2xl shadow-sm p-4">
           <h3 className="text-slate-600 font-medium">By category</h3>
           <div className="divide-y divide-slate-100">
